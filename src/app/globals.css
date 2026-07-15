@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    text-rendering: optimizeLegibility;
+  }
+
+  /* House style: Archivo 800/900 UPPERCASE headlines (§4). */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.02;
+  }
+
+  /* Oswald labels. */
+  label,
+  .label {
+    font-family: var(--font-oswald), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* Visible focus rings everywhere — accessibility is part of "done" (§4). */
+  :focus-visible {
+    outline: 3px solid #e10600;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* Editorial hairline divider — flat, high-contrast, no shadows. */
+  .hairline {
+    border-color: #ececea;
+  }
+}
+
+/* Motion with intent, but always opt-out for reduced-motion users (§4). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

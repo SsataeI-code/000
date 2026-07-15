@@ -1,0 +1,253 @@
+# CLAUDE.md — Total Form Fitness
+
+> **This is the living brief for this project.** Claude Code reads it at the start of every session. It is the single source of truth. To evolve the app, edit the relevant section here and re-run — don't let decisions live only in chat. Keep it accurate; keep it tight.
+>
+> **Status:** v1 spec, pre-build. Building via Claude Code, phase by phase (see *Build Plan*).
+
+---
+
+## 1. What we're building
+
+A **habits-first healthy-lifestyle app** for a personal trainer's clients — nutrition, healthy habits, and body progress in one place, so clients track their health seamlessly and the coach can see and steer all of it.
+
+**This is a behavior-change app, not a calorie counter.** Habit formation is the emotional core. Food logging is a supporting actor.
+
+**Two-sided, built to grow into three:**
+- **Client** — the person doing the work.
+- **Coach** — the trainer (the owner). Full read-write control of the whole app.
+- **(Future) multiple coaches + an Owner/super-admin.** Ship solo, but **architect the role model for multiple coaches from day one** — each coach owns their own clients; the owner oversees all. Never hard-code a single-coach assumption.
+
+**What each side is *for*:**
+- **Client screen = ease of use.** Simple, fast, frictionless — get in, check habits / log, get out. Ruthlessly low-friction.
+- **Coach screen = command center.** Statistics, helping clients, interacting (messaging), and editing their goals.
+
+**Money lives outside the app.** Clients pay the coach directly for access. **Everything inside the app is unlocked** — no paywalls, tiers, or locked panels anywhere.
+
+---
+
+## 2. Priorities (the tie-breaker when goals collide)
+
+1. **Reliability** — tied #1, never bends. It's a paid daily health tool; a lost log or a broken week loses the client.
+2. **UX & polish** — tied #1, never bends. If logging feels clunky, clients stop, and every coach stat goes dark.
+3. **Speed to ship** — get verified phases into clients' hands.
+4. **Maintainability** — it's one living product that changes constantly.
+5. **Scale** — thousands of clients is fine and expected; do **not** slow v1 for millions.
+
+---
+
+## 3. Stack & environment
+
+- **Frontend:** Next.js (React) + TypeScript + Tailwind. **Responsive web app / installable PWA.** Web-only — no native app.
+- **Backend:** **Supabase** — Postgres, Auth, Storage, Realtime. This is the whole back end (accounts, roles, chat, image/CMS storage).
+- **Hosting:** Vercel.
+- **Why this stack:** it's the most stable, best-documented path for AI-built apps — fewest hallucinations, $0 to start, scales without a rewrite.
+- **Recommended MCP servers:** **Supabase MCP** (manage schema/auth directly during the build) and **Context7** (version-accurate Next.js/Supabase docs so we never write against stale APIs). Keep the MCP set small.
+- **Safety:** deny reading `.env`/secrets; no destructive DB or `git push` without explicit confirmation.
+
+---
+
+## 4. Design — the house style (this is non-negotiable brand identity)
+
+Bold, editorial, flat, high-contrast. Feels alive and personal, never a static form.
+
+- **Type:** Archivo 800/900 **UPPERCASE** headlines · Oswald labels · Spline Sans body.
+- **Palette:** `#0c0c0d` ink · `#e10600` red (primary) · `#1f8a4c` success · `#ffffff` / `#f6f6f4` surfaces · `#ececea` hairline.
+- **Rules:** **no gradients.** Icons only — **no decorative emoji.** Flat nav + mobile bottom tab bar. 780px breakpoint.
+- **Motion with intent:** route transitions, list stagger, progress fills that animate to value, cell-by-cell heatmap fill, micro-celebrations as an on-brand **red pulse/stamp** (never confetti). **Always respect `prefers-reduced-motion`.**
+- **Voice:** warm, human, behavior-science-driven. Encouraging on wins, **forgiving after a miss — never shaming.**
+
+### Accessibility (baked in, every screen, part of "done")
+AA contrast · 44px+ tap targets · full keyboard access · visible focus rings · reduced-motion honored.
+
+### Full CMS (coach-editable everything)
+**Every word and every image in the app is editable by the coach.** Architect all copy and media as content entries with the house-style defaults above already filled in — so nothing is hard-coded, but everything ships looking right and the coach never *has* to touch it.
+
+---
+
+## 5. The three pillars
+
+### A. Habits (the core — the star of the app)
+- **Habit builder:** name · category (nutrition · movement · sleep · mindfulness · hydration · recovery) · type (checkbox / counter-with-target / duration / quantity) · cadence (daily / X×week / specific days) · reminder time · optional "why" shown at check-in.
+- **Movement lives here** — e.g. "30-min workout," "1-hour bike ride," "8k steps," "hydration." **No workout programming, strength logging, exercise library, or PR tracking.**
+- Habit **stacking** (anchor to an existing routine), **streaks / chains / consistency %**, GitHub-style **heatmap** (animated fill), longest-streak & comeback records, forgiving miss-recovery ("streak freeze").
+- **Adaptive habit-recommendation engine:** reads each client's real behavior and suggests the **next right habit — one at a time, only after the last one sticks.** **Client can adopt a suggestion themselves; the coach sees every adoption and can veto/remove it.**
+
+### B. Nutrition
+- **Food logging via barcode scan + Open Food Facts** (see *Food data*). Calories, macros, and **micros** (any nutrient sliceable).
+- **Targets calculator — Precision Nutrition (PN) methodology.** Personalized per goal and per individual, generated right after they create a profile:
+  - **Calories** from a validated NIH Body-Weight-Planner-style model that accounts for metabolic adaptation — maintenance for health goals, a deficit for fat loss, a *modest* surplus for muscle gain — from age, sex, height, weight, activity, goal (+ optional timeline).
+  - **Protein first**, set on grams-per-pound of bodyweight (~0.65–1.35 g/lb, on a sliding scale by sex, weight, goal, and activity).
+  - **Fat or carbs** then set to a % of calories by preference (balanced / low-carb / low-fat); remaining calories fill the other macro (balanced = split evenly).
+  - **Recalculate every 4–6 weeks or after a significant weight change.**
+  - Optional **hand-portion** guidance for clients who don't want to count grams.
+  - *Micros:* the app still tracks micronutrients from logged food, but PN sets macro/calorie targets, not micro targets.
+- **Per-client strictness setting** (coach-controlled): precise macros / protein+calories-tight-rest-flexible / flexible ranges / habits-only. Same app, dialed to the person and their goal.
+- Goals supported: **lose fat/weight · build muscle/gain · maintain/recomp · habits-only (no weight goal).**
+
+### C. Body
+- Weight + trend (with moving average), plus **body-fat %**, **optional** measurements (waist/hips/etc.), and **optional, opt-in progress photos.** Measurements/photos are a secondary add-on — present for those who want them, never front-and-center. **Photos private & encrypted.**
+
+### Hydration (dedicated)
+A dedicated daily **water tracker** — adjustable goal, one-tap quick-add, its own ring on Today. A first-class feature, not just a generic habit.
+
+### Client "Today" screen (hierarchy matters)
+A *living* screen that shifts morning → midday → evening. Order, top to bottom:
+1. **Today's habits to check off** (the star).
+2. **Rings / progress at a glance** (the reward filling up).
+3. **Food logging** (a scroll down, for when needed).
+
+Every action returns **instant visible progress + one warm line of copy.** Nothing is ever a dead end.
+
+---
+
+## 6. Food data (core daily loop — get this right)
+
+- Source: **Open Food Facts** (free, open, ~3M+ products, crowdsourced, self-updating as clients scan).
+- **Barcode scanning must use a WebAssembly scanner (e.g. ZBar-WASM).** Do **not** rely on the browser's native `BarcodeDetector` — it does not work in Safari/iOS and would silently fail on every iPhone.
+- **Parse defensively:** an OFF "not found" can return HTTP 200 with `status:0`; missing/odd fields are normal. Treat every scan as **trust-but-verify** — show what's known, let the client confirm or fill missing macros in a tap, save it back (which improves the shared data). A bad response must never corrupt a log.
+
+---
+
+## 7. Wearables & steps
+
+- **Auto-sync via cloud APIs only:** Oura, Fitbit, Garmin, Whoop — OAuth "Connect your tracker" flow. Pull steps/sleep/HR.
+- **No Apple Health / Apple Watch / Android on-device sync** — impossible from a web app. For those clients, a clean **manual step-entry** fallback.
+- **Be honest in the UI** about which trackers auto-sync, so no one stares at a zero wondering why. No silent failures.
+
+---
+
+## 8. Onboarding & growth
+
+- **Sign-up:** coach code/link **and** open public sign-up. Every new sign-up lands in the coach's dashboard as their client. Consent to the coach viewing their health data is captured at sign-up.
+- **First run:** quick intake (age, height, current weight, activity, goal) → app **auto-generates targets** so the client logs on day one → **coach is notified of the new client and can adjust anything.**
+- **Referrals:** default reward is **10% off the referrer's next month.** The app tracks who referred whom, confirms the new sign-up, and **surfaces it to the coach — but the coach processes it and controls any discount given** (10% is a default the coach can override or waive). Build a share/invite flow into the client app; prevent self-referrals.
+
+---
+
+## 9. Coach dashboard
+
+> **The dashboard is open-ended and editable** — the coach arranges, adds, and edits the tiles and views it shows. Build it configurable, not a fixed layout.
+
+- **Opens on a "Needs Attention" queue** — anyone who trips **any** of these floats to the top, most urgent first:
+  - stopped logging food for a few days
+  - missing assigned habits / broke a streak
+  - weight trending against their goal
+  - gone quiet (hasn't opened the app)
+- **Per-client deep-dive:** full picture — adherence, habits, nutrition trends, weight, everything.
+- **Roster-wide aggregates & cohorts:** every metric sliceable down to a single micronutrient (weight, weight change, avg calories, any macro/micro) across the whole roster — **and the ability to segment clients into groups by age, gender, weight, body-fat %, goal, etc., and compare per-segment stats.** Plus full individual stats on any client.
+- **Slip response (hybrid):** small slips → app **auto-nudges** the client (AI-drafted, in the coach's brand voice). Big slips → **escalate to the coach's queue** for a personal touch.
+  - *Default line (coach-adjustable):* **auto-nudge** a one-off miss (a missed habit, one skipped log day, small streak wobble → same-day warm nudge); **escalate** when it persists/stacks (several days no logging, ~a week silent, weight drifting wrong over weeks, or multiple flags at once).
+
+---
+
+## 10. Messaging & notifications
+
+- **Editable app copy** (via CMS) **+ direct coach↔client chat** (per-client threads, realtime).
+- **Delivery (simplified — no SMS):** **in-app notifications + PWA push** (free) are the default. **Email is a re-engagement channel only** — triggered after **3 consecutive days of no app use.** Client can set quiet hours.
+- **Transparency (default, coach-configurable):** auto-nudges are framed as **the app** (in the coach's brand tone); **personal coach messages are unmistakably from the coach.** Real messages carry weight; no one feels fooled.
+
+---
+
+## 11. AI assistant (powered by the Claude API, in-app)
+
+Available to **both** roles, **grounded in the client's real data** (never generic, never invented).
+
+- **For clients:** meal planning, food swaps, and answers **within their targets** ("30g protein short, 300 cals left — what should I eat?").
+- **For the coach:** drafts nudges and messages from a client's real data. **AI drafts; the coach sends** — the coach is always the last tap.
+- **Autonomy:** full everyday help, **but any major change — targets, goal, or the coach's assigned plan — routes to the coach for approval first.**
+- **Hard guardrails (non-negotiable):** never gives medical advice — anything medical, injury, or a sign of disordered eating is gently steered to the coach or a professional, never diagnosed. Never invents nutrition numbers. Stays in the coach's plan.
+
+---
+
+## 12. Reports
+
+- **Weekly** (default, adjustable), in-app + a notification.
+- **Client recap:** celebrate wins + **1–3 realistic things to work on** — constructive, honest, never a lecture. Written in the coach's voice, from the client's real week.
+- **Coach digest:** roster status — who moved, who slipped, wins to celebrate, who needs you Monday.
+
+---
+
+## 13. Data & privacy
+
+- Consent to coach access captured at sign-up. Health data handled with care; progress photos private & encrypted.
+- **Departed client:** data stays live **1 year**, then archived. **Export available** during that year (nobody's history is held hostage).
+
+---
+
+## 14. Build plan — build everything, one verified phase at a time
+
+We ship the full product, but we never stack a new floor on a cracked one. Each phase is shippable and must pass its *Definition of Done* before the next begins.
+
+0. **Foundation** — repo, Next.js + Supabase + Vercel, auth, client/coach roles (multi-coach-ready), hosted & live.
+1. **Core client loop** — barcode + Open Food Facts logging, the "Today" screen, calories/macros. The daily habit.
+2. **Habits + Body** — habit engine (builder, stacking, streaks, heatmap), weight/measurements.
+3. **Coach dashboard** — Needs Attention queue, deep-dive, roster stats, assign plans.
+4. **Messaging** — editable copy + coach↔client chat + multi-channel notifications.
+5. **AI assistant** — meal planning, swaps, message drafts, habit recommendations.
+6. **Growth** — referrals + full CMS.
+
+---
+
+## 15. Definition of Done (the QA discipline — applies to every phase)
+
+**Check your own work relentlessly. Nothing reaches a client with a known flaw.** Before a phase is called done:
+
+- [ ] Automated tests written and passing.
+- [ ] **Verified on a real iPhone** (this is where the barcode trap lives).
+- [ ] Accessibility pass: keyboard, AA contrast, visible focus, 44px targets, `prefers-reduced-motion`.
+- [ ] All external data (OFF scans, wearable syncs) parsed defensively — a bad response never corrupts state.
+- [ ] Zero console errors/warnings.
+- [ ] Self-review against this checklist; fix everything found **before** reporting the phase complete.
+
+---
+
+## 16. Guardrails — mistakes to actively prevent
+
+- **No `localStorage`-only or single-file "app."** Real Supabase backend; data syncs across devices, private per user.
+- **No native `BarcodeDetector`.** WASM scanner only (works on iOS).
+- **Never assume Apple Health/Watch is readable from the web.** It isn't.
+- **Never hard-code copy or images.** Everything CMS-editable with house-style defaults.
+- **AI never** gives medical advice, invents numbers, or changes a plan without coach approval.
+- **Never ship a phase with known glitches.**
+- **Don't hard-code a single coach.** Role model supports many + an owner.
+- **Never skip consent, export, or the retention rule.**
+
+---
+
+## 17. Open items to refine this week
+
+- Email provider for the 3-day re-engagement email + quiet-hours defaults.
+- CMS surface: which screens expose which editable fields first.
+
+---
+
+## Build log — implementation notes (kept current by Claude Code)
+
+### Phase 0 — Foundation ✅ (code complete; live-deploy + device verification gated on owner accounts)
+
+**Stack pinned:** Next.js 15 (App Router) · React 19 · TypeScript 5 · Tailwind CSS 3 · `@supabase/ssr` · Vitest.
+
+**Role model (multi-coach-ready — no single-coach assumption):**
+- `profiles` — one row per `auth.users`, `role ∈ {owner, coach, client}`.
+- `coaches` — coach-specific record with a unique, shareable `coach_code`.
+- `coach_clients` — link table (`coach_id` → `client_id`) with `consent_given_at`, `status`. One active coach per client today, but the schema already supports reassignment and many coaches under one owner.
+- RLS: a client sees only itself; a coach sees itself + its clients; the owner sees everything. Enforced with `SECURITY DEFINER` helper functions to avoid recursive policy lookups.
+- `handle_new_user` trigger creates the `profiles` row on signup; a `resolve_signup` RPC links the new client to a coach (by coach code) or to the owner for open public signups, recording consent atomically.
+
+**App shell:**
+- `/login`, `/signup` (open public **and** `?coach=CODE` prefill), `/auth/callback`, `/auth/signout`.
+- `/client` — low-friction "Today" shell with mobile bottom tab bar.
+- `/coach` — command-center dashboard shell.
+- Middleware refreshes the Supabase session and routes by role; a client can't reach `/coach` and vice-versa.
+
+**House style:** design tokens + fonts (Archivo/Oswald/Spline Sans) wired in Tailwind + `globals.css`; no gradients; `prefers-reduced-motion` honored; 44px tap targets; visible focus rings; 780px breakpoint.
+
+**CMS-ready:** all shell/auth copy lives in `src/lib/content/copy.ts` with house-style defaults — no hard-coded strings in components, ready for the Phase 6 CMS to override.
+
+**Owner-side setup (required to go live — cannot be done from the build sandbox):**
+1. Create a Supabase project; run `supabase/migrations/*` (Supabase CLI or SQL editor).
+2. Seed the owner account (`supabase/seed.sql`) and set its `role = 'owner'`.
+3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (and `SUPABASE_SERVICE_ROLE_KEY` server-side) in `.env.local` and in Vercel.
+4. Deploy to Vercel (`vercel.json` present). Then run the Definition-of-Done device pass on a real iPhone.
+
+See `README.md` for the full runbook.
