@@ -127,6 +127,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -139,6 +140,7 @@ alter table public.coaches       enable row level security;
 alter table public.coach_clients enable row level security;
 
 -- profiles: a user sees itself; a coach sees its clients; the owner sees all.
+drop policy if exists profiles_select on public.profiles;
 create policy profiles_select on public.profiles
   for select using (
     id = auth.uid()
@@ -146,14 +148,17 @@ create policy profiles_select on public.profiles
     or public.is_coach_of(id)
   );
 
+drop policy if exists profiles_update_self on public.profiles;
 create policy profiles_update_self on public.profiles
   for update using (id = auth.uid() or public.is_owner())
   with check (id = auth.uid() or public.is_owner());
 
+drop policy if exists profiles_insert_self on public.profiles;
 create policy profiles_insert_self on public.profiles
   for insert with check (id = auth.uid());
 
 -- coaches: coach sees own row; the owner sees all; a client sees their coach.
+drop policy if exists coaches_select on public.coaches;
 create policy coaches_select on public.coaches
   for select using (
     id = auth.uid()
@@ -166,14 +171,17 @@ create policy coaches_select on public.coaches
     )
   );
 
+drop policy if exists coaches_insert on public.coaches;
 create policy coaches_insert on public.coaches
   for insert with check (public.is_owner());
 
+drop policy if exists coaches_update on public.coaches;
 create policy coaches_update on public.coaches
   for update using (id = auth.uid() or public.is_owner())
   with check (id = auth.uid() or public.is_owner());
 
 -- coach_clients: client sees its links; coach sees its roster; owner sees all.
+drop policy if exists coach_clients_select on public.coach_clients;
 create policy coach_clients_select on public.coach_clients
   for select using (
     client_id = auth.uid()
@@ -181,13 +189,16 @@ create policy coach_clients_select on public.coach_clients
     or public.is_owner()
   );
 
+drop policy if exists coach_clients_insert on public.coach_clients;
 create policy coach_clients_insert on public.coach_clients
   for insert with check (coach_id = auth.uid() or public.is_owner());
 
+drop policy if exists coach_clients_update on public.coach_clients;
 create policy coach_clients_update on public.coach_clients
   for update using (coach_id = auth.uid() or public.is_owner())
   with check (coach_id = auth.uid() or public.is_owner());
 
+drop policy if exists coach_clients_delete on public.coach_clients;
 create policy coach_clients_delete on public.coach_clients
   for delete using (public.is_owner());
 

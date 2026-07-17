@@ -1,7 +1,7 @@
 -- Total Form Fitness — one-shot database setup.
 -- Paste this ENTIRE file into a Supabase SQL Editor query and click Run once.
--- It runs the schema, the access rules, and the owner-bootstrap helpers, in order.
--- Safe to keep; it is just the three files in supabase/ combined for convenience.
+-- Safe to run more than once: it skips anything that already exists.
+-- It is the three files in supabase/ combined for convenience.
 
 -- ========================================================================
 -- 1/3 — SCHEMA
@@ -9,17 +9,27 @@
 -- Total Form Fitness — Phase 0 schema.
 -- Multi-coach-ready role model (CLAUDE.md §1, §16). No single-coach assumption:
 -- many coaches can live under one owner, each owning their own clients.
+--
+-- Written to be safely re-runnable (idempotent): running it again skips what
+-- already exists instead of erroring, so a half-finished run is easy to fix.
 
 -- ---------------------------------------------------------------------------
 -- Enums
 -- ---------------------------------------------------------------------------
-create type public.app_role as enum ('owner', 'coach', 'client');
-create type public.coach_client_status as enum ('active', 'archived');
+do $$ begin
+  create type public.app_role as enum ('owner', 'coach', 'client');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.coach_client_status as enum ('active', 'archived');
+exception when duplicate_object then null;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- profiles — one row per auth user, carries the role.
 -- ---------------------------------------------------------------------------
-create table public.profiles (
+create table if not exists public.profiles (
   id           uuid primary key references auth.users (id) on delete cascade,
   role         public.app_role not null default 'client',
   display_name text,
@@ -34,7 +44,7 @@ comment on table public.profiles is 'Per-user profile and role. Role drives all 
 -- coaches — coach-specific record. A coach IS a profile with role coach/owner.
 -- coach_code is the shareable, human-typable sign-up code (§8).
 -- ---------------------------------------------------------------------------
-create table public.coaches (
+create table if not exists public.coaches (
   id         uuid primary key references public.profiles (id) on delete cascade,
   coach_code text not null unique,
   bio        text,
@@ -47,7 +57,7 @@ comment on table public.coaches is 'Coach record + shareable coach_code. Owner i
 -- coach_clients — the coach↔client link. One active coach per client today,
 -- but the schema already supports reassignment and many coaches per owner.
 -- ---------------------------------------------------------------------------
-create table public.coach_clients (
+create table if not exists public.coach_clients (
   id               uuid primary key default gen_random_uuid(),
   coach_id         uuid not null references public.coaches (id) on delete cascade,
   client_id        uuid not null references public.profiles (id) on delete cascade,
@@ -59,12 +69,12 @@ create table public.coach_clients (
 );
 
 -- A client can have at most one ACTIVE coach; history/archived rows are allowed.
-create unique index coach_clients_one_active_coach
+create unique index if not exists coach_clients_one_active_coach
   on public.coach_clients (client_id)
   where status = 'active';
 
-create index coach_clients_coach_idx on public.coach_clients (coach_id);
-create index coach_clients_client_idx on public.coach_clients (client_id);
+create index if not exists coach_clients_coach_idx on public.coach_clients (coach_id);
+create index if not exists coach_clients_client_idx on public.coach_clients (client_id);
 
 comment on table public.coach_clients is 'Coach owns client. consent_given_at records §8/§13 consent.';
 
@@ -81,6 +91,7 @@ begin
 end;
 $$;
 
+drop trigger if exists profiles_touch_updated_at on public.profiles;
 create trigger profiles_touch_updated_at
   before update on public.profiles
   for each row execute function public.touch_updated_at();
@@ -217,6 +228,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -229,6 +241,7 @@ alter table public.coaches       enable row level security;
 alter table public.coach_clients enable row level security;
 
 -- profiles: a user sees itself; a coach sees its clients; the owner sees all.
+drop policy if exists profiles_select on public.profiles;
 create policy profiles_select on public.profiles
   for select using (
     id = auth.uid()
@@ -236,14 +249,17 @@ create policy profiles_select on public.profiles
     or public.is_coach_of(id)
   );
 
+drop policy if exists profiles_update_self on public.profiles;
 create policy profiles_update_self on public.profiles
   for update using (id = auth.uid() or public.is_owner())
   with check (id = auth.uid() or public.is_owner());
 
+drop policy if exists profiles_insert_self on public.profiles;
 create policy profiles_insert_self on public.profiles
   for insert with check (id = auth.uid());
 
 -- coaches: coach sees own row; the owner sees all; a client sees their coach.
+drop policy if exists coaches_select on public.coaches;
 create policy coaches_select on public.coaches
   for select using (
     id = auth.uid()
@@ -256,14 +272,17 @@ create policy coaches_select on public.coaches
     )
   );
 
+drop policy if exists coaches_insert on public.coaches;
 create policy coaches_insert on public.coaches
   for insert with check (public.is_owner());
 
+drop policy if exists coaches_update on public.coaches;
 create policy coaches_update on public.coaches
   for update using (id = auth.uid() or public.is_owner())
   with check (id = auth.uid() or public.is_owner());
 
 -- coach_clients: client sees its links; coach sees its roster; owner sees all.
+drop policy if exists coach_clients_select on public.coach_clients;
 create policy coach_clients_select on public.coach_clients
   for select using (
     client_id = auth.uid()
@@ -271,13 +290,16 @@ create policy coach_clients_select on public.coach_clients
     or public.is_owner()
   );
 
+drop policy if exists coach_clients_insert on public.coach_clients;
 create policy coach_clients_insert on public.coach_clients
   for insert with check (coach_id = auth.uid() or public.is_owner());
 
+drop policy if exists coach_clients_update on public.coach_clients;
 create policy coach_clients_update on public.coach_clients
   for update using (coach_id = auth.uid() or public.is_owner())
   with check (coach_id = auth.uid() or public.is_owner());
 
+drop policy if exists coach_clients_delete on public.coach_clients;
 create policy coach_clients_delete on public.coach_clients
   for delete using (public.is_owner());
 
