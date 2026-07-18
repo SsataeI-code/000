@@ -1,5 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { normalizeSupabaseUrl } from "@/lib/supabase/env";
+import { normalizeSupabaseUrl, sanitizeHeaderSafe } from "@/lib/supabase/env";
+
+describe("sanitizeHeaderSafe", () => {
+  it("removes characters that can't go in an HTTP header (e.g. → U+2192)", () => {
+    expect(sanitizeHeaderSafe("eyJhbGc→iOiJ")).toBe("eyJhbGciOiJ");
+  });
+
+  it("leaves a clean JWT-shaped key untouched", () => {
+    const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.abc123._sig-Value";
+    expect(sanitizeHeaderSafe(key)).toBe(key);
+  });
+
+  it("trims surrounding whitespace", () => {
+    expect(sanitizeHeaderSafe("  key  ")).toBe("key");
+  });
+
+  it("returns empty string for empty/undefined", () => {
+    expect(sanitizeHeaderSafe(undefined)).toBe("");
+    expect(sanitizeHeaderSafe("")).toBe("");
+  });
+});
 
 describe("normalizeSupabaseUrl", () => {
   it("passes a well-formed URL through unchanged", () => {
