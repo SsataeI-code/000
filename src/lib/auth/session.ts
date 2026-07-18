@@ -34,11 +34,20 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
   if (!user) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
+  // Reading the profile must never throw the caller. If it fails (network,
+  // transient RLS error) we still return the authenticated user with the
+  // least-privileged role rather than locking them out (§2 reliability).
+  let profile: Profile | null = null;
+  try {
+    const result = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = (result.data as Profile | null) ?? null;
+  } catch (err) {
+    console.error("[supabase] profile read failed:", err);
+  }
 
   const role: AppRole = profile && isAppRole(profile.role) ? profile.role : "client";
 
@@ -46,6 +55,6 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     id: user.id,
     email: user.email ?? null,
     role,
-    profile: (profile as Profile | null) ?? null,
+    profile,
   };
 }
