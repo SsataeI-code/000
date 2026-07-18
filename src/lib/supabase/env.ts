@@ -4,8 +4,22 @@
  * clear message, never surface as a confusing runtime null deep in the app.
  */
 
+/**
+ * Normalize a Supabase project URL so the most common copy/paste mistakes don't
+ * crash the app: a missing protocol (the classic — pasting just
+ * "abc.supabase.co" makes supabase-js `new URL()` throw at construction),
+ * surrounding whitespace, and a trailing slash. Returns "" for empty input.
+ */
+export function normalizeSupabaseUrl(raw: string | undefined): string {
+  if (!raw) return "";
+  let url = raw.trim();
+  if (!url) return "";
+  if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+  return url.replace(/\/+$/, "");
+}
+
 export function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
   if (!url) {
     throw new Error(
       "NEXT_PUBLIC_SUPABASE_URL is not set. Copy .env.example to .env.local and fill it in.",
