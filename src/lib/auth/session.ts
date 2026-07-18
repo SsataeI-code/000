@@ -16,21 +16,18 @@ export interface SessionUser {
  * a transient profile gap must never lock a paying client out (§2 reliability).
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
-  let supabase;
-  try {
-    supabase = await createClient();
-  } catch (err) {
-    // Misconfigured env: behave as signed-out so callers redirect to /login
-    // instead of throwing a 500 (§2 reliability).
-    console.error("[supabase] client init failed:", err);
-    return null;
-  }
+  // NB: do NOT wrap createClient() in try/catch — it calls next/headers
+  // `cookies()`, which throws Next's internal "render dynamically" control-flow
+  // signal that MUST propagate. Only the Supabase network call below is guarded.
+  const supabase = await createClient();
 
   let user = null;
   try {
     const result = await supabase.auth.getUser();
     user = result.data.user;
   } catch (err) {
+    // A Supabase/network failure means "we can't confirm a session" → treat as
+    // signed-out so callers redirect to /login rather than 500 (§2 reliability).
     console.error("[supabase] getUser failed:", err);
     return null;
   }
