@@ -19,6 +19,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  try {
+    return await gate(request);
+  } catch (err) {
+    // Reliability is priority #1: a Supabase/env hiccup must NEVER 500 the whole
+    // site. Fail open here — every /client and /coach page re-checks auth on the
+    // server and redirects to /login when there's no session, so gating still
+    // holds. We log so the cause is visible, but the request keeps flowing.
+    console.error("[middleware] auth gate failed, passing through:", err);
+    return NextResponse.next({ request });
+  }
+}
+
+async function gate(request: NextRequest) {
   const { response, supabase, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 

@@ -26,9 +26,15 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getUser() reaches out to Supabase Auth; if that call throws (bad env, network
+  // blip) treat the request as signed-out rather than letting it bubble up.
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (err) {
+    console.error("[supabase] getUser failed in middleware:", err);
+  }
 
   return { response, supabase, user };
 }
