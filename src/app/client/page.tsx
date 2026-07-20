@@ -1,20 +1,43 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
+import {
+  getClientProfile,
+  getLatestTargets,
+  getTodayFoodLogs,
+  isOnboarded,
+  totalMacros,
+} from "@/lib/nutrition/data";
+import { DayProgress } from "@/components/nutrition/DayProgress";
+import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { getCopy } from "@/lib/content/copy";
 
+export const dynamic = "force-dynamic";
+
 /**
- * Client "Today" shell (§5). The living daily screen — habits, then rings, then
- * food — lands in Phase 1. Phase 0 stands up the frame so the loop is real:
- * a signed-in client reaches their own private, role-correct home.
+ * Client "Today" screen (§5). Phase 1 hierarchy: progress rings (the reward
+ * filling up), then food logging. Habits move to the top in Phase 2.
  */
 export default async function TodayPage() {
-  // Pages render in parallel with their layout, so this guard must live here
-  // too — never touch Supabase before confirming it's configured.
   if (!hasSupabaseConfig()) redirect("/");
 
   const user = await getSessionUser();
-  const name = user?.profile?.display_name?.split(" ")[0];
+  if (!user) redirect("/login");
+
+  const [profile, targets] = await Promise.all([
+    getClientProfile(user.id),
+    getLatestTargets(user.id),
+  ]);
+
+  // No targets yet → first-run intake so the rings mean something.
+  if (!isOnboarded(profile, targets) || !targets) {
+    redirect("/client/onboarding");
+  }
+
+  const logs = await getTodayFoodLogs(user.id);
+  const totals = totalMacros(logs);
+  const name = user.profile?.display_name?.split(" ")[0];
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,16 +50,27 @@ export default async function TodayPage() {
         </h1>
       </div>
 
-      <section
-        aria-label={getCopy("client.nav.habits")}
-        className="border border-hairline bg-surface p-5"
-      >
-        <p className="font-body text-ink/70">{getCopy("client.today.empty")}</p>
-      </section>
+      <DayProgress
+        totals={totals}
+        targets={{
+          calories: targets.calories,
+          proteinG: targets.protein_g,
+          carbsG: targets.carbs_g,
+          fatG: targets.fat_g,
+        }}
+      />
 
-      <p className="font-label text-xs uppercase tracking-wide text-ink/40">
-        Phase 1 brings habits, rings, and food logging here.
-      </p>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl text-ink">{getCopy("client.nav.food")}</h2>
+        <Link
+          href="/client/food"
+          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink"
+        >
+          Add food
+        </Link>
+      </div>
+
+      <FoodLogList logs={logs} />
     </div>
   );
 }
