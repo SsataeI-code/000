@@ -9,6 +9,7 @@ import {
   searchProducts,
   type NormalizedFood,
 } from "@/lib/food/off";
+import { searchGenericFoods } from "@/lib/food/generic-foods";
 
 export type LookupResult =
   | { found: true; product: NormalizedFood; fromCache: boolean }
@@ -81,14 +82,29 @@ export async function lookupProductAction(barcode: string): Promise<LookupResult
 }
 
 /**
- * Search foods by name (e.g. "white bread") via Open Food Facts. Returns a slim
- * list for the picker dropdown. Never throws — empty list on any failure.
+ * Search foods by name (e.g. "white bread"). Blends the built-in generic
+ * reference table (reliable, always-available estimates) with live Open Food
+ * Facts results (breadth of branded products). Generics come first and OFF hits
+ * with the same name are de-duplicated. Never throws — empty list on failure.
  */
 export async function searchFoodsAction(query: string): Promise<NormalizedFood[]> {
   const user = await getSessionUser();
   if (!user) return [];
-  if (query.trim().length < 2) return [];
-  return searchProducts(query, 15);
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const generics = searchGenericFoods(q, 6);
+  const off = await searchProducts(q, 15);
+
+  const seen = new Set(generics.map((g) => g.name?.toLowerCase()));
+  const merged = [...generics];
+  for (const item of off) {
+    const key = item.name?.toLowerCase();
+    if (key && seen.has(key)) continue;
+    if (key) seen.add(key);
+    merged.push(item);
+  }
+  return merged.slice(0, 20);
 }
 
 export interface LogFoodInput {
