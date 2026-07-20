@@ -145,6 +145,39 @@ export async function toggleHabitAction(habitId: string, date?: string): Promise
   revalidatePath("/client");
 }
 
+/**
+ * Set an exact value for a counter/duration/quantity habit today (e.g. steps).
+ * Completed when it reaches the target. This is the manual step/activity entry
+ * (§7 — the web can't read a phone's health app; cloud-tracker sync is later).
+ */
+export async function setHabitValueAction(habitId: string, value: number, date?: string): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  const day = date ?? isoDate(new Date());
+  const supabase = await createClient();
+
+  const { data: habit } = await supabase
+    .from("habits")
+    .select("target,client_id")
+    .eq("id", habitId)
+    .maybeSingle();
+  if (!habit || habit.client_id !== user.id) return;
+
+  const v = Math.max(0, Number(value) || 0);
+  if (v <= 0) {
+    await supabase.from("habit_logs").delete().eq("habit_id", habitId).eq("log_date", day);
+  } else {
+    const completed = habit.target ? v >= Number(habit.target) : true;
+    await supabase
+      .from("habit_logs")
+      .upsert(
+        { habit_id: habitId, client_id: user.id, log_date: day, value: v, completed },
+        { onConflict: "habit_id,log_date" },
+      );
+  }
+  revalidatePath("/client");
+}
+
 /** Archive (soft-delete) a habit. */
 export async function deleteHabitAction(id: string): Promise<void> {
   const user = await getSessionUser();

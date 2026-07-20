@@ -71,6 +71,10 @@ export default async function TodayPage() {
   const byHabit = completedDatesByHabit(habitLogs);
   const now = new Date();
   const todayStr = isoDate(now);
+  const todayValueByHabit = new Map<string, number>();
+  for (const log of habitLogs) {
+    if (log.log_date === todayStr) todayValueByHabit.set(log.habit_id, Number(log.value) || 0);
+  }
   const habitItems: TodayHabitItem[] = habits
     .filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now))
     .map((h) => {
@@ -79,6 +83,10 @@ export default async function TodayPage() {
         id: h.id,
         name: h.name,
         category: h.category,
+        type: h.type,
+        target: h.target,
+        unit: h.unit,
+        todayValue: todayValueByHabit.get(h.id) ?? 0,
         doneToday: done.has(todayStr),
         streak: currentStreak(h, done, now),
         why: h.why,

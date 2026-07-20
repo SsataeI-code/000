@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/food/actions";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
 import { createClient } from "@/lib/supabase/client";
+import { PORTION_OPTIONS, gramsForPortion, type PortionUnit } from "@/lib/food/portions";
 
 type Mode = "choose" | "scanning" | "search" | "confirm";
 
@@ -16,6 +17,9 @@ interface Draft {
   brand: string;
   barcode: string | null;
   grams: string; // kept as string for the input
+  servingSizeG: number | null;
+  qty: string; // portion quantity
+  unit: PortionUnit;
   per100g: NormalizedFood["per100g"] | null;
   micros100g?: Record<string, number>; // full per-100g nutriment map (micros)
   calories: string;
@@ -31,6 +35,9 @@ const emptyDraft: Draft = {
   brand: "",
   barcode: null,
   grams: "",
+  servingSizeG: null,
+  qty: "1",
+  unit: "g",
   per100g: null,
   calories: "",
   proteinG: "",
@@ -40,13 +47,20 @@ const emptyDraft: Draft = {
 };
 
 function draftFromProduct(product: NormalizedFood): Draft {
-  const grams = product.servingSizeG ?? 100;
+  // Default to "1 serving" when we know the serving size — friendlier than grams.
+  const hasServing = !!(product.servingSizeG && product.servingSizeG > 0);
+  const unit: PortionUnit = hasServing ? "serving" : "g";
+  const qty = hasServing ? 1 : product.servingSizeG ?? 100;
+  const grams = gramsForPortion(qty, unit, product.servingSizeG);
   const m = macrosForGrams(product.per100g, grams);
   return {
     name: product.name ?? "",
     brand: product.brand ?? "",
     barcode: product.barcode,
     grams: String(grams),
+    servingSizeG: product.servingSizeG,
+    qty: String(qty),
+    unit,
     per100g: product.per100g,
     micros100g: product.nutrimentsPer100g,
     calories: String(m.calories),
@@ -138,16 +152,17 @@ export function AddFood({ userId }: { userId: string }) {
     setDraft((d) => ({ ...d, [key]: value }));
   }
 
-  // Re-derive macros from per-100g when the amount changes (scanned items only).
-  function setGrams(value: string) {
+  // Re-derive grams + macros whenever the portion (quantity or unit) changes.
+  function setPortion(qty: string, unit: PortionUnit) {
     setDraft((d) => {
-      if (!d.per100g) return { ...d, grams: value };
-      const g = Number(value);
-      if (!Number.isFinite(g) || g <= 0) return { ...d, grams: value };
-      const m = macrosForGrams(d.per100g, g);
+      const grams = gramsForPortion(Number(qty) || 0, unit, d.servingSizeG);
+      if (!d.per100g) return { ...d, qty, unit, grams: String(grams) };
+      const m = macrosForGrams(d.per100g, grams);
       return {
         ...d,
-        grams: value,
+        qty,
+        unit,
+        grams: String(grams),
         calories: String(m.calories),
         proteinG: String(m.proteinG),
         carbsG: String(m.carbsG),
@@ -291,15 +306,35 @@ export function AddFood({ userId }: { userId: string }) {
 
       <Field label="Food name" name="name" value={draft.name} onChange={(e) => update("name", e.target.value)} required />
       <Field label="Brand (optional)" name="brand" value={draft.brand} onChange={(e) => update("brand", e.target.value)} />
-      <Field
-        label="Amount eaten (grams)"
-        name="grams"
-        type="number"
-        inputMode="decimal"
-        value={draft.grams}
-        onChange={(e) => setGrams(e.target.value)}
-        hint={draft.per100g ? "Change this and the macros update automatically." : undefined}
-      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="portion_qty" className="text-xs text-ink/80">How much did you eat?</label>
+        <div className="flex gap-2">
+          <input
+            id="portion_qty"
+            type="number"
+            inputMode="decimal"
+            step="0.25"
+            min={0}
+            value={draft.qty}
+            onChange={(e) => setPortion(e.target.value, draft.unit)}
+            aria-label="Amount"
+            className="min-h-tap w-24 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+          />
+          <select
+            aria-label="Unit"
+            value={draft.unit}
+            onChange={(e) => setPortion(draft.qty, e.target.value as PortionUnit)}
+            className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+          >
+            {PORTION_OPTIONS.map((o) => (
+              <option key={o.unit} value={o.unit}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+        <p className="font-body text-xs text-ink/50">
+          ≈ {draft.grams || 0} g{draft.per100g ? " · macros update automatically" : ""}
+        </p>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Calories" name="calories" type="number" inputMode="numeric" value={draft.calories} onChange={(e) => update("calories", e.target.value)} />
