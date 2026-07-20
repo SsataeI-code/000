@@ -16,6 +16,7 @@ interface Draft {
   barcode: string | null;
   grams: string; // kept as string for the input
   per100g: NormalizedFood["per100g"] | null;
+  micros100g?: Record<string, number>; // full per-100g nutriment map (micros)
   calories: string;
   proteinG: string;
   carbsG: string;
@@ -46,6 +47,7 @@ function draftFromProduct(product: NormalizedFood): Draft {
     barcode: product.barcode,
     grams: String(grams),
     per100g: product.per100g,
+    micros100g: product.nutrimentsPer100g,
     calories: String(m.calories),
     proteinG: String(m.proteinG),
     carbsG: String(m.carbsG),
@@ -152,6 +154,7 @@ export function AddFood() {
         proteinG: Number(draft.proteinG) || 0,
         carbsG: Number(draft.carbsG) || 0,
         fatG: Number(draft.fatG) || 0,
+        nutrimentsPer100g: draft.micros100g,
         source: draft.source,
       });
       if (res.error) {

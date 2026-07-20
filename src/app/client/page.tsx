@@ -11,6 +11,7 @@ import {
 } from "@/lib/nutrition/data";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
+import { MicroSummary } from "@/components/nutrition/MicroSummary";
 import { getCopy } from "@/lib/content/copy";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,8 @@ export default async function TodayPage() {
       </div>
 
       <FoodLogList logs={logs} />
+
+      <MicroSummary logs={logs} />
     </div>
   );
 }

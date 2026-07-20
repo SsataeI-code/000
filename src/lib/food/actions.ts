@@ -10,6 +10,7 @@ import {
   type NormalizedFood,
 } from "@/lib/food/off";
 import { searchGenericFoods } from "@/lib/food/generic-foods";
+import { scaleNutriments } from "@/lib/nutrition/micros";
 
 export type LookupResult =
   | { found: true; product: NormalizedFood; fromCache: boolean }
@@ -154,6 +155,8 @@ export interface LogFoodInput {
   proteinG: number;
   carbsG: number;
   fatG: number;
+  /** Full per-100g nutriment map (incl. micros); scaled + stored on the log. */
+  nutrimentsPer100g?: Record<string, number> | null;
   source: "scan" | "search" | "manual";
 }
 
@@ -179,17 +182,26 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   const name = (input.name ?? "").trim();
   if (!name) return { error: "Give it a name so you'll recognize it later." };
 
+  const gramsRaw = input.grams != null && Number.isFinite(input.grams) ? Number(input.grams) : null;
+
+  // Scale the per-100g micro map to the actual amount eaten, and store it so
+  // every micronutrient is tracked and later sliceable (§5B).
+  const scaledMicros =
+    gramsRaw && gramsRaw > 0 ? scaleNutriments(input.nutrimentsPer100g ?? null, gramsRaw) : {};
+  const microsToStore = Object.keys(scaledMicros).length > 0 ? scaledMicros : null;
+
   const supabase = await createClient();
   const { error } = await supabase.from("food_logs").insert({
     client_id: user.id,
     name,
     brand: input.brand?.trim() || null,
     barcode: input.barcode?.trim() || null,
-    grams: input.grams != null && Number.isFinite(input.grams) ? input.grams : null,
+    grams: gramsRaw,
     calories: nonNegInt(input.calories),
     protein_g: nonNeg(input.proteinG),
     carbs_g: nonNeg(input.carbsG),
     fat_g: nonNeg(input.fatG),
+    nutriments: microsToStore,
     source: input.source,
   });
 
@@ -203,7 +215,9 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   const grams = input.grams != null && Number.isFinite(input.grams) ? Number(input.grams) : 0;
   if (barcode && isValidBarcode(barcode) && grams > 0) {
     const factor = 100 / grams;
-    const per100 = {
+    const per100: Record<string, number> = {
+      // Carry any micros we already had for this product (per-100g).
+      ...(input.nutrimentsPer100g ?? {}),
       energy_kcal: Math.round(nonNegInt(input.calories) * factor),
       proteins: Math.round(nonNeg(input.proteinG) * factor * 10) / 10,
       carbohydrates: Math.round(nonNeg(input.carbsG) * factor * 10) / 10,

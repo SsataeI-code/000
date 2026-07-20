@@ -460,9 +460,64 @@ const FOODS: Row[] = [
   ["Coconut milk", 230, 2.3, 6, 24, 80, "canned"],
 ];
 
+/**
+ * Core micronutrients per 100 g for common foods (§5B micro tracking). Values in
+ * grams (OFF convention: sodium 0.5 = 500 mg), standard reference figures. Keyed
+ * by the exact food name. Additive — foods absent here just carry macros until
+ * their micros are filled in. Order per key: fiber, sugars, saturated-fat,
+ * sodium, potassium, calcium, iron.
+ */
+type Micro = { fiber?: number; sugars?: number; "saturated-fat"?: number; sodium?: number; potassium?: number; calcium?: number; iron?: number };
+const MICROS: Record<string, Micro> = {
+  "Chicken breast, cooked": { sodium: 0.074, potassium: 0.256, iron: 0.001, "saturated-fat": 1 },
+  "Salmon, cooked": { sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, "saturated-fat": 3.1 },
+  "Egg, whole": { sugars: 1.1, sodium: 0.124, potassium: 0.126, calcium: 0.05, iron: 0.0018, "saturated-fat": 3.3 },
+  "White bread": { fiber: 2.7, sugars: 5, "saturated-fat": 0.7, sodium: 0.491, potassium: 0.1, calcium: 0.144, iron: 0.0036 },
+  "Whole wheat bread": { fiber: 6, sugars: 6, "saturated-fat": 0.7, sodium: 0.45, potassium: 0.25, calcium: 0.107, iron: 0.0025 },
+  "Rye bread": { fiber: 5.8, sugars: 3.9, "saturated-fat": 0.6, sodium: 0.603, potassium: 0.166, calcium: 0.073, iron: 0.0028 },
+  "White rice, cooked": { fiber: 0.4, sugars: 0.1, "saturated-fat": 0.1, sodium: 0.001, potassium: 0.035, iron: 0.0014 },
+  "Brown rice, cooked": { fiber: 1.6, "saturated-fat": 0.2, sodium: 0.004, potassium: 0.079, iron: 0.0005 },
+  "Oats, dry": { fiber: 10, sugars: 1, "saturated-fat": 1.2, sodium: 0.002, potassium: 0.429, calcium: 0.054, iron: 0.0047 },
+  "Banana": { fiber: 2.6, sugars: 12, sodium: 0.001, potassium: 0.358, calcium: 0.005, iron: 0.0003 },
+  "Apple": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.107, calcium: 0.006 },
+  "Broccoli": { fiber: 2.6, sugars: 1.7, sodium: 0.033, potassium: 0.316, calcium: 0.047, iron: 0.0007 },
+  "Spinach": { fiber: 2.2, sugars: 0.4, sodium: 0.079, potassium: 0.558, calcium: 0.099, iron: 0.0027 },
+  "Sweet potato, cooked": { fiber: 3.3, sugars: 6.5, sodium: 0.036, potassium: 0.475, calcium: 0.038, iron: 0.0007 },
+  "Potato, cooked": { fiber: 1.8, sugars: 0.9, sodium: 0.005, potassium: 0.379, calcium: 0.005, iron: 0.0031 },
+  "Almonds": { fiber: 12.5, sugars: 4.4, "saturated-fat": 3.8, sodium: 0.001, potassium: 0.733, calcium: 0.269, iron: 0.0037 },
+  "Peanut butter": { fiber: 6, sugars: 9, "saturated-fat": 10, sodium: 0.476, potassium: 0.649, calcium: 0.049, iron: 0.0019 },
+  "Greek yogurt, plain nonfat": { sugars: 3.6, sodium: 0.036, potassium: 0.141, calcium: 0.11, "saturated-fat": 0.1 },
+  "Milk, whole": { sugars: 4.8, "saturated-fat": 1.9, sodium: 0.043, potassium: 0.132, calcium: 0.113 },
+  "Cheddar cheese": { sugars: 0.5, "saturated-fat": 19, sodium: 0.621, potassium: 0.098, calcium: 0.721, iron: 0.0007 },
+  "Black beans, cooked": { fiber: 8.7, sugars: 0.3, sodium: 0.001, potassium: 0.355, calcium: 0.027, iron: 0.0021 },
+  "Lentils, cooked": { fiber: 7.9, sugars: 1.8, sodium: 0.002, potassium: 0.369, calcium: 0.019, iron: 0.0033 },
+  "Chickpeas, cooked": { fiber: 7.6, sugars: 4.8, "saturated-fat": 0.3, sodium: 0.007, potassium: 0.291, calcium: 0.049, iron: 0.0029 },
+  "Avocado": { fiber: 6.7, sugars: 0.7, "saturated-fat": 2.1, sodium: 0.007, potassium: 0.485, calcium: 0.012, iron: 0.0006 },
+  "Ground beef 90/10, cooked": { sodium: 0.072, potassium: 0.318, iron: 0.0026, "saturated-fat": 3.2 },
+  "Tuna, canned in water": { sodium: 0.247, potassium: 0.237, iron: 0.0013, "saturated-fat": 0.3 },
+  "Carrots": { fiber: 2.8, sugars: 4.7, sodium: 0.069, potassium: 0.32, calcium: 0.033, iron: 0.0003 },
+  "Orange": { fiber: 2.4, sugars: 9, sodium: 0, potassium: 0.181, calcium: 0.04 },
+  "Blueberries": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.077, calcium: 0.006 },
+  "Quinoa, cooked": { fiber: 2.8, sugars: 0.9, "saturated-fat": 0.2, sodium: 0.007, potassium: 0.172, iron: 0.0015 },
+  "Pasta, cooked": { fiber: 1.8, sugars: 0.6, sodium: 0.001, potassium: 0.044, iron: 0.0005 },
+  "Tofu, firm": { fiber: 0.9, "saturated-fat": 1.3, sodium: 0.012, potassium: 0.121, calcium: 0.35, iron: 0.0027 },
+};
+
 /** Turn one reference row into the same NormalizedFood shape as an OFF result. */
 function toNormalized(row: Row): NormalizedFood {
   const [name, kcal, protein, carbs, fat, servingG] = row;
+  const nutrimentsPer100g: Record<string, number> = {
+    energy_kcal: kcal,
+    proteins: protein,
+    carbohydrates: carbs,
+    fat,
+  };
+  const micros = MICROS[name];
+  if (micros) {
+    for (const [k, v] of Object.entries(micros)) {
+      if (typeof v === "number") nutrimentsPer100g[k] = v;
+    }
+  }
   return {
     barcode: "", // generics have no barcode; logs store null
     name,
@@ -470,7 +525,7 @@ function toNormalized(row: Row): NormalizedFood {
     imageUrl: null,
     servingSizeG: servingG,
     per100g: { calories: kcal, proteinG: protein, carbsG: carbs, fatG: fat },
-    nutrimentsPer100g: { energy_kcal: kcal, proteins: protein, carbohydrates: carbs, fat },
+    nutrimentsPer100g,
     missing: [],
   };
 }
