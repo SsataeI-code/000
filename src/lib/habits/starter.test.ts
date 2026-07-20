@@ -9,13 +9,24 @@ describe("starter habits from intake", () => {
     expect(names).toContain("7+ hours of sleep");
   });
 
-  it("tailors movement + protein to a fat-loss goal", () => {
-    const seeds = starterHabits("lose", "moderate");
-    const names = seeds.map((h) => h.name);
-    expect(names).toContain("Protein with every meal");
-    const steps = seeds.find((h) => h.name === "8,000 steps");
-    expect(steps?.type).toBe("counter");
-    expect(steps?.target).toBe(8000);
+  it("always includes a steps habit and an activity habit", () => {
+    for (const goal of ["lose", "maintain", "gain", "recomp", "habits_only"] as const) {
+      const seeds = starterHabits(goal, "moderate");
+      const steps = seeds.find((h) => h.unit === "steps");
+      expect(steps, `steps for ${goal}`).toBeTruthy();
+      expect(steps?.type).toBe("counter");
+      // An explicit movement/activity session too.
+      expect(seeds.some((h) => h.category === "movement" && h.unit !== "steps"), `activity for ${goal}`).toBe(true);
+    }
+  });
+
+  it("bumps the step target for fat loss", () => {
+    expect(starterHabits("lose", "moderate").find((h) => h.unit === "steps")?.target).toBe(10000);
+    expect(starterHabits("maintain", "moderate").find((h) => h.unit === "steps")?.target).toBe(8000);
+  });
+
+  it("keeps the protein anchor for non-habits-only goals", () => {
+    expect(starterHabits("lose", "moderate").map((h) => h.name)).toContain("Protein with every meal");
   });
 
   it("adds a surplus nudge for muscle gain", () => {
@@ -35,9 +46,9 @@ describe("starter habits from intake", () => {
     expect(starterHabits("maintain", "athlete").map((h) => h.name)).toContain("Stretch or mobility");
   });
 
-  it("are all daily and capped at six", () => {
+  it("are all daily and capped at seven", () => {
     const seeds = starterHabits("gain", "sedentary");
-    expect(seeds.length).toBeLessThanOrEqual(6);
+    expect(seeds.length).toBeLessThanOrEqual(7);
     expect(seeds.every((h) => h.cadence === "daily")).toBe(true);
   });
 });
