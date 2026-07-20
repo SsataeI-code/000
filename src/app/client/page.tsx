@@ -16,6 +16,9 @@ import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
 import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
+import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabits";
+import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
+import { currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
@@ -43,11 +46,31 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const [logs, savedMeals] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs] = await Promise.all([
     getTodayFoodLogs(user.id),
     getSavedMeals(user.id),
+    getHabits(user.id),
+    getHabitLogs(user.id),
   ]);
   const totals = totalMacros(logs);
+
+  // Today's habits (the star) — those due today, with streaks.
+  const byHabit = completedDatesByHabit(habitLogs);
+  const now = new Date();
+  const todayStr = isoDate(now);
+  const habitItems: TodayHabitItem[] = habits
+    .filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now))
+    .map((h) => {
+      const done = byHabit.get(h.id) ?? new Set<string>();
+      return {
+        id: h.id,
+        name: h.name,
+        category: h.category,
+        doneToday: done.has(todayStr),
+        streak: currentStreak(h, done, now),
+        why: h.why,
+      };
+    });
   const name = user.profile?.display_name?.split(" ")[0];
 
   // "Fill your rings" suggestions from what's still short today.
@@ -79,6 +102,8 @@ export default async function TodayPage() {
           {name ? `Hi, ${name}.` : getCopy("client.today.greeting")}
         </h1>
       </div>
+
+      <TodayHabits items={habitItems} />
 
       <DayProgress
         totals={totals}

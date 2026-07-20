@@ -120,6 +120,49 @@ export type Meal = {
   updated_at: string;
 };
 
+// --- Phase 2: habits ---
+
+export type HabitCategory =
+  | "nutrition"
+  | "movement"
+  | "sleep"
+  | "mindfulness"
+  | "hydration"
+  | "recovery";
+export type HabitType = "checkbox" | "counter" | "duration" | "quantity";
+export type HabitCadence = "daily" | "weekly_count" | "specific_days";
+
+export type Habit = {
+  id: string;
+  client_id: string;
+  name: string;
+  category: HabitCategory;
+  type: HabitType;
+  target: number | null;
+  unit: string | null;
+  cadence: HabitCadence;
+  times_per_week: number | null;
+  days_of_week: number[] | null;
+  reminder_time: string | null;
+  why: string | null;
+  anchor: string | null;
+  position: number;
+  active: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HabitLog = {
+  id: string;
+  habit_id: string;
+  client_id: string;
+  log_date: string;
+  value: number;
+  completed: boolean;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -177,6 +220,18 @@ export type Database = {
         Update: Partial<Meal>;
         Relationships: [];
       };
+      habits: {
+        Row: Habit;
+        Insert: Partial<Habit> & { client_id: string; name: string };
+        Update: Partial<Habit>;
+        Relationships: [];
+      };
+      habit_logs: {
+        Row: HabitLog;
+        Insert: Partial<HabitLog> & { habit_id: string; client_id: string; log_date: string };
+        Update: Partial<HabitLog>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -197,6 +252,9 @@ export type Database = {
       goal: Goal;
       diet_preference: DietPreference;
       food_log_source: FoodLogSource;
+      habit_category: HabitCategory;
+      habit_type: HabitType;
+      habit_cadence: HabitCadence;
     };
     CompositeTypes: Record<never, never>;
   };
