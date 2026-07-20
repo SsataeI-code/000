@@ -1,10 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { getClientProfile } from "@/lib/nutrition/data";
 import { computeTargets } from "@/lib/nutrition/targets";
 import { starterHabits } from "@/lib/habits/starter";
+import { isHabitCategory } from "@/lib/habits/ideas";
 import type {
   ActivityLevel,
   DietPreference,
@@ -82,6 +85,14 @@ export async function saveOnboardingAction(
     return { error: "Those numbers look off — double-check age, height, and weight." };
   }
 
+  // The client must choose or write one habit of their own (§5A ownership).
+  const ownHabit = String(formData.get("own_habit") ?? "").trim();
+  if (!ownHabit) {
+    return { error: "Pick or write one habit to make your own — that's the whole point." };
+  }
+  const ownCategoryRaw = String(formData.get("own_habit_category") ?? "");
+  const ownCategory = isHabitCategory(ownCategoryRaw) ? ownCategoryRaw : "movement";
+
   const intake: Intake = { sex, age, heightCm, weightKg, activity, goal, dietPreference };
   const targets = computeTargets(intake);
 
@@ -118,8 +129,21 @@ export async function saveOnboardingAction(
     .eq("client_id", user.id);
   if (!count) {
     const seeds = starterHabits(goal, activity);
-    await supabase.from("habits").insert(
-      seeds.map((s, i) => ({
+    const rows = [
+      // Their own habit first (position 0) — it's the one that's theirs.
+      {
+        client_id: user.id,
+        created_by: user.id,
+        name: ownHabit,
+        category: ownCategory,
+        type: "checkbox" as const,
+        target: null,
+        unit: null,
+        cadence: "daily" as const,
+        why: "You chose this one — make it stick.",
+        position: 0,
+      },
+      ...seeds.map((s, i) => ({
         client_id: user.id,
         created_by: user.id,
         name: s.name,
@@ -129,10 +153,61 @@ export async function saveOnboardingAction(
         unit: s.unit,
         cadence: s.cadence,
         why: s.why,
-        position: i,
+        position: i + 1,
       })),
-    );
+    ];
+    await supabase.from("habits").insert(rows);
   }
 
   redirect("/client");
+}
+
+/**
+ * Recalculate targets (§5B — every 4–6 weeks or after a weight change). Uses the
+ * stored profile and the latest logged body weight, inserts fresh targets, and
+ * syncs the profile weight. Triggered by the monthly review nudge.
+ */
+export async function recalcTargetsAction(): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  const profile = await getClientProfile(user.id);
+  if (!profile || !profile.sex || !profile.activity || profile.age == null || profile.height_cm == null) {
+    return;
+  }
+
+  const supabase = await createClient();
+  const { data: latestBody } = await supabase
+    .from("body_measurements")
+    .select("weight_kg")
+    .eq("client_id", user.id)
+    .not("weight_kg", "is", null)
+    .order("log_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const weightKg = latestBody?.weight_kg != null ? Number(latestBody.weight_kg) : profile.weight_kg;
+  if (weightKg == null) return;
+
+  const targets = computeTargets({
+    sex: profile.sex,
+    age: profile.age,
+    heightCm: Number(profile.height_cm),
+    weightKg,
+    activity: profile.activity,
+    goal: profile.goal,
+    dietPreference: profile.diet_preference,
+  });
+
+  await supabase.from("nutrition_targets").insert({
+    client_id: user.id,
+    calories: targets.calories,
+    protein_g: targets.proteinG,
+    carbs_g: targets.carbsG,
+    fat_g: targets.fatG,
+    method: "pn",
+  });
+  if (latestBody?.weight_kg != null) {
+    await supabase.from("client_profiles").update({ weight_kg: weightKg }).eq("id", user.id);
+  }
+  revalidatePath("/client");
 }

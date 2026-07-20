@@ -17,6 +17,7 @@ import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
 import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
+import { ReviewNudges } from "@/components/nutrition/ReviewNudges";
 import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabits";
 import { WaterTracker } from "@/components/body/WaterTracker";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
@@ -58,6 +59,13 @@ export default async function TodayPage() {
   ]);
   const totals = totalMacros(logs);
   const photoUrls = await getFoodPhotoUrls(logs);
+
+  // Weekly / monthly review nudges.
+  const daysSince = (iso: string | null | undefined) =>
+    iso ? (Date.now() - new Date(iso).getTime()) / 86_400_000 : Infinity;
+  const lastHabitUpdate = habits.reduce((max, h) => (h.updated_at > max ? h.updated_at : max), "");
+  const showWeeklyReview = habits.length > 0 && daysSince(lastHabitUpdate) >= 7;
+  const showRecalc = daysSince(targets.computed_at) >= 35;
 
   // Today's habits (the star) — those due today, with streaks.
   const byHabit = completedDatesByHabit(habitLogs);
@@ -107,6 +115,8 @@ export default async function TodayPage() {
           {name ? `Hi, ${name}.` : getCopy("client.today.greeting")}
         </h1>
       </div>
+
+      <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
 
       <TodayHabits items={habitItems} />
 
