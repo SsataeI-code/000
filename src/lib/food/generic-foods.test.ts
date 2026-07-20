@@ -1,9 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { editDistance, GENERIC_FOOD_COUNT, searchGenericFoods } from "@/lib/food/generic-foods";
+import {
+  allGenericFoodNames,
+  editDistance,
+  GENERIC_FOOD_COUNT,
+  searchGenericFoods,
+} from "@/lib/food/generic-foods";
 
 describe("generic foods fallback", () => {
   it("ships a substantial reference table", () => {
-    expect(GENERIC_FOOD_COUNT).toBeGreaterThan(150);
+    expect(GENERIC_FOOD_COUNT).toBeGreaterThan(500);
+  });
+
+  it("contains NO duplicate food names (case-insensitive)", () => {
+    const names = allGenericFoodNames().map((n) => n.toLowerCase());
+    const dupes = names.filter((n, i) => names.indexOf(n) !== i);
+    expect(dupes).toEqual([]);
+  });
+
+  it("returns each food at most once for a query", () => {
+    const results = searchGenericFoods("chicken", 20).map((f) => f.name);
+    expect(new Set(results).size).toBe(results.length);
   });
 
   it("finds white bread by name", () => {

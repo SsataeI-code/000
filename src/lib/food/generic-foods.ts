@@ -100,7 +100,6 @@ const FOODS: Row[] = [
   ["Pita bread", 275, 9, 55, 1.2, 60, ""],
   ["Rice cake", 387, 8, 82, 2.8, 9, ""],
   ["Crackers", 439, 8, 62, 16, 15, "saltine"],
-  ["Couscous", 112, 3.8, 23, 0.2, 157, ""],
 
   // --- Legumes ---
   ["Black beans, cooked", 132, 8.9, 24, 0.5, 172, "frijoles"],
@@ -176,7 +175,6 @@ const FOODS: Row[] = [
   ["Celery", 16, 0.7, 3, 0.2, 110, ""],
   ["Brussels sprouts", 43, 3.4, 9, 0.3, 88, ""],
   ["Eggplant", 25, 1, 6, 0.2, 82, "aubergine"],
-  ["Peas", 81, 5.4, 14, 0.4, 145, ""],
   ["Beets", 43, 1.6, 10, 0.2, 136, "beetroot"],
   ["Butternut squash", 45, 1, 12, 0.1, 140, ""],
   ["Coleslaw", 152, 1.5, 14, 11, 100, ""],
@@ -458,6 +456,178 @@ const FOODS: Row[] = [
   ["Cocktail sauce", 130, 1.5, 30, 0.5, 30, ""],
   ["Cream cheese, whipped", 300, 5, 5, 29, 20, ""],
   ["Coconut milk", 230, 2.3, 6, 24, 80, "canned"],
+
+  // --- Beef, all cuts ---
+  ["Beef chuck roast, cooked", 250, 30, 0, 14, 120, "pot roast"],
+  ["Beef ribeye steak, cooked", 291, 24, 0, 22, 150, "rib eye"],
+  ["Beef sirloin steak, cooked", 206, 29, 0, 9, 150, ""],
+  ["Beef tenderloin, cooked", 247, 27, 0, 15, 150, "filet mignon"],
+  ["Beef flank steak, cooked", 192, 28, 0, 8, 120, ""],
+  ["Beef skirt steak, cooked", 220, 27, 0, 12, 120, ""],
+  ["Beef round roast, cooked", 180, 30, 0, 6, 120, "eye of round"],
+  ["Beef short ribs, cooked", 471, 22, 0, 42, 120, ""],
+  ["Beef tri-tip, cooked", 211, 26, 0, 11, 120, ""],
+  ["Prime rib, cooked", 338, 24, 0, 27, 150, "standing rib"],
+  ["Ground beef 85/15, cooked", 215, 26, 0, 12, 100, "mince"],
+  ["Ground beef 93/7, cooked", 152, 26, 0, 6, 100, "lean mince"],
+  ["Beef liver, cooked", 191, 29, 5, 5, 85, ""],
+  ["Beef tongue, cooked", 284, 22, 0, 21, 85, ""],
+  ["Oxtail, cooked", 262, 30, 0, 15, 120, ""],
+  ["Veal cutlet, cooked", 172, 31, 0, 4.5, 120, ""],
+  ["Bison, cooked", 143, 28, 0, 2.4, 120, "buffalo"],
+  ["Venison, cooked", 158, 30, 0, 3.2, 120, "deer"],
+  ["Beef ribs, cooked", 312, 25, 0, 23, 150, ""],
+
+  // --- Pork, all cuts ---
+  ["Pork shoulder, cooked", 269, 24, 0, 19, 120, "pulled pork boston butt"],
+  ["Pork loin roast, cooked", 209, 28, 0, 10, 120, ""],
+  ["Pork belly, cooked", 518, 9, 0, 53, 85, ""],
+  ["Canadian bacon", 145, 21, 1.4, 6, 45, "back bacon"],
+  ["Pork rinds", 544, 61, 0, 31, 28, "chicharron"],
+  ["Bratwurst", 333, 14, 3, 29, 85, ""],
+  ["Italian sausage", 344, 19, 4, 28, 85, ""],
+  ["Chorizo", 455, 24, 2, 38, 60, ""],
+  ["Kielbasa", 309, 14, 3, 27, 85, "polish sausage"],
+  ["Andouille sausage", 296, 17, 2, 24, 85, ""],
+  ["Breakfast sausage patty", 325, 13, 1, 30, 45, ""],
+
+  // --- Poultry, all parts ---
+  ["Chicken drumstick, cooked", 172, 28, 0, 6, 75, ""],
+  ["Chicken leg, cooked", 184, 26, 0, 8, 100, ""],
+  ["Whole chicken, roasted", 239, 27, 0, 14, 120, ""],
+  ["Chicken liver, cooked", 172, 25, 1, 7, 85, ""],
+  ["Chicken tenders, cooked", 263, 18, 15, 14, 90, "chicken strips"],
+  ["Turkey thigh, cooked", 179, 27, 0, 7, 100, ""],
+  ["Turkey leg, cooked", 208, 28, 0, 10, 100, ""],
+  ["Cornish hen, cooked", 259, 25, 0, 17, 120, ""],
+  ["Goose, cooked", 305, 25, 0, 22, 120, ""],
+  ["Quail, cooked", 234, 25, 0, 14, 85, ""],
+  ["Chicken gizzard, cooked", 154, 30, 0, 3, 85, ""],
+
+  // --- Lamb & game ---
+  ["Leg of lamb, cooked", 258, 26, 0, 16, 120, ""],
+  ["Lamb shoulder, cooked", 292, 24, 0, 21, 120, ""],
+  ["Ground lamb, cooked", 283, 25, 0, 20, 100, "mince"],
+  ["Rack of lamb, cooked", 320, 22, 0, 25, 120, ""],
+  ["Rabbit, cooked", 173, 33, 0, 3.5, 120, ""],
+
+  // --- Deli & cured ---
+  ["Bologna", 308, 15, 3, 27, 30, ""],
+  ["Pastrami", 147, 22, 1, 6, 60, ""],
+  ["Roast beef, deli", 117, 19, 2, 3, 60, ""],
+  ["Turkey, deli", 104, 17, 3, 2, 60, "deli turkey"],
+  ["Liverwurst", 326, 14, 2, 28, 30, "braunschweiger"],
+  ["Mortadella", 311, 16, 3, 25, 30, ""],
+
+  // --- More fish & seafood ---
+  ["Trout, cooked", 168, 24, 0, 7, 120, ""],
+  ["Sea bass, cooked", 124, 23, 0, 2.6, 120, ""],
+  ["Snapper, cooked", 128, 26, 0, 1.7, 120, "red snapper"],
+  ["Flounder, cooked", 86, 18, 0, 1.1, 120, ""],
+  ["Sole, cooked", 91, 18, 0, 1.2, 120, ""],
+  ["Haddock, cooked", 90, 20, 0, 0.6, 120, ""],
+  ["Herring, cooked", 217, 25, 0, 12, 100, ""],
+  ["Swordfish, cooked", 172, 28, 0, 5.7, 120, ""],
+  ["Pollock, cooked", 111, 23, 0, 1.2, 120, ""],
+  ["Mahi mahi, cooked", 109, 24, 0, 0.9, 120, "dolphinfish"],
+  ["Grouper, cooked", 118, 25, 0, 1.3, 120, ""],
+  ["Oysters, cooked", 79, 9, 4.7, 2.3, 85, ""],
+  ["Mussels, cooked", 172, 24, 7, 4.5, 85, ""],
+  ["Clams, cooked", 148, 26, 5, 2, 85, ""],
+  ["Squid, cooked", 175, 18, 8, 7, 85, "calamari"],
+  ["Octopus, cooked", 164, 30, 4, 2, 85, ""],
+  ["Crawfish, cooked", 82, 17, 0, 1.2, 85, "crayfish"],
+  ["Imitation crab", 95, 8, 15, 0.4, 85, "surimi"],
+  ["Fish sticks", 290, 13, 24, 15, 85, ""],
+  ["Fish fillet, breaded", 232, 12, 18, 12, 100, ""],
+
+  // --- More fruits ---
+  ["Tangerine", 53, 0.8, 13, 0.3, 88, ""],
+  ["Persimmon", 70, 0.6, 18, 0.2, 168, ""],
+  ["Passion fruit", 97, 2.2, 23, 0.7, 18, ""],
+  ["Lychee", 66, 0.8, 17, 0.4, 10, ""],
+  ["Dragon fruit", 60, 1.2, 13, 0, 100, "pitaya"],
+  ["Starfruit", 31, 1, 6.7, 0.3, 91, "carambola"],
+  ["Plantain, cooked", 122, 0.8, 32, 0.2, 118, ""],
+  ["Jackfruit", 95, 1.7, 23, 0.6, 165, ""],
+  ["Mulberries", 43, 1.4, 10, 0.4, 140, "berries"],
+  ["Rhubarb", 21, 0.9, 4.5, 0.2, 122, ""],
+  ["Currants", 63, 1.4, 15, 0.2, 112, ""],
+  ["Quince", 57, 0.4, 15, 0.1, 92, ""],
+  ["Guava", 68, 2.6, 14, 1, 55, ""],
+  ["Acai", 70, 1, 4, 5, 100, ""],
+  ["Coconut meat, fresh", 354, 3.3, 15, 33, 45, ""],
+  ["Dried cranberries", 308, 0.1, 82, 1.4, 40, "craisins"],
+  ["Dried figs", 249, 3.3, 64, 0.9, 30, ""],
+
+  // --- More vegetables ---
+  ["Fennel", 31, 1.2, 7.3, 0.2, 87, ""],
+  ["Endive", 17, 1.3, 3.4, 0.2, 50, ""],
+  ["Watercress", 11, 2.3, 1.3, 0.1, 34, ""],
+  ["Mustard greens", 27, 2.9, 4.7, 0.4, 56, ""],
+  ["Kohlrabi", 27, 1.7, 6.2, 0.1, 135, ""],
+  ["Rutabaga", 37, 1.1, 9, 0.2, 140, "swede"],
+  ["Jicama", 38, 0.7, 9, 0.1, 120, ""],
+  ["Water chestnuts", 97, 1.4, 24, 0.1, 70, ""],
+  ["Bean sprouts", 31, 3, 6, 0.2, 100, "mung sprouts"],
+  ["Bamboo shoots", 27, 2.6, 5.2, 0.3, 120, ""],
+  ["Seaweed, nori", 35, 5.8, 5, 0.3, 10, "kelp"],
+  ["Turnip greens", 32, 1.5, 7, 0.3, 55, ""],
+  ["Napa cabbage", 16, 1.2, 3.2, 0.2, 75, ""],
+  ["Radicchio", 23, 1.4, 4.5, 0.3, 40, ""],
+  ["Green onion", 32, 1.8, 7.3, 0.2, 15, "scallion"],
+  ["Shallot", 72, 2.5, 17, 0.1, 10, ""],
+  ["Cassava", 160, 1.4, 38, 0.3, 100, "yuca"],
+  ["Taro, cooked", 142, 0.5, 35, 0.1, 130, ""],
+  ["Horseradish", 48, 1.2, 11, 0.7, 15, ""],
+  ["Delicata squash, cooked", 40, 0.9, 10, 0.1, 140, ""],
+
+  // --- More legumes, beans, lentils ---
+  ["Cannellini beans, cooked", 126, 8, 23, 0.5, 177, "white beans"],
+  ["Great northern beans, cooked", 118, 8.3, 21, 0.4, 177, ""],
+  ["Fava beans, cooked", 110, 7.6, 20, 0.4, 170, "broad beans"],
+  ["Mung beans, cooked", 105, 7, 19, 0.4, 170, ""],
+  ["Adzuki beans, cooked", 128, 7.5, 25, 0.1, 170, ""],
+  ["Cranberry beans, cooked", 136, 9.3, 25, 0.5, 177, "borlotti"],
+  ["Red lentils, cooked", 120, 9, 20, 0.4, 198, "masoor dal"],
+  ["Green lentils, cooked", 116, 9, 20, 0.4, 198, ""],
+  ["Pigeon peas, cooked", 121, 6.8, 23, 0.4, 170, "toor dal"],
+  ["Miso paste", 199, 12, 26, 6, 17, ""],
+  ["Natto", 211, 19, 13, 11, 100, ""],
+  ["Soy nuts", 471, 36, 34, 22, 28, "roasted soybeans"],
+
+  // --- More seeds & nuts ---
+  ["Sesame seeds", 573, 18, 23, 50, 15, ""],
+  ["Hemp seeds", 553, 32, 9, 49, 30, "hemp hearts"],
+  ["Poppy seeds", 525, 18, 28, 42, 15, ""],
+  ["Pine nuts", 673, 14, 13, 68, 28, ""],
+  ["Chestnuts, roasted", 245, 3.2, 53, 2.2, 40, ""],
+  ["Cashew butter", 587, 18, 28, 49, 32, ""],
+
+  // --- More grains ---
+  ["Millet, cooked", 119, 3.5, 24, 1, 174, ""],
+  ["Amaranth, cooked", 102, 3.8, 19, 1.6, 185, ""],
+  ["Buckwheat, cooked", 92, 3.4, 20, 0.6, 168, "kasha"],
+  ["Sorghum, cooked", 115, 3.6, 25, 0.5, 175, ""],
+  ["Spelt, cooked", 127, 5.5, 26, 0.9, 174, ""],
+  ["Polenta, cooked", 85, 2, 18, 0.4, 155, "cornmeal"],
+  ["Wheat berries, cooked", 124, 4.8, 27, 0.6, 180, ""],
+
+  // --- More dairy & eggs ---
+  ["Buttermilk", 62, 3.3, 4.8, 3.3, 240, ""],
+  ["Evaporated milk", 135, 6.8, 10, 7.6, 30, ""],
+  ["Condensed milk, sweetened", 321, 7.9, 54, 8.7, 30, ""],
+  ["Gelato", 216, 4, 30, 9, 88, ""],
+  ["Sherbet", 144, 1.1, 31, 2, 100, ""],
+  ["Queso fresco", 299, 18, 3, 24, 30, ""],
+  ["Monterey jack cheese", 373, 24, 0.7, 30, 30, ""],
+  ["Colby cheese", 394, 24, 2.6, 32, 30, ""],
+  ["Brie cheese", 334, 21, 0.5, 28, 30, ""],
+  ["Mascarpone", 429, 5, 4, 44, 30, ""],
+  ["Paneer", 265, 18, 1.2, 21, 60, ""],
+  ["Ghee", 900, 0, 0, 100, 14, "clarified butter"],
+  ["Duck egg", 185, 13, 1.5, 14, 70, ""],
+  ["Egg, boiled", 155, 13, 1.1, 11, 50, "hard boiled"],
 ];
 
 /**
@@ -619,3 +789,8 @@ export function searchGenericFoods(query: string, limit = 6): NormalizedFood[] {
 }
 
 export const GENERIC_FOOD_COUNT = FOODS.length;
+
+/** All generic food names — used to assert the catalog has no duplicates. */
+export function allGenericFoodNames(): string[] {
+  return FOODS.map((r) => r[0]);
+}
