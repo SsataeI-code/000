@@ -7,6 +7,7 @@ import { consistency, currentStreak, longestStreak } from "@/lib/habits/streaks"
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
 import { HabitManageList, type ManageItem } from "@/components/habits/HabitManageList";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
+import { seedStarterHabitsAction } from "@/lib/habits/actions";
 import type { Habit } from "@/lib/types/db";
 
 export const dynamic = "force-dynamic";
@@ -67,7 +68,22 @@ export default async function HabitsPage() {
         </section>
       ) : null}
 
-      <HabitManageList items={items} />
+      {habits.length === 0 ? (
+        <form action={seedStarterHabitsAction} className="border border-hairline bg-surface p-5">
+          <p className="font-body text-sm text-ink/70">
+            Want a head start? We&apos;ll add a set of daily habits tailored to your goal — edit or
+            remove any of them.
+          </p>
+          <button
+            type="submit"
+            className="mt-3 inline-flex min-h-tap items-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink"
+          >
+            Add my starter habits
+          </button>
+        </form>
+      ) : (
+        <HabitManageList items={items} />
+      )}
 
       <div>
         <h2 className="mb-3 text-2xl text-ink">New habit</h2>

@@ -18,6 +18,7 @@ function log(partial: Partial<FoodLog>): FoodLog {
     fat_g: 0,
     nutriments: null,
     source: "manual",
+    photo_path: null,
     created_at: "2026-07-20T10:00:00Z",
     ...partial,
   };

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { isoDate } from "@/lib/habits/streaks";
+import { starterHabits } from "@/lib/habits/starter";
+import { getClientProfile } from "@/lib/nutrition/data";
 import type {
   HabitCadence,
   HabitCategory,
@@ -69,6 +71,41 @@ export async function createHabitAction(
   revalidatePath("/client");
   revalidatePath("/client/habits");
   redirect("/client/habits");
+}
+
+/**
+ * Add the tailored starter set for a client who has none yet (§8) — for clients
+ * who onboarded before starter habits existed. Uses their profile's goal +
+ * activity. No-op if they already have habits.
+ */
+export async function seedStarterHabitsAction(): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("habits")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", user.id);
+  if (count) return;
+
+  const profile = await getClientProfile(user.id);
+  const seeds = starterHabits(profile?.goal ?? "maintain", profile?.activity ?? "moderate");
+  await supabase.from("habits").insert(
+    seeds.map((s, i) => ({
+      client_id: user.id,
+      created_by: user.id,
+      name: s.name,
+      category: s.category,
+      type: s.type,
+      target: s.target,
+      unit: s.unit,
+      cadence: s.cadence,
+      why: s.why,
+      position: i,
+    })),
+  );
+  revalidatePath("/client");
+  revalidatePath("/client/habits");
 }
 
 /** Toggle a habit's completion for a given day (default today). One-tap check. */

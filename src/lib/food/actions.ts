@@ -157,6 +157,8 @@ export interface LogFoodInput {
   fatG: number;
   /** Full per-100g nutriment map (incl. micros); scaled + stored on the log. */
   nutrimentsPer100g?: Record<string, number> | null;
+  /** Storage path of an optional photo (already uploaded client-side). */
+  photoPath?: string | null;
   source: "scan" | "search" | "manual";
 }
 
@@ -202,6 +204,7 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
     carbs_g: nonNeg(input.carbsG),
     fat_g: nonNeg(input.fatG),
     nutriments: microsToStore,
+    photo_path: input.photoPath?.trim() || null,
     source: input.source,
   });
 

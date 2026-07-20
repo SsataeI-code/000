@@ -7,6 +7,7 @@ import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/food/actions";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
+import { createClient } from "@/lib/supabase/client";
 
 type Mode = "choose" | "scanning" | "search" | "confirm";
 
@@ -57,13 +58,30 @@ function draftFromProduct(product: NormalizedFood): Draft {
   };
 }
 
-export function AddFood() {
+export function AddFood({ userId }: { userId: string }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("choose");
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [error, setError] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [saving, startSave] = useTransition();
+  const [photo, setPhoto] = useState<File | null>(null);
+
+  /** Upload the optional photo to the client's private folder; returns its path. */
+  async function uploadPhoto(): Promise<string | null> {
+    if (!photo) return null;
+    try {
+      const supabase = createClient();
+      const ext = photo.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("food-photos")
+        .upload(path, photo, { contentType: photo.type || "image/jpeg", upsert: false });
+      return upErr ? null : path; // a failed photo never blocks the log
+    } catch {
+      return null;
+    }
+  }
 
   // Name search state.
   const [query, setQuery] = useState("");
@@ -145,6 +163,7 @@ export function AddFood() {
       return;
     }
     startSave(async () => {
+      const photoPath = await uploadPhoto();
       const res = await logFoodAction({
         name: draft.name,
         brand: draft.brand || null,
@@ -155,6 +174,7 @@ export function AddFood() {
         carbsG: Number(draft.carbsG) || 0,
         fatG: Number(draft.fatG) || 0,
         nutrimentsPer100g: draft.micros100g,
+        photoPath,
         source: draft.source,
       });
       if (res.error) {
@@ -286,6 +306,19 @@ export function AddFood() {
         <Field label="Protein (g)" name="protein" type="number" inputMode="decimal" value={draft.proteinG} onChange={(e) => update("proteinG", e.target.value)} />
         <Field label="Carbs (g)" name="carbs" type="number" inputMode="decimal" value={draft.carbsG} onChange={(e) => update("carbsG", e.target.value)} />
         <Field label="Fat (g)" name="fat" type="number" inputMode="decimal" value={draft.fatG} onChange={(e) => update("fatG", e.target.value)} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="food_photo" className="text-xs text-ink/80">Add a photo (optional)</label>
+        <input
+          id="food_photo"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-surface"
+        />
+        {photo ? <p className="font-body text-xs text-ink/50">{photo.name} attached</p> : null}
       </div>
 
       <Button onClick={save} disabled={saving}>

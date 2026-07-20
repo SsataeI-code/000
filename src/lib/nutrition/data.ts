@@ -5,6 +5,25 @@ import { todayIso } from "@/lib/nutrition/summary";
 // Re-export the pure summarizers so callers have one import site.
 export { todayIso, totalMacros, isOnboarded } from "@/lib/nutrition/summary";
 
+/** Short-lived signed URLs for any food logs that have a photo (private bucket). */
+export async function getFoodPhotoUrls(logs: FoodLog[]): Promise<Record<string, string>> {
+  const withPhotos = logs.filter((l) => l.photo_path);
+  if (withPhotos.length === 0) return {};
+  const supabase = await createClient();
+  const urls: Record<string, string> = {};
+  for (const log of withPhotos) {
+    try {
+      const { data } = await supabase.storage
+        .from("food-photos")
+        .createSignedUrl(log.photo_path as string, 3600);
+      if (data?.signedUrl) urls[log.id] = data.signedUrl;
+    } catch {
+      // A missing/expired photo just renders without a thumbnail — never fatal.
+    }
+  }
+  return urls;
+}
+
 export async function getClientProfile(clientId: string): Promise<ClientProfile | null> {
   const supabase = await createClient();
   const { data } = await supabase

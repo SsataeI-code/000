@@ -14,7 +14,7 @@ function log(nutriments: Record<string, number> | null): FoodLog {
   return {
     id: "x", client_id: "c", log_date: "2026-07-20", logged_at: "t", barcode: null,
     name: "f", brand: null, grams: 100, calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0,
-    nutriments, source: "manual", created_at: "t",
+    nutriments, source: "manual", photo_path: null, created_at: "t",
   };
 }
 

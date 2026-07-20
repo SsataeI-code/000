@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import {
   getClientProfile,
+  getFoodPhotoUrls,
   getLatestTargets,
   getSavedMeals,
   getTodayFoodLogs,
@@ -56,6 +57,7 @@ export default async function TodayPage() {
     getTodayWaterMl(user.id),
   ]);
   const totals = totalMacros(logs);
+  const photoUrls = await getFoodPhotoUrls(logs);
 
   // Today's habits (the star) — those due today, with streaks.
   const byHabit = completedDatesByHabit(habitLogs);
@@ -153,7 +155,7 @@ export default async function TodayPage() {
 
       <MealSuggestions meals={meals} />
 
-      <FoodLogList logs={logs} />
+      <FoodLogList logs={logs} photoUrls={photoUrls} />
 
       <MicroTracker logs={logs} calories={targets.calories} sex={profile?.sex ?? null} />
     </div>

@@ -23,7 +23,7 @@ export default async function AddFoodPage() {
           Done
         </Link>
       </div>
-      <AddFood />
+      <AddFood userId={user.id} />
     </div>
   );
 }

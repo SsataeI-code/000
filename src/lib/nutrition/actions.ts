@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { computeTargets } from "@/lib/nutrition/targets";
+import { starterHabits } from "@/lib/habits/starter";
 import type {
   ActivityLevel,
   DietPreference,
@@ -108,6 +109,30 @@ export async function saveOnboardingAction(
     method: "pn",
   });
   if (targetError) return { error: "Couldn't save your targets — give it another try." };
+
+  // Seed tailored starter habits so day one has the right things to check off
+  // (§8). Only if the client has none yet — they/the coach can edit from here.
+  const { count } = await supabase
+    .from("habits")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", user.id);
+  if (!count) {
+    const seeds = starterHabits(goal, activity);
+    await supabase.from("habits").insert(
+      seeds.map((s, i) => ({
+        client_id: user.id,
+        created_by: user.id,
+        name: s.name,
+        category: s.category,
+        type: s.type,
+        target: s.target,
+        unit: s.unit,
+        cadence: s.cadence,
+        why: s.why,
+        position: i,
+      })),
+    );
+  }
 
   redirect("/client");
 }

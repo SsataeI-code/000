@@ -123,6 +123,7 @@ export type FoodLog = {
   fat_g: number;
   nutriments: Record<string, number> | null;
   source: FoodLogSource;
+  photo_path: string | null;
   created_at: string;
 };
 
