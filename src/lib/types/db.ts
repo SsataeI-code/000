@@ -43,6 +43,68 @@ export type CoachClient = {
   created_at: string;
 };
 
+// --- Phase 1: nutrition / food logging ---
+
+export type Sex = "male" | "female";
+export type ActivityLevel = "sedentary" | "light" | "moderate" | "very" | "athlete";
+export type Goal = "lose" | "maintain" | "recomp" | "gain" | "habits_only";
+export type DietPreference = "balanced" | "low_carb" | "low_fat";
+export type FoodLogSource = "scan" | "search" | "manual";
+
+export type ClientProfile = {
+  id: string;
+  sex: Sex | null;
+  age: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  activity: ActivityLevel | null;
+  goal: Goal;
+  diet_preference: DietPreference;
+  onboarded_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NutritionTargetRow = {
+  id: string;
+  client_id: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  method: string;
+  computed_at: string;
+};
+
+export type FoodProduct = {
+  barcode: string;
+  name: string | null;
+  brand: string | null;
+  image_url: string | null;
+  serving_size_g: number | null;
+  nutriments: Record<string, number>;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type FoodLog = {
+  id: string;
+  client_id: string;
+  log_date: string;
+  logged_at: string;
+  barcode: string | null;
+  name: string;
+  brand: string | null;
+  grams: number | null;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  nutriments: Record<string, number> | null;
+  source: FoodLogSource;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -64,6 +126,36 @@ export type Database = {
         Update: Partial<CoachClient>;
         Relationships: [];
       };
+      client_profiles: {
+        Row: ClientProfile;
+        Insert: Partial<ClientProfile> & { id: string };
+        Update: Partial<ClientProfile>;
+        Relationships: [];
+      };
+      nutrition_targets: {
+        Row: NutritionTargetRow;
+        Insert: Partial<NutritionTargetRow> & {
+          client_id: string;
+          calories: number;
+          protein_g: number;
+          carbs_g: number;
+          fat_g: number;
+        };
+        Update: Partial<NutritionTargetRow>;
+        Relationships: [];
+      };
+      food_products: {
+        Row: FoodProduct;
+        Insert: Partial<FoodProduct> & { barcode: string };
+        Update: Partial<FoodProduct>;
+        Relationships: [];
+      };
+      food_logs: {
+        Row: FoodLog;
+        Insert: Partial<FoodLog> & { client_id: string; name: string };
+        Update: Partial<FoodLog>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -79,6 +171,11 @@ export type Database = {
     Enums: {
       app_role: AppRole;
       coach_client_status: CoachClientStatus;
+      sex: Sex;
+      activity_level: ActivityLevel;
+      goal: Goal;
+      diet_preference: DietPreference;
+      food_log_source: FoodLogSource;
     };
     CompositeTypes: Record<never, never>;
   };
