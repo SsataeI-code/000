@@ -286,6 +286,52 @@ export async function logMealAction(items: MealLogItemInput[]): Promise<LogFoodS
   return { ok: true };
 }
 
+export interface SaveMealState {
+  error?: string;
+  ok?: boolean;
+}
+
+/** Create a saved meal template the client can re-log in one tap. */
+export async function createMealAction(
+  name: string,
+  items: MealLogItemInput[],
+): Promise<SaveMealState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Please sign in again." };
+
+  const cleanName = (name ?? "").trim();
+  if (!cleanName) return { error: "Give your meal a name." };
+
+  const cleanItems = (Array.isArray(items) ? items : [])
+    .filter((it) => it && typeof it.name === "string" && it.name.trim() && Number(it.grams) > 0)
+    .map((it) => ({
+      name: it.name.trim(),
+      grams: Number(it.grams),
+      nutrimentsPer100g: it.nutrimentsPer100g ?? {},
+    }));
+  if (cleanItems.length === 0) return { error: "Add at least one ingredient." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("meals")
+    .insert({ owner_id: user.id, name: cleanName, items: cleanItems });
+  if (error) return { error: "Couldn't save the meal — give it another try." };
+
+  revalidatePath("/client/meals");
+  revalidatePath("/client");
+  return { ok: true };
+}
+
+/** Delete a saved meal. RLS ensures a client can only delete its own. */
+export async function deleteMealAction(id: string): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  const supabase = await createClient();
+  await supabase.from("meals").delete().eq("id", id).eq("owner_id", user.id);
+  revalidatePath("/client/meals");
+  revalidatePath("/client");
+}
+
 /** Remove a log (undo a mistake). RLS ensures a client can only delete its own. */
 export async function deleteFoodLogAction(id: string): Promise<void> {
   const user = await getSessionUser();

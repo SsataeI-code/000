@@ -5,6 +5,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import {
   getClientProfile,
   getLatestTargets,
+  getSavedMeals,
   getTodayFoodLogs,
   isOnboarded,
   totalMacros,
@@ -14,6 +15,7 @@ import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
+import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
@@ -41,7 +43,10 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const logs = await getTodayFoodLogs(user.id);
+  const [logs, savedMeals] = await Promise.all([
+    getTodayFoodLogs(user.id),
+    getSavedMeals(user.id),
+  ]);
   const totals = totalMacros(logs);
   const name = user.profile?.display_name?.split(" ")[0];
 
@@ -96,6 +101,25 @@ export default async function TodayPage() {
       </div>
 
       <FillYourRings suggestions={suggestions} />
+
+      <section aria-label="Your meals" className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl text-ink">Your meals</h2>
+          <Link
+            href="/client/meals"
+            className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
+          >
+            Build a meal
+          </Link>
+        </div>
+        {savedMeals.length > 0 ? (
+          <SavedMealsList meals={savedMeals} showDelete={false} />
+        ) : (
+          <p className="font-body text-sm text-ink/60">
+            Save your go-to meals to log them in one tap. Tap “Build a meal”.
+          </p>
+        )}
+      </section>
 
       <MealSuggestions meals={meals} />
 

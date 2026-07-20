@@ -28,6 +28,16 @@ export async function getLatestTargets(clientId: string): Promise<NutritionTarge
   return (data as NutritionTargetRow | null) ?? null;
 }
 
+export async function getSavedMeals(clientId: string): Promise<import("@/lib/types/db").Meal[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("meals")
+    .select("*")
+    .eq("owner_id", clientId)
+    .order("created_at", { ascending: false });
+  return (data as import("@/lib/types/db").Meal[] | null) ?? [];
+}
+
 export async function getTodayFoodLogs(clientId: string): Promise<FoodLog[]> {
   const supabase = await createClient();
   const { data } = await supabase

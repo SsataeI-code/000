@@ -642,17 +642,17 @@ const FOODS: Row[] = [
 // vitamins vitamin-a/c/d/e/k, vitamin-b1/b2/pp/b6/b9/b12, cholesterol).
 type Micro = Record<string, number>;
 const MICROS: Record<string, Micro> = {
-  "Chicken breast, cooked": { "saturated-fat": 1, sodium: 0.074, potassium: 0.256, iron: 0.001, magnesium: 0.029, zinc: 0.001, phosphorus: 0.196, selenium: 0.0000221, "vitamin-pp": 0.0139, "vitamin-b6": 0.0006 },
-  "Salmon, cooked": { "saturated-fat": 3.1, sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, magnesium: 0.03, phosphorus: 0.2, selenium: 0.0000363, "vitamin-d": 0.0000112, "vitamin-b12": 0.0000032, "vitamin-b6": 0.00065, "vitamin-pp": 0.0088 },
+  "Chicken breast, cooked": { "saturated-fat": 1, sodium: 0.074, potassium: 0.256, iron: 0.001, magnesium: 0.029, zinc: 0.001, phosphorus: 0.196, selenium: 0.0000221, "vitamin-pp": 0.0139, "vitamin-b6": 0.0006, cholesterol: 0.085 },
+  "Salmon, cooked": { "saturated-fat": 3.1, sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, magnesium: 0.03, phosphorus: 0.2, selenium: 0.0000363, "vitamin-d": 0.0000112, "vitamin-b12": 0.0000032, "vitamin-b6": 0.00065, "vitamin-pp": 0.0088, cholesterol: 0.055 },
   "Tuna, canned in water": { "saturated-fat": 0.3, sodium: 0.247, potassium: 0.237, iron: 0.0013, phosphorus: 0.2, selenium: 0.00008, "vitamin-d": 0.000002, "vitamin-b12": 0.0000025, "vitamin-pp": 0.011 },
   "Canned sardines": { "saturated-fat": 1.5, sodium: 0.307, calcium: 0.382, iron: 0.0029, phosphorus: 0.49, selenium: 0.0000527, "vitamin-d": 0.0000048, "vitamin-b12": 0.0000089 },
-  "Shrimp, cooked": { sodium: 0.111, potassium: 0.259, calcium: 0.07, iron: 0.0005, phosphorus: 0.201, selenium: 0.0000341, "vitamin-b12": 0.0000011 },
+  "Shrimp, cooked": { sodium: 0.111, potassium: 0.259, calcium: 0.07, iron: 0.0005, phosphorus: 0.201, selenium: 0.0000341, "vitamin-b12": 0.0000011, cholesterol: 0.189 },
   "Beef liver, cooked": { sodium: 0.077, potassium: 0.352, iron: 0.0065, zinc: 0.004, copper: 0.0099, "vitamin-a": 0.00494, "vitamin-b12": 0.000059, "vitamin-b9": 0.00029, "vitamin-b2": 0.0029, "vitamin-pp": 0.0173 },
-  "Ground beef 90/10, cooked": { "saturated-fat": 3.2, sodium: 0.072, potassium: 0.318, iron: 0.0026, zinc: 0.0064, phosphorus: 0.2, selenium: 0.000018, "vitamin-b12": 0.0000025, "vitamin-pp": 0.0055 },
+  "Ground beef 90/10, cooked": { "saturated-fat": 3.2, sodium: 0.072, potassium: 0.318, iron: 0.0026, zinc: 0.0064, phosphorus: 0.2, selenium: 0.000018, "vitamin-b12": 0.0000025, "vitamin-pp": 0.0055, cholesterol: 0.088 },
   "Egg, whole": { "saturated-fat": 3.3, sugars: 1.1, sodium: 0.124, potassium: 0.126, calcium: 0.05, iron: 0.0018, phosphorus: 0.198, selenium: 0.0000308, "vitamin-a": 0.00016, "vitamin-d": 0.000002, "vitamin-b12": 0.00000089, "vitamin-b2": 0.000457, "vitamin-b9": 0.000047, cholesterol: 0.372 },
   "Greek yogurt, plain nonfat": { sugars: 3.6, "saturated-fat": 0.1, sodium: 0.036, potassium: 0.141, calcium: 0.11, phosphorus: 0.135, "vitamin-b12": 0.00000075, "vitamin-b2": 0.0003 },
-  "Milk, whole": { sugars: 4.8, "saturated-fat": 1.9, sodium: 0.043, potassium: 0.132, calcium: 0.113, phosphorus: 0.084, "vitamin-a": 0.000046, "vitamin-d": 0.0000013, "vitamin-b12": 0.00000045, "vitamin-b2": 0.000169 },
-  "Cheddar cheese": { sugars: 0.5, "saturated-fat": 19, sodium: 0.621, potassium: 0.098, calcium: 0.721, iron: 0.0007, zinc: 0.0031, phosphorus: 0.512, "vitamin-a": 0.000265, "vitamin-b12": 0.0000011 },
+  "Milk, whole": { sugars: 4.8, "saturated-fat": 1.9, sodium: 0.043, potassium: 0.132, calcium: 0.113, phosphorus: 0.084, "vitamin-a": 0.000046, "vitamin-d": 0.0000013, "vitamin-b12": 0.00000045, "vitamin-b2": 0.000169, cholesterol: 0.011 },
+  "Cheddar cheese": { sugars: 0.5, "saturated-fat": 19, sodium: 0.621, potassium: 0.098, calcium: 0.721, iron: 0.0007, zinc: 0.0031, phosphorus: 0.512, "vitamin-a": 0.000265, "vitamin-b12": 0.0000011, cholesterol: 0.105 },
   "White bread": { fiber: 2.7, sugars: 5, "saturated-fat": 0.7, sodium: 0.491, potassium: 0.1, calcium: 0.144, iron: 0.0036, "vitamin-b1": 0.00048, "vitamin-b9": 0.000085 },
   "Whole wheat bread": { fiber: 6, sugars: 6, "saturated-fat": 0.7, sodium: 0.45, potassium: 0.25, calcium: 0.107, iron: 0.0025, magnesium: 0.076, zinc: 0.0018, "vitamin-b9": 0.000042 },
   "Rye bread": { fiber: 5.8, sugars: 3.9, "saturated-fat": 0.6, sodium: 0.603, potassium: 0.166, calcium: 0.073, iron: 0.0028, magnesium: 0.04 },
@@ -722,7 +722,7 @@ const MICROS: Record<string, Micro> = {
   // More grains & dairy
   "Whole wheat pasta, cooked": { fiber: 4.5, sugars: 1, sodium: 0.004, potassium: 0.062, iron: 0.0013, magnesium: 0.03 },
   "Bagel, plain": { fiber: 2.3, sugars: 5, sodium: 0.43, iron: 0.0037, "vitamin-b9": 0.000108 },
-  "Butter": { "saturated-fat": 51, sodium: 0.011, "vitamin-a": 0.000684 },
+  "Butter": { "saturated-fat": 51, sodium: 0.011, "vitamin-a": 0.000684, cholesterol: 0.215 },
   "String cheese": { "saturated-fat": 13, sodium: 0.6, calcium: 0.69, phosphorus: 0.45, zinc: 0.0028 },
 };
 

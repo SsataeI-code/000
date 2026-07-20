@@ -105,6 +105,21 @@ export type FoodLog = {
   created_at: string;
 };
 
+export type MealItem = {
+  name: string;
+  grams: number;
+  nutrimentsPer100g: Record<string, number>;
+};
+
+export type Meal = {
+  id: string;
+  owner_id: string;
+  name: string;
+  items: MealItem[];
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -154,6 +169,12 @@ export type Database = {
         Row: FoodLog;
         Insert: Partial<FoodLog> & { client_id: string; name: string };
         Update: Partial<FoodLog>;
+        Relationships: [];
+      };
+      meals: {
+        Row: Meal;
+        Insert: Partial<Meal> & { owner_id: string; name: string };
+        Update: Partial<Meal>;
         Relationships: [];
       };
     };
