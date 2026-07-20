@@ -4,6 +4,8 @@ import {
   isValidBarcode,
   macrosForGrams,
   parseOffResponse,
+  parseOffSearchResponse,
+  searchProducts,
   toNumber,
 } from "@/lib/food/off";
 
@@ -105,5 +107,60 @@ describe("OFF defensive parsing (§6)", () => {
     }) as unknown as typeof fetch;
     const res = await fetchProductByBarcode("0000000000000", boom);
     expect(res).toEqual({ found: false, reason: "network_error" });
+  });
+});
+
+describe("OFF text search (§6)", () => {
+  const payload = {
+    products: [
+      {
+        code: "1",
+        product_name: "White Bread",
+        brands: "Wonder",
+        nutriments: { "energy-kcal_100g": 265, proteins_100g: 9, carbohydrates_100g: 49, fat_100g: 3 },
+      },
+      // Missing calories → filtered out (can't estimate from it).
+      { code: "2", product_name: "Mystery Loaf", nutriments: { proteins_100g: 8 } },
+      // Missing name → filtered out.
+      { code: "3", nutriments: { "energy-kcal_100g": 100 } },
+    ],
+  };
+
+  it("returns only results with a name and calories", () => {
+    const results = parseOffSearchResponse(payload);
+    expect(results).toHaveLength(1);
+    expect(results[0].name).toBe("White Bread");
+    expect(results[0].per100g.calories).toBe(265);
+  });
+
+  it("returns [] for garbage or empty payloads (never throws)", () => {
+    for (const junk of [null, undefined, {}, { products: "nope" }, 5]) {
+      expect(parseOffSearchResponse(junk)).toEqual([]);
+    }
+  });
+
+  it("searchProducts skips the network for queries under 2 chars", async () => {
+    let called = false;
+    const spy = (async () => {
+      called = true;
+      return new Response("{}");
+    }) as unknown as typeof fetch;
+    expect(await searchProducts("a", 15, spy)).toEqual([]);
+    expect(called).toBe(false);
+  });
+
+  it("searchProducts returns [] (not a throw) when the request fails", async () => {
+    const boom = (async () => {
+      throw new Error("offline");
+    }) as unknown as typeof fetch;
+    expect(await searchProducts("white bread", 15, boom)).toEqual([]);
+  });
+
+  it("searchProducts parses a live-shaped payload", async () => {
+    const fake = (async () =>
+      new Response(JSON.stringify(payload), { status: 200 })) as unknown as typeof fetch;
+    const results = await searchProducts("white bread", 15, fake);
+    expect(results).toHaveLength(1);
+    expect(results[0].name).toBe("White Bread");
   });
 });

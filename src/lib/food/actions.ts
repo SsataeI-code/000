@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { fetchProductByBarcode, isValidBarcode, type NormalizedFood } from "@/lib/food/off";
+import {
+  fetchProductByBarcode,
+  isValidBarcode,
+  searchProducts,
+  type NormalizedFood,
+} from "@/lib/food/off";
 
 export type LookupResult =
   | { found: true; product: NormalizedFood; fromCache: boolean }
@@ -73,6 +78,17 @@ export async function lookupProductAction(barcode: string): Promise<LookupResult
   });
 
   return { found: true, product: p, fromCache: false };
+}
+
+/**
+ * Search foods by name (e.g. "white bread") via Open Food Facts. Returns a slim
+ * list for the picker dropdown. Never throws — empty list on any failure.
+ */
+export async function searchFoodsAction(query: string): Promise<NormalizedFood[]> {
+  const user = await getSessionUser();
+  if (!user) return [];
+  if (query.trim().length < 2) return [];
+  return searchProducts(query, 15);
 }
 
 export interface LogFoodInput {

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BarcodeScanner } from "@/components/food/BarcodeScanner";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import { lookupProductAction, logFoodAction } from "@/lib/food/actions";
+import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/food/actions";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
 
-type Mode = "choose" | "scanning" | "confirm";
+type Mode = "choose" | "scanning" | "search" | "confirm";
 
 interface Draft {
   name: string;
@@ -62,6 +62,34 @@ export function AddFood() {
   const [error, setError] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [saving, startSave] = useTransition();
+
+  // Name search state.
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<NormalizedFood[]>([]);
+  const [searching, setSearching] = useState(false);
+  const searchSeq = useRef(0);
+
+  // Debounced OFF search as the client types (§6 text search).
+  useEffect(() => {
+    if (mode !== "search") return;
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const seq = ++searchSeq.current;
+    const t = setTimeout(async () => {
+      const found = await searchFoodsAction(q);
+      // Ignore out-of-order responses (only the latest query wins).
+      if (seq === searchSeq.current) {
+        setResults(found);
+        setSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [query, mode]);
 
   async function handleBarcode(code: string) {
     setLooking(true);
@@ -141,12 +169,73 @@ export function AddFood() {
         <Button
           variant="ghost"
           onClick={() => {
+            setQuery("");
+            setResults([]);
+            setMode("search");
+          }}
+        >
+          Search by name
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
             setDraft(emptyDraft);
             setMode("confirm");
           }}
         >
           Enter it manually
         </Button>
+      </div>
+    );
+  }
+
+  if (mode === "search") {
+    return (
+      <div className="flex flex-col gap-4">
+        <Field
+          label="Search foods"
+          name="q"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="e.g. white bread"
+          autoComplete="off"
+          autoFocus
+        />
+        {searching ? <p className="font-body text-sm text-ink/60">Searching…</p> : null}
+        {!searching && query.trim().length >= 2 && results.length === 0 ? (
+          <p className="font-body text-sm text-ink/60">
+            No matches. Try another wording, or enter it manually.
+          </p>
+        ) : null}
+
+        <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+          {results.map((r, i) => (
+            <li key={`${r.barcode}-${i}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(draftFromProduct(r));
+                  setMode("confirm");
+                }}
+                className="flex w-full min-h-tap flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-surface-muted"
+              >
+                <span className="font-body text-sm font-500 text-ink">{r.name}</span>
+                <span className="font-body text-xs text-ink/50">
+                  {r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal / 100g` : ""}
+                  {r.brand ? ` · ${r.brand}` : ""}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={() => setMode("choose")}
+          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+        >
+          Back
+        </button>
       </div>
     );
   }

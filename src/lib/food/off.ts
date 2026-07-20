@@ -69,8 +69,15 @@ export function parseOffResponse(barcode: string, json: unknown): OffLookupResul
   if (!product || typeof product !== "object") {
     return { found: false, reason: "not_found" };
   }
-  const p = product as Record<string, unknown>;
 
+  return { found: true, product: normalizeOffProduct(barcode, product as Record<string, unknown>) };
+}
+
+/**
+ * Map one raw OFF product object to our normalized shape. Shared by the single
+ * barcode lookup and the text search so both behave identically. Total/safe.
+ */
+export function normalizeOffProduct(barcode: string, p: Record<string, unknown>): NormalizedFood {
   const rawNutriments =
     p.nutriments && typeof p.nutriments === "object"
       ? (p.nutriments as Record<string, unknown>)
@@ -102,7 +109,7 @@ export function parseOffResponse(barcode: string, json: unknown): OffLookupResul
     (k) => per100g[k] === null,
   );
 
-  const product_: NormalizedFood = {
+  return {
     barcode,
     name: toStringOrNull(p.product_name) ?? toStringOrNull(p.generic_name),
     brand: toStringOrNull(p.brands),
@@ -112,8 +119,24 @@ export function parseOffResponse(barcode: string, json: unknown): OffLookupResul
     nutrimentsPer100g,
     missing,
   };
+}
 
-  return { found: true, product: product_ };
+/** Parse an OFF text-search payload into a list of usable results. */
+export function parseOffSearchResponse(json: unknown): NormalizedFood[] {
+  if (!json || typeof json !== "object") return [];
+  const products = (json as Record<string, unknown>).products;
+  if (!Array.isArray(products)) return [];
+
+  const out: NormalizedFood[] = [];
+  for (const raw of products) {
+    if (!raw || typeof raw !== "object") continue;
+    const p = raw as Record<string, unknown>;
+    const code = typeof p.code === "string" ? p.code : String(p.code ?? "");
+    const n = normalizeOffProduct(code, p);
+    // Only surface results we can actually estimate from (have a name + calories).
+    if (n.name && n.per100g.calories !== null) out.push(n);
+  }
+  return out;
 }
 
 const OFF_BASE = "https://world.openfoodfacts.org/api/v2";
@@ -149,6 +172,36 @@ export async function fetchProductByBarcode(
     return parseOffResponse(code, json);
   } catch {
     return { found: false, reason: "network_error" };
+  }
+}
+
+/**
+ * Text search against Open Food Facts (e.g. "white bread"). Returns up to
+ * `limit` usable results (name + at least calories). Never throws — a failure
+ * comes back as an empty list, so the UI just shows "no matches".
+ */
+export async function searchProducts(
+  query: string,
+  limit = 15,
+  fetchImpl: typeof fetch = fetch,
+): Promise<NormalizedFood[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  try {
+    const url =
+      "https://world.openfoodfacts.org/cgi/search.pl" +
+      `?search_terms=${encodeURIComponent(q)}` +
+      "&search_simple=1&action=process&json=1&page_size=30" +
+      "&fields=code,product_name,generic_name,brands,serving_quantity,nutriments,image_front_small_url";
+    const res = await fetchImpl(url, {
+      headers: { "User-Agent": "TotalFormFitness/0.1 (coach app)" },
+    });
+    if (!res.ok) return [];
+    const json: unknown = await res.json().catch(() => null);
+    return parseOffSearchResponse(json).slice(0, limit);
+  } catch {
+    return [];
   }
 }
 
