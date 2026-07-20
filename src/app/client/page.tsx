@@ -12,6 +12,9 @@ import {
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
+import { FillYourRings } from "@/components/nutrition/FillYourRings";
+import { sumMicros } from "@/lib/nutrition/micros";
+import { suggestFills } from "@/lib/nutrition/recommend";
 import { getCopy } from "@/lib/content/copy";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +42,17 @@ export default async function TodayPage() {
   const logs = await getTodayFoodLogs(user.id);
   const totals = totalMacros(logs);
   const name = user.profile?.display_name?.split(" ")[0];
+
+  // "Fill your rings" suggestions from what's still short today.
+  const microTotals = sumMicros(logs);
+  const fiberGoal = Math.round((14 * targets.calories) / 1000);
+  const suggestions = suggestFills({
+    remainingProteinG: targets.protein_g - totals.proteinG,
+    remainingFiberG: fiberGoal - (microTotals.fiber ?? 0),
+    microTotalsGrams: microTotals,
+    calories: targets.calories,
+    sex: profile?.sex ?? null,
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -70,6 +84,8 @@ export default async function TodayPage() {
           Add food
         </Link>
       </div>
+
+      <FillYourRings suggestions={suggestions} />
 
       <FoodLogList logs={logs} />
 

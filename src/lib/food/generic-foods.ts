@@ -637,40 +637,55 @@ const FOODS: Row[] = [
  * their micros are filled in. Order per key: fiber, sugars, saturated-fat,
  * sodium, potassium, calcium, iron.
  */
-type Micro = { fiber?: number; sugars?: number; "saturated-fat"?: number; sodium?: number; potassium?: number; calcium?: number; iron?: number };
+// Any normalized nutriment key is allowed (fiber, sugars, saturated-fat, sodium,
+// potassium, calcium, iron, magnesium, zinc, phosphorus, selenium, copper, and
+// vitamins vitamin-a/c/d/e/k, vitamin-b1/b2/pp/b6/b9/b12, cholesterol).
+type Micro = Record<string, number>;
 const MICROS: Record<string, Micro> = {
-  "Chicken breast, cooked": { sodium: 0.074, potassium: 0.256, iron: 0.001, "saturated-fat": 1 },
-  "Salmon, cooked": { sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, "saturated-fat": 3.1 },
-  "Egg, whole": { sugars: 1.1, sodium: 0.124, potassium: 0.126, calcium: 0.05, iron: 0.0018, "saturated-fat": 3.3 },
-  "White bread": { fiber: 2.7, sugars: 5, "saturated-fat": 0.7, sodium: 0.491, potassium: 0.1, calcium: 0.144, iron: 0.0036 },
-  "Whole wheat bread": { fiber: 6, sugars: 6, "saturated-fat": 0.7, sodium: 0.45, potassium: 0.25, calcium: 0.107, iron: 0.0025 },
-  "Rye bread": { fiber: 5.8, sugars: 3.9, "saturated-fat": 0.6, sodium: 0.603, potassium: 0.166, calcium: 0.073, iron: 0.0028 },
-  "White rice, cooked": { fiber: 0.4, sugars: 0.1, "saturated-fat": 0.1, sodium: 0.001, potassium: 0.035, iron: 0.0014 },
-  "Brown rice, cooked": { fiber: 1.6, "saturated-fat": 0.2, sodium: 0.004, potassium: 0.079, iron: 0.0005 },
-  "Oats, dry": { fiber: 10, sugars: 1, "saturated-fat": 1.2, sodium: 0.002, potassium: 0.429, calcium: 0.054, iron: 0.0047 },
-  "Banana": { fiber: 2.6, sugars: 12, sodium: 0.001, potassium: 0.358, calcium: 0.005, iron: 0.0003 },
-  "Apple": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.107, calcium: 0.006 },
-  "Broccoli": { fiber: 2.6, sugars: 1.7, sodium: 0.033, potassium: 0.316, calcium: 0.047, iron: 0.0007 },
-  "Spinach": { fiber: 2.2, sugars: 0.4, sodium: 0.079, potassium: 0.558, calcium: 0.099, iron: 0.0027 },
-  "Sweet potato, cooked": { fiber: 3.3, sugars: 6.5, sodium: 0.036, potassium: 0.475, calcium: 0.038, iron: 0.0007 },
-  "Potato, cooked": { fiber: 1.8, sugars: 0.9, sodium: 0.005, potassium: 0.379, calcium: 0.005, iron: 0.0031 },
-  "Almonds": { fiber: 12.5, sugars: 4.4, "saturated-fat": 3.8, sodium: 0.001, potassium: 0.733, calcium: 0.269, iron: 0.0037 },
-  "Peanut butter": { fiber: 6, sugars: 9, "saturated-fat": 10, sodium: 0.476, potassium: 0.649, calcium: 0.049, iron: 0.0019 },
-  "Greek yogurt, plain nonfat": { sugars: 3.6, sodium: 0.036, potassium: 0.141, calcium: 0.11, "saturated-fat": 0.1 },
-  "Milk, whole": { sugars: 4.8, "saturated-fat": 1.9, sodium: 0.043, potassium: 0.132, calcium: 0.113 },
-  "Cheddar cheese": { sugars: 0.5, "saturated-fat": 19, sodium: 0.621, potassium: 0.098, calcium: 0.721, iron: 0.0007 },
-  "Black beans, cooked": { fiber: 8.7, sugars: 0.3, sodium: 0.001, potassium: 0.355, calcium: 0.027, iron: 0.0021 },
-  "Lentils, cooked": { fiber: 7.9, sugars: 1.8, sodium: 0.002, potassium: 0.369, calcium: 0.019, iron: 0.0033 },
-  "Chickpeas, cooked": { fiber: 7.6, sugars: 4.8, "saturated-fat": 0.3, sodium: 0.007, potassium: 0.291, calcium: 0.049, iron: 0.0029 },
-  "Avocado": { fiber: 6.7, sugars: 0.7, "saturated-fat": 2.1, sodium: 0.007, potassium: 0.485, calcium: 0.012, iron: 0.0006 },
-  "Ground beef 90/10, cooked": { sodium: 0.072, potassium: 0.318, iron: 0.0026, "saturated-fat": 3.2 },
-  "Tuna, canned in water": { sodium: 0.247, potassium: 0.237, iron: 0.0013, "saturated-fat": 0.3 },
-  "Carrots": { fiber: 2.8, sugars: 4.7, sodium: 0.069, potassium: 0.32, calcium: 0.033, iron: 0.0003 },
-  "Orange": { fiber: 2.4, sugars: 9, sodium: 0, potassium: 0.181, calcium: 0.04 },
-  "Blueberries": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.077, calcium: 0.006 },
-  "Quinoa, cooked": { fiber: 2.8, sugars: 0.9, "saturated-fat": 0.2, sodium: 0.007, potassium: 0.172, iron: 0.0015 },
-  "Pasta, cooked": { fiber: 1.8, sugars: 0.6, sodium: 0.001, potassium: 0.044, iron: 0.0005 },
-  "Tofu, firm": { fiber: 0.9, "saturated-fat": 1.3, sodium: 0.012, potassium: 0.121, calcium: 0.35, iron: 0.0027 },
+  "Chicken breast, cooked": { "saturated-fat": 1, sodium: 0.074, potassium: 0.256, iron: 0.001, magnesium: 0.029, zinc: 0.001, phosphorus: 0.196, selenium: 0.0000221, "vitamin-pp": 0.0139, "vitamin-b6": 0.0006 },
+  "Salmon, cooked": { "saturated-fat": 3.1, sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, magnesium: 0.03, phosphorus: 0.2, selenium: 0.0000363, "vitamin-d": 0.0000112, "vitamin-b12": 0.0000032, "vitamin-b6": 0.00065, "vitamin-pp": 0.0088 },
+  "Tuna, canned in water": { "saturated-fat": 0.3, sodium: 0.247, potassium: 0.237, iron: 0.0013, phosphorus: 0.2, selenium: 0.00008, "vitamin-d": 0.000002, "vitamin-b12": 0.0000025, "vitamin-pp": 0.011 },
+  "Sardines, canned": { "saturated-fat": 1.5, sodium: 0.307, calcium: 0.382, iron: 0.0029, phosphorus: 0.49, selenium: 0.0000527, "vitamin-d": 0.0000048, "vitamin-b12": 0.0000089 },
+  "Shrimp, cooked": { sodium: 0.111, potassium: 0.259, calcium: 0.07, iron: 0.0005, phosphorus: 0.201, selenium: 0.0000341, "vitamin-b12": 0.0000011 },
+  "Beef liver, cooked": { sodium: 0.077, potassium: 0.352, iron: 0.0065, zinc: 0.004, copper: 0.0099, "vitamin-a": 0.00494, "vitamin-b12": 0.000059, "vitamin-b9": 0.00029, "vitamin-b2": 0.0029, "vitamin-pp": 0.0173 },
+  "Ground beef 90/10, cooked": { "saturated-fat": 3.2, sodium: 0.072, potassium: 0.318, iron: 0.0026, zinc: 0.0064, phosphorus: 0.2, selenium: 0.000018, "vitamin-b12": 0.0000025, "vitamin-pp": 0.0055 },
+  "Egg, whole": { "saturated-fat": 3.3, sugars: 1.1, sodium: 0.124, potassium: 0.126, calcium: 0.05, iron: 0.0018, phosphorus: 0.198, selenium: 0.0000308, "vitamin-a": 0.00016, "vitamin-d": 0.000002, "vitamin-b12": 0.00000089, "vitamin-b2": 0.000457, "vitamin-b9": 0.000047, cholesterol: 0.372 },
+  "Greek yogurt, plain nonfat": { sugars: 3.6, "saturated-fat": 0.1, sodium: 0.036, potassium: 0.141, calcium: 0.11, phosphorus: 0.135, "vitamin-b12": 0.00000075, "vitamin-b2": 0.0003 },
+  "Milk, whole": { sugars: 4.8, "saturated-fat": 1.9, sodium: 0.043, potassium: 0.132, calcium: 0.113, phosphorus: 0.084, "vitamin-a": 0.000046, "vitamin-d": 0.0000013, "vitamin-b12": 0.00000045, "vitamin-b2": 0.000169 },
+  "Cheddar cheese": { sugars: 0.5, "saturated-fat": 19, sodium: 0.621, potassium: 0.098, calcium: 0.721, iron: 0.0007, zinc: 0.0031, phosphorus: 0.512, "vitamin-a": 0.000265, "vitamin-b12": 0.0000011 },
+  "White bread": { fiber: 2.7, sugars: 5, "saturated-fat": 0.7, sodium: 0.491, potassium: 0.1, calcium: 0.144, iron: 0.0036, "vitamin-b1": 0.00048, "vitamin-b9": 0.000085 },
+  "Whole wheat bread": { fiber: 6, sugars: 6, "saturated-fat": 0.7, sodium: 0.45, potassium: 0.25, calcium: 0.107, iron: 0.0025, magnesium: 0.076, zinc: 0.0018, "vitamin-b9": 0.000042 },
+  "Rye bread": { fiber: 5.8, sugars: 3.9, "saturated-fat": 0.6, sodium: 0.603, potassium: 0.166, calcium: 0.073, iron: 0.0028, magnesium: 0.04 },
+  "Oats, dry": { fiber: 10, sugars: 1, "saturated-fat": 1.2, sodium: 0.002, potassium: 0.429, calcium: 0.054, iron: 0.0047, magnesium: 0.177, zinc: 0.004, phosphorus: 0.523, "vitamin-b1": 0.00076 },
+  "Brown rice, cooked": { fiber: 1.6, "saturated-fat": 0.2, sodium: 0.004, potassium: 0.079, iron: 0.0005, magnesium: 0.039, "vitamin-pp": 0.0025 },
+  "Quinoa, cooked": { fiber: 2.8, sugars: 0.9, "saturated-fat": 0.2, sodium: 0.007, potassium: 0.172, iron: 0.0015, magnesium: 0.064, "vitamin-b9": 0.000042 },
+  "Pasta, cooked": { fiber: 1.8, sugars: 0.6, sodium: 0.001, potassium: 0.044, iron: 0.0005, magnesium: 0.018, "vitamin-b9": 0.000018 },
+  "Banana": { fiber: 2.6, sugars: 12, sodium: 0.001, potassium: 0.358, calcium: 0.005, iron: 0.0003, magnesium: 0.027, "vitamin-c": 0.0087, "vitamin-b6": 0.000367 },
+  "Apple": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.107, calcium: 0.006, "vitamin-c": 0.0046 },
+  "Orange": { fiber: 2.4, sugars: 9, sodium: 0, potassium: 0.181, calcium: 0.04, "vitamin-c": 0.053, "vitamin-b9": 0.00003 },
+  "Strawberries": { fiber: 2, sugars: 4.9, sodium: 0.001, potassium: 0.153, calcium: 0.016, "vitamin-c": 0.0588, "vitamin-b9": 0.000024 },
+  "Blueberries": { fiber: 2.4, sugars: 10, sodium: 0.001, potassium: 0.077, calcium: 0.006, "vitamin-c": 0.0097, "vitamin-k": 0.0000194 },
+  "Kiwi": { fiber: 3, sugars: 9, sodium: 0.003, potassium: 0.312, calcium: 0.034, "vitamin-c": 0.0927, "vitamin-k": 0.00004 },
+  "Mango": { fiber: 1.6, sugars: 14, sodium: 0.001, potassium: 0.168, "vitamin-c": 0.0364, "vitamin-a": 0.000054, "vitamin-b9": 0.000043 },
+  "Avocado": { fiber: 6.7, sugars: 0.7, "saturated-fat": 2.1, sodium: 0.007, potassium: 0.485, calcium: 0.012, iron: 0.0006, magnesium: 0.029, "vitamin-k": 0.000021, "vitamin-e": 0.0021, "vitamin-b9": 0.000081 },
+  "Broccoli": { fiber: 2.6, sugars: 1.7, sodium: 0.033, potassium: 0.316, calcium: 0.047, iron: 0.0007, "vitamin-c": 0.089, "vitamin-k": 0.000102, "vitamin-a": 0.000031, "vitamin-b9": 0.000063 },
+  "Spinach": { fiber: 2.2, sugars: 0.4, sodium: 0.079, potassium: 0.558, calcium: 0.099, iron: 0.0027, magnesium: 0.079, "vitamin-c": 0.028, "vitamin-k": 0.000483, "vitamin-a": 0.000469, "vitamin-b9": 0.000194 },
+  "Kale": { fiber: 3.6, sugars: 2.3, sodium: 0.038, potassium: 0.348, calcium: 0.15, iron: 0.0015, "vitamin-c": 0.093, "vitamin-k": 0.000389, "vitamin-a": 0.000241 },
+  "Carrots": { fiber: 2.8, sugars: 4.7, sodium: 0.069, potassium: 0.32, calcium: 0.033, iron: 0.0003, "vitamin-a": 0.000835, "vitamin-k": 0.0000132, "vitamin-c": 0.0059 },
+  "Sweet potato, cooked": { fiber: 3.3, sugars: 6.5, sodium: 0.036, potassium: 0.475, calcium: 0.038, iron: 0.0007, "vitamin-a": 0.000709, "vitamin-c": 0.0024 },
+  "Potato, cooked": { fiber: 1.8, sugars: 0.9, sodium: 0.005, potassium: 0.379, calcium: 0.005, iron: 0.0031, "vitamin-c": 0.0195, "vitamin-b6": 0.000211 },
+  "Bell pepper": { fiber: 2.1, sugars: 4.2, sodium: 0.004, potassium: 0.211, calcium: 0.007, "vitamin-c": 0.128, "vitamin-a": 0.000157, "vitamin-b6": 0.00029 },
+  "Tomato": { fiber: 1.2, sugars: 2.6, sodium: 0.005, potassium: 0.237, calcium: 0.01, "vitamin-c": 0.014, "vitamin-a": 0.000042, "vitamin-k": 0.0000079 },
+  "Brussels sprouts": { fiber: 3.8, sugars: 2.2, sodium: 0.025, potassium: 0.389, calcium: 0.042, "vitamin-c": 0.085, "vitamin-k": 0.000177, "vitamin-b9": 0.000061 },
+  "Asparagus": { fiber: 2.1, sugars: 1.9, sodium: 0.002, potassium: 0.202, calcium: 0.024, iron: 0.0021, "vitamin-k": 0.0000416, "vitamin-b9": 0.000149, "vitamin-a": 0.000038 },
+  "Almonds": { fiber: 12.5, sugars: 4.4, "saturated-fat": 3.8, sodium: 0.001, potassium: 0.733, calcium: 0.269, iron: 0.0037, magnesium: 0.27, zinc: 0.0031, "vitamin-e": 0.0257, "vitamin-b2": 0.0011 },
+  "Peanut butter": { fiber: 6, sugars: 9, "saturated-fat": 10, sodium: 0.476, potassium: 0.649, calcium: 0.049, iron: 0.0019, magnesium: 0.154, "vitamin-e": 0.009, "vitamin-pp": 0.0132 },
+  "Black beans, cooked": { fiber: 8.7, sugars: 0.3, sodium: 0.001, potassium: 0.355, calcium: 0.027, iron: 0.0021, magnesium: 0.07, zinc: 0.0011, "vitamin-b9": 0.000149 },
+  "Lentils, cooked": { fiber: 7.9, sugars: 1.8, sodium: 0.002, potassium: 0.369, calcium: 0.019, iron: 0.0033, magnesium: 0.036, zinc: 0.0013, "vitamin-b9": 0.000181 },
+  "Chickpeas, cooked": { fiber: 7.6, sugars: 4.8, "saturated-fat": 0.3, sodium: 0.007, potassium: 0.291, calcium: 0.049, iron: 0.0029, magnesium: 0.048, zinc: 0.0025, "vitamin-b9": 0.000172 },
+  "Tofu, firm": { fiber: 0.9, "saturated-fat": 1.3, sodium: 0.012, potassium: 0.121, calcium: 0.35, iron: 0.0027, magnesium: 0.058, zinc: 0.0016 },
+  "Edamame": { fiber: 5, sugars: 2.2, sodium: 0.006, potassium: 0.436, calcium: 0.063, iron: 0.0022, magnesium: 0.064, "vitamin-c": 0.0064, "vitamin-k": 0.000027, "vitamin-b9": 0.000311 },
+  "White rice, cooked": { fiber: 0.4, sugars: 0.1, "saturated-fat": 0.1, sodium: 0.001, potassium: 0.035, iron: 0.0014, "vitamin-b9": 0.000058 },
 };
 
 /** Turn one reference row into the same NormalizedFood shape as an OFF result. */
@@ -793,4 +808,9 @@ export const GENERIC_FOOD_COUNT = FOODS.length;
 /** All generic food names — used to assert the catalog has no duplicates. */
 export function allGenericFoodNames(): string[] {
   return FOODS.map((r) => r[0]);
+}
+
+/** The whole catalog as normalized foods (with micros) — for the recommender. */
+export function allGenericFoods(): NormalizedFood[] {
+  return FOODS.map(toNormalized);
 }
