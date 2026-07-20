@@ -60,9 +60,30 @@ export type ClientProfile = {
   activity: ActivityLevel | null;
   goal: Goal;
   diet_preference: DietPreference;
+  water_goal_ml: number;
   onboarded_at: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type WaterLog = {
+  id: string;
+  client_id: string;
+  log_date: string;
+  ml: number;
+  created_at: string;
+};
+
+export type BodyMeasurement = {
+  id: string;
+  client_id: string;
+  log_date: string;
+  weight_kg: number | null;
+  body_fat_pct: number | null;
+  waist_cm: number | null;
+  hips_cm: number | null;
+  notes: string | null;
+  created_at: string;
 };
 
 export type NutritionTargetRow = {
@@ -230,6 +251,18 @@ export type Database = {
         Row: HabitLog;
         Insert: Partial<HabitLog> & { habit_id: string; client_id: string; log_date: string };
         Update: Partial<HabitLog>;
+        Relationships: [];
+      };
+      water_logs: {
+        Row: WaterLog;
+        Insert: Partial<WaterLog> & { client_id: string; ml: number };
+        Update: Partial<WaterLog>;
+        Relationships: [];
+      };
+      body_measurements: {
+        Row: BodyMeasurement;
+        Insert: Partial<BodyMeasurement> & { client_id: string; log_date: string };
+        Update: Partial<BodyMeasurement>;
         Relationships: [];
       };
     };

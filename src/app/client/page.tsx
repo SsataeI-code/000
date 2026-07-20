@@ -17,7 +17,9 @@ import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
 import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
 import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabits";
+import { WaterTracker } from "@/components/body/WaterTracker";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
+import { getTodayWaterMl } from "@/lib/body/data";
 import { currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
@@ -46,11 +48,12 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const [logs, savedMeals, habits, habitLogs] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs, waterMl] = await Promise.all([
     getTodayFoodLogs(user.id),
     getSavedMeals(user.id),
     getHabits(user.id),
     getHabitLogs(user.id),
+    getTodayWaterMl(user.id),
   ]);
   const totals = totalMacros(logs);
 
@@ -114,6 +117,8 @@ export default async function TodayPage() {
           fatG: targets.fat_g,
         }}
       />
+
+      <WaterTracker consumedMl={waterMl} goalMl={profile?.water_goal_ml ?? 2500} />
 
       <div className="flex items-center justify-between">
         <h2 className="text-2xl text-ink">{getCopy("client.nav.food")}</h2>

@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { consistency, currentStreak } from "@/lib/habits/streaks";
+import { consistency, currentStreak, longestStreak } from "@/lib/habits/streaks";
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
 import { HabitManageList, type ManageItem } from "@/components/habits/HabitManageList";
+import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import type { Habit } from "@/lib/types/db";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +38,14 @@ export default async function HabitsPage() {
     };
   });
 
+  // Overall heatmap (completions per day) + records.
+  const counts: Record<string, number> = {};
+  for (const log of logs) if (log.completed) counts[log.log_date] = (counts[log.log_date] ?? 0) + 1;
+  const bestStreak = habits.reduce(
+    (best, h) => Math.max(best, longestStreak(byHabit.get(h.id) ?? new Set<string>())),
+    0,
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -45,6 +54,18 @@ export default async function HabitsPage() {
           Done
         </Link>
       </div>
+
+      {habits.length > 0 ? (
+        <section className="border border-hairline bg-surface p-5">
+          <div className="flex items-baseline justify-between">
+            <p className="font-label text-xs uppercase tracking-wide text-ink/50">Consistency</p>
+            <p className="font-body text-xs text-ink/60">Best streak: {bestStreak}d</p>
+          </div>
+          <div className="mt-3">
+            <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
+          </div>
+        </section>
+      ) : null}
 
       <HabitManageList items={items} />
 
