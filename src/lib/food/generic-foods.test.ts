@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GENERIC_FOOD_COUNT, searchGenericFoods } from "@/lib/food/generic-foods";
+import { editDistance, GENERIC_FOOD_COUNT, searchGenericFoods } from "@/lib/food/generic-foods";
 
 describe("generic foods fallback", () => {
   it("ships a substantial reference table", () => {
@@ -35,5 +35,29 @@ describe("generic foods fallback", () => {
       expect(f.per100g.calories).not.toBeNull();
       expect(f.per100g.proteinG).not.toBeNull();
     }
+  });
+
+  it("distinguishes bread varieties uniquely", () => {
+    expect(searchGenericFoods("rye slice")[0]?.name).toBe("Rye bread");
+    expect(searchGenericFoods("whole wheat slice")[0]?.name).toBe("Whole wheat bread");
+    expect(searchGenericFoods("sourdough")[0]?.name).toBe("Sourdough bread");
+    expect(searchGenericFoods("pumpernickel")[0]?.name).toBe("Pumpernickel bread");
+    // Each variety has its own macros, not a shared copy.
+    const rye = searchGenericFoods("rye slice")[0];
+    const white = searchGenericFoods("white bread")[0];
+    expect(rye?.per100g.carbsG).not.toBe(white?.per100g.carbsG);
+  });
+
+  it("is case-insensitive and typo-tolerant", () => {
+    expect(searchGenericFoods("WHITE BREAD")[0]?.name).toBe("White bread");
+    expect(searchGenericFoods("chikn breast")[0]?.name).toBe("Chicken breast, cooked");
+    expect(searchGenericFoods("brocoli").some((f) => f.name === "Broccoli")).toBe(true);
+    expect(searchGenericFoods("banan").some((f) => f.name === "Banana")).toBe(true);
+  });
+
+  it("editDistance measures typos", () => {
+    expect(editDistance("chicken", "chicken")).toBe(0);
+    expect(editDistance("chikn", "chicken")).toBeLessThanOrEqual(2);
+    expect(editDistance("broccoli", "brocoli")).toBe(1);
   });
 });

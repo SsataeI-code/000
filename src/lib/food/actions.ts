@@ -15,6 +15,44 @@ export type LookupResult =
   | { found: true; product: NormalizedFood; fromCache: boolean }
   | { found: false; reason: "not_found" | "bad_response" | "network_error" };
 
+type FoodProductRow = {
+  barcode: string;
+  name: string | null;
+  brand: string | null;
+  image_url: string | null;
+  serving_size_g: number | null;
+  nutriments: Record<string, number> | null;
+};
+
+const MACRO_KEYS = {
+  calories: "energy_kcal",
+  proteinG: "proteins",
+  carbsG: "carbohydrates",
+  fatG: "fat",
+} as const;
+
+/** Map a cached food_products row to the shared NormalizedFood shape. */
+function cachedToNormalized(row: FoodProductRow): NormalizedFood {
+  const n = (row.nutriments ?? {}) as Record<string, number>;
+  return {
+    barcode: row.barcode,
+    name: row.name,
+    brand: row.brand,
+    imageUrl: row.image_url,
+    servingSizeG: row.serving_size_g,
+    per100g: {
+      calories: n.energy_kcal ?? null,
+      proteinG: n.proteins ?? null,
+      carbsG: n.carbohydrates ?? null,
+      fatG: n.fat ?? null,
+    },
+    nutrimentsPer100g: n,
+    missing: (["calories", "proteinG", "carbsG", "fatG"] as const).filter(
+      (k) => n[MACRO_KEYS[k]] === undefined,
+    ),
+  };
+}
+
 /**
  * Resolve a barcode: check the shared product cache first (fast + offline-ish),
  * then Open Food Facts. A hit gets cached so the next client scanning it is
@@ -37,26 +75,7 @@ export async function lookupProductAction(barcode: string): Promise<LookupResult
     .maybeSingle();
 
   if (cached) {
-    const n = (cached.nutriments ?? {}) as Record<string, number>;
-    const product: NormalizedFood = {
-      barcode: code,
-      name: cached.name,
-      brand: cached.brand,
-      imageUrl: cached.image_url,
-      servingSizeG: cached.serving_size_g,
-      per100g: {
-        calories: n.energy_kcal ?? null,
-        proteinG: n.proteins ?? null,
-        carbsG: n.carbohydrates ?? null,
-        fatG: n.fat ?? null,
-      },
-      nutrimentsPer100g: n,
-      missing: (["calories", "proteinG", "carbsG", "fatG"] as const).filter((k) => {
-        const map = { calories: "energy_kcal", proteinG: "proteins", carbsG: "carbohydrates", fatG: "fat" };
-        return n[map[k]] === undefined;
-      }),
-    };
-    return { found: true, product, fromCache: true };
+    return { found: true, product: cachedToNormalized(cached as FoodProductRow), fromCache: true };
   }
 
   // 2. Open Food Facts.
@@ -93,15 +112,34 @@ export async function searchFoodsAction(query: string): Promise<NormalizedFood[]
   const q = query.trim();
   if (q.length < 2) return [];
 
+  const supabase = await createClient();
+
+  // Everything ever scanned/confirmed lives in the shared cache — search it so
+  // the food database is ever-expanding (the user's own products come back fast).
+  const escaped = q.replace(/[%_]/g, (m) => `\\${m}`);
+  const { data: cachedRows } = await supabase
+    .from("food_products")
+    .select("*")
+    .ilike("name", `%${escaped}%`)
+    .limit(12);
+
   const generics = searchGenericFoods(q, 6);
+  const cached = (cachedRows ?? [])
+    .map((r) => cachedToNormalized(r as FoodProductRow))
+    .filter((p) => p.name && p.per100g.calories !== null);
   const off = await searchProducts(q, 15);
 
-  const seen = new Set(generics.map((g) => g.name?.toLowerCase()));
-  const merged = [...generics];
-  for (const item of off) {
-    const key = item.name?.toLowerCase();
-    if (key && seen.has(key)) continue;
-    if (key) seen.add(key);
+  // Order: reliable generics, then real scanned products, then live OFF. Dedupe
+  // by lowercased name and by barcode.
+  const seenNames = new Set<string>();
+  const seenCodes = new Set<string>();
+  const merged: NormalizedFood[] = [];
+  for (const item of [...generics, ...cached, ...off]) {
+    const nameKey = item.name?.toLowerCase() ?? "";
+    if (nameKey && seenNames.has(nameKey)) continue;
+    if (item.barcode && seenCodes.has(item.barcode)) continue;
+    if (nameKey) seenNames.add(nameKey);
+    if (item.barcode) seenCodes.add(item.barcode);
     merged.push(item);
   }
   return merged.slice(0, 20);
@@ -156,6 +194,34 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   });
 
   if (error) return { error: "Couldn't save that log — give it another try." };
+
+  // Save a scanned/confirmed barcode into the shared cache so it's searchable
+  // forever and the database keeps growing (§6). Derive per-100g from what was
+  // logged; only write if it passes a basic sanity check (calories per 100g in a
+  // plausible range) so a fat-finger entry can't poison shared data.
+  const barcode = input.barcode?.trim();
+  const grams = input.grams != null && Number.isFinite(input.grams) ? Number(input.grams) : 0;
+  if (barcode && isValidBarcode(barcode) && grams > 0) {
+    const factor = 100 / grams;
+    const per100 = {
+      energy_kcal: Math.round(nonNegInt(input.calories) * factor),
+      proteins: Math.round(nonNeg(input.proteinG) * factor * 10) / 10,
+      carbohydrates: Math.round(nonNeg(input.carbsG) * factor * 10) / 10,
+      fat: Math.round(nonNeg(input.fatG) * factor * 10) / 10,
+    };
+    if (per100.energy_kcal > 0 && per100.energy_kcal <= 950) {
+      await supabase.from("food_products").upsert({
+        barcode,
+        name,
+        brand: input.brand?.trim() || null,
+        serving_size_g: grams,
+        nutriments: per100,
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      });
+    }
+  }
+
   revalidatePath("/client");
   return { ok: true };
 }
