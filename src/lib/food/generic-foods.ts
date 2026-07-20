@@ -645,7 +645,7 @@ const MICROS: Record<string, Micro> = {
   "Chicken breast, cooked": { "saturated-fat": 1, sodium: 0.074, potassium: 0.256, iron: 0.001, magnesium: 0.029, zinc: 0.001, phosphorus: 0.196, selenium: 0.0000221, "vitamin-pp": 0.0139, "vitamin-b6": 0.0006 },
   "Salmon, cooked": { "saturated-fat": 3.1, sodium: 0.059, potassium: 0.384, calcium: 0.012, iron: 0.0003, magnesium: 0.03, phosphorus: 0.2, selenium: 0.0000363, "vitamin-d": 0.0000112, "vitamin-b12": 0.0000032, "vitamin-b6": 0.00065, "vitamin-pp": 0.0088 },
   "Tuna, canned in water": { "saturated-fat": 0.3, sodium: 0.247, potassium: 0.237, iron: 0.0013, phosphorus: 0.2, selenium: 0.00008, "vitamin-d": 0.000002, "vitamin-b12": 0.0000025, "vitamin-pp": 0.011 },
-  "Sardines, canned": { "saturated-fat": 1.5, sodium: 0.307, calcium: 0.382, iron: 0.0029, phosphorus: 0.49, selenium: 0.0000527, "vitamin-d": 0.0000048, "vitamin-b12": 0.0000089 },
+  "Canned sardines": { "saturated-fat": 1.5, sodium: 0.307, calcium: 0.382, iron: 0.0029, phosphorus: 0.49, selenium: 0.0000527, "vitamin-d": 0.0000048, "vitamin-b12": 0.0000089 },
   "Shrimp, cooked": { sodium: 0.111, potassium: 0.259, calcium: 0.07, iron: 0.0005, phosphorus: 0.201, selenium: 0.0000341, "vitamin-b12": 0.0000011 },
   "Beef liver, cooked": { sodium: 0.077, potassium: 0.352, iron: 0.0065, zinc: 0.004, copper: 0.0099, "vitamin-a": 0.00494, "vitamin-b12": 0.000059, "vitamin-b9": 0.00029, "vitamin-b2": 0.0029, "vitamin-pp": 0.0173 },
   "Ground beef 90/10, cooked": { "saturated-fat": 3.2, sodium: 0.072, potassium: 0.318, iron: 0.0026, zinc: 0.0064, phosphorus: 0.2, selenium: 0.000018, "vitamin-b12": 0.0000025, "vitamin-pp": 0.0055 },
@@ -686,6 +686,44 @@ const MICROS: Record<string, Micro> = {
   "Tofu, firm": { fiber: 0.9, "saturated-fat": 1.3, sodium: 0.012, potassium: 0.121, calcium: 0.35, iron: 0.0027, magnesium: 0.058, zinc: 0.0016 },
   "Edamame": { fiber: 5, sugars: 2.2, sodium: 0.006, potassium: 0.436, calcium: 0.063, iron: 0.0022, magnesium: 0.064, "vitamin-c": 0.0064, "vitamin-k": 0.000027, "vitamin-b9": 0.000311 },
   "White rice, cooked": { fiber: 0.4, sugars: 0.1, "saturated-fat": 0.1, sodium: 0.001, potassium: 0.035, iron: 0.0014, "vitamin-b9": 0.000058 },
+  // More proteins
+  "Chicken thigh, cooked": { "saturated-fat": 3, sodium: 0.086, potassium: 0.23, iron: 0.0013, zinc: 0.0022, phosphorus: 0.18, selenium: 0.0000249, "vitamin-b6": 0.00033, "vitamin-pp": 0.0056 },
+  "Turkey breast, cooked": { sodium: 0.104, potassium: 0.249, iron: 0.0011, phosphorus: 0.196, selenium: 0.0000313, "vitamin-b6": 0.00081, "vitamin-pp": 0.0114 },
+  "Pork chop, cooked": { "saturated-fat": 4.7, sodium: 0.062, potassium: 0.383, iron: 0.0007, zinc: 0.0025, phosphorus: 0.23, selenium: 0.0000381, "vitamin-b1": 0.00069, "vitamin-b6": 0.0006 },
+  "Cod, cooked": { sodium: 0.078, potassium: 0.244, calcium: 0.018, phosphorus: 0.146, selenium: 0.0000333, "vitamin-b12": 0.0000009 },
+  "Tilapia, cooked": { sodium: 0.056, potassium: 0.38, calcium: 0.014, phosphorus: 0.204, selenium: 0.0000546, "vitamin-b12": 0.0000019 },
+  "Halibut, cooked": { sodium: 0.082, potassium: 0.528, magnesium: 0.028, phosphorus: 0.285, selenium: 0.0000473, "vitamin-d": 0.0000048 },
+  "Cottage cheese": { sugars: 2.7, "saturated-fat": 1.7, sodium: 0.364, calcium: 0.083, phosphorus: 0.159, selenium: 0.0000094, "vitamin-b12": 0.00000043 },
+  "Mozzarella cheese": { "saturated-fat": 10, sodium: 0.627, calcium: 0.505, phosphorus: 0.354, zinc: 0.0029, "vitamin-a": 0.00018 },
+  // More vegetables
+  "Cauliflower": { fiber: 2, sugars: 1.9, sodium: 0.03, potassium: 0.299, calcium: 0.022, "vitamin-c": 0.048, "vitamin-k": 0.0000155, "vitamin-b9": 0.000057 },
+  "Green beans": { fiber: 2.7, sugars: 3.3, sodium: 0.006, potassium: 0.211, calcium: 0.037, iron: 0.001, "vitamin-c": 0.012, "vitamin-k": 0.000043 },
+  "Zucchini": { fiber: 1, sugars: 2.5, sodium: 0.008, potassium: 0.261, calcium: 0.016, "vitamin-c": 0.0177, "vitamin-b6": 0.000163 },
+  "Cabbage": { fiber: 2.5, sugars: 3.2, sodium: 0.018, potassium: 0.17, calcium: 0.04, "vitamin-c": 0.0366, "vitamin-k": 0.000076 },
+  "Corn": { fiber: 2.4, sugars: 3.2, sodium: 0.015, potassium: 0.27, magnesium: 0.037, "vitamin-c": 0.0068, "vitamin-b9": 0.000042 },
+  "Mushrooms": { fiber: 1, sugars: 2, sodium: 0.005, potassium: 0.318, phosphorus: 0.086, selenium: 0.0000093, "vitamin-b2": 0.000402, "vitamin-pp": 0.0036, "vitamin-d": 0.0000002 },
+  "Peas, green": { fiber: 5.7, sugars: 5.7, sodium: 0.005, potassium: 0.244, iron: 0.0015, "vitamin-c": 0.04, "vitamin-k": 0.0000246, "vitamin-b9": 0.000065 },
+  // More fruits
+  "Grapes": { fiber: 0.9, sugars: 16, sodium: 0.002, potassium: 0.191, "vitamin-c": 0.0032, "vitamin-k": 0.0000145 },
+  "Watermelon": { fiber: 0.4, sugars: 6.2, sodium: 0.001, potassium: 0.112, "vitamin-c": 0.0081, "vitamin-a": 0.000028 },
+  "Pineapple": { fiber: 1.4, sugars: 9.9, sodium: 0.001, potassium: 0.109, "vitamin-c": 0.0479, magnesium: 0.012 },
+  "Raspberries": { fiber: 6.5, sugars: 4.4, sodium: 0.001, potassium: 0.151, calcium: 0.025, "vitamin-c": 0.0262, "vitamin-k": 0.0000078 },
+  "Grapefruit": { fiber: 1.6, sugars: 7, sodium: 0, potassium: 0.135, "vitamin-c": 0.031, "vitamin-a": 0.000058 },
+  "Cantaloupe": { fiber: 0.9, sugars: 7.9, sodium: 0.016, potassium: 0.267, "vitamin-c": 0.0367, "vitamin-a": 0.000169 },
+  // More legumes, nuts, seeds
+  "Kidney beans, cooked": { fiber: 6.4, sugars: 0.3, sodium: 0.001, potassium: 0.403, calcium: 0.028, iron: 0.0029, magnesium: 0.045, "vitamin-b9": 0.00013 },
+  "Pinto beans, cooked": { fiber: 9, sugars: 0.3, sodium: 0.001, potassium: 0.436, calcium: 0.046, iron: 0.0021, magnesium: 0.05, "vitamin-b9": 0.000172 },
+  "Hummus": { fiber: 6, sugars: 0.3, "saturated-fat": 1.4, sodium: 0.379, potassium: 0.228, calcium: 0.038, iron: 0.0024, magnesium: 0.071 },
+  "Walnuts": { fiber: 6.7, sugars: 2.6, "saturated-fat": 6.1, potassium: 0.441, calcium: 0.098, iron: 0.0029, magnesium: 0.158, "vitamin-b6": 0.000537 },
+  "Cashews": { fiber: 3.3, sugars: 5.9, "saturated-fat": 7.8, sodium: 0.012, potassium: 0.66, iron: 0.0067, magnesium: 0.292, zinc: 0.0058, copper: 0.0022 },
+  "Chia seeds": { fiber: 34, sodium: 0.016, calcium: 0.631, iron: 0.0077, magnesium: 0.335, phosphorus: 0.86, zinc: 0.0046 },
+  "Pumpkin seeds": { fiber: 6, sodium: 0.007, potassium: 0.809, iron: 0.0088, magnesium: 0.592, zinc: 0.0078, phosphorus: 1.23 },
+  "Flax seeds": { fiber: 27, sodium: 0.03, potassium: 0.813, calcium: 0.255, iron: 0.0057, magnesium: 0.392 },
+  // More grains & dairy
+  "Whole wheat pasta, cooked": { fiber: 4.5, sugars: 1, sodium: 0.004, potassium: 0.062, iron: 0.0013, magnesium: 0.03 },
+  "Bagel, plain": { fiber: 2.3, sugars: 5, sodium: 0.43, iron: 0.0037, "vitamin-b9": 0.000108 },
+  "Butter": { "saturated-fat": 51, sodium: 0.011, "vitamin-a": 0.000684 },
+  "String cheese": { "saturated-fat": 13, sodium: 0.6, calcium: 0.69, phosphorus: 0.45, zinc: 0.0028 },
 };
 
 /** Turn one reference row into the same NormalizedFood shape as an OFF result. */

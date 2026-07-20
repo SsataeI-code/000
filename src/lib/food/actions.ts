@@ -240,6 +240,52 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   return { ok: true };
 }
 
+export interface MealLogItemInput {
+  name: string;
+  grams: number;
+  nutrimentsPer100g: Record<string, number>;
+}
+
+/**
+ * Log a whole suggested meal in one tap (the "easy to follow" bit). Each item's
+ * macros + micros are derived from its per-100g map scaled to the serving.
+ */
+export async function logMealAction(items: MealLogItemInput[]): Promise<LogFoodState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Please sign in again." };
+  if (!Array.isArray(items) || items.length === 0) return { error: "Nothing to log." };
+
+  const rows = items
+    .filter((it) => it && typeof it.name === "string" && it.name.trim())
+    .map((it) => {
+      const f = (Number(it.grams) || 0) / 100;
+      const n = it.nutrimentsPer100g ?? {};
+      return {
+        client_id: user.id,
+        name: it.name.trim(),
+        brand: "Generic",
+        grams: Number(it.grams) || null,
+        calories: nonNegInt((n.energy_kcal ?? 0) * f),
+        protein_g: nonNeg((n.proteins ?? 0) * f),
+        carbs_g: nonNeg((n.carbohydrates ?? 0) * f),
+        fat_g: nonNeg((n.fat ?? 0) * f),
+        nutriments: (() => {
+          const s = scaleNutriments(n, Number(it.grams) || 0);
+          return Object.keys(s).length ? s : null;
+        })(),
+        source: "search" as const,
+      };
+    });
+
+  if (rows.length === 0) return { error: "Nothing to log." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("food_logs").insert(rows);
+  if (error) return { error: "Couldn't log the meal — give it another try." };
+  revalidatePath("/client");
+  return { ok: true };
+}
+
 /** Remove a log (undo a mistake). RLS ensures a client can only delete its own. */
 export async function deleteFoodLogAction(id: string): Promise<void> {
   const user = await getSessionUser();
