@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { logMealAction } from "@/lib/food/actions";
+import { MealBuilder } from "@/components/nutrition/MealBuilder";
 import type { MealSuggestion } from "@/lib/nutrition/meals";
 
 /**
@@ -26,6 +27,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [logged, setLogged] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function logIt() {
@@ -69,14 +71,33 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
         </p>
       ) : null}
 
-      <button
-        type="button"
-        onClick={logIt}
-        disabled={pending || logged}
-        className="mt-4 inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
-      >
-        {logged ? "Logged ✓" : pending ? "Logging…" : "Log this meal"}
-      </button>
+      <div className="mt-4 flex items-center gap-4">
+        <button
+          type="button"
+          onClick={logIt}
+          disabled={pending || logged}
+          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+        >
+          {logged ? "Logged ✓" : pending ? "Logging…" : "Log this meal"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setEditing((v) => !v)}
+          aria-expanded={editing}
+          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+        >
+          {editing ? "Close" : "Customize"}
+        </button>
+      </div>
+
+      {editing ? (
+        <div className="mt-4">
+          <p className="mb-2 font-body text-xs text-ink/50">
+            Tweak the amounts, swap or add ingredients, then log or save it as your own.
+          </p>
+          <MealBuilder initialName={meal.name} initialItems={meal.items} />
+        </div>
+      ) : null}
     </div>
   );
 }
