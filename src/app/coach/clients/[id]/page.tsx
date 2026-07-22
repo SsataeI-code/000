@@ -20,7 +20,7 @@ import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { parseRange } from "@/lib/charts/series";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +39,7 @@ export default async function ClientDeepDive({
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const { id } = await params;
-  const range = parseRange((await searchParams).range);
+  const range = await resolveRange((await searchParams).range);
 
   // Authorization: the coach must coach this client (owner sees everyone).
   if (user.role !== "owner" && !(await coachHasClient(user.id, id))) notFound();

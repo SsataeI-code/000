@@ -20,8 +20,11 @@ export function lastNDates(n: number, today: Date = new Date()): string[] {
 }
 
 /** Allowed time-range windows for the graph toggles. */
-export const RANGE_OPTIONS = [7, 30, 90] as const;
+export const RANGE_OPTIONS = [7, 30, 60, 90] as const;
 export type RangeDays = (typeof RANGE_OPTIONS)[number];
+
+/** Cookie the server reads to remember the last-picked range across visits. */
+export const RANGE_COOKIE = "tff_range";
 
 /** Parse a `?range=` param to an allowed window, falling back to `def`. */
 export function parseRange(v: string | undefined, def: RangeDays = 30): RangeDays {
@@ -70,6 +73,25 @@ export function dailyConsistency(
     }
     return { date, value: due === 0 ? null : Math.round((done / due) * 100) / 100 };
   });
+}
+
+/**
+ * Trailing moving average over a series, skipping nulls (a smoothed trend line
+ * for any daily metric). Values are left unrounded so callers scale/format.
+ */
+export function movingAverage(series: SeriesPoint[], window = 7): SeriesPoint[] {
+  return series.map((p, i) => {
+    const vals = series
+      .slice(Math.max(0, i - window + 1), i + 1)
+      .map((s) => s.value)
+      .filter((v): v is number => v != null);
+    return { date: p.date, value: vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null };
+  });
+}
+
+/** A sensible smoothing window for a given range length. */
+export function smoothingWindow(days: number): number {
+  return days <= 14 ? 3 : days <= 45 ? 5 : 7;
 }
 
 /** Mean of the non-null values in a series, or null if all empty. */

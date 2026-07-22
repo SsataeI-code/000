@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import type { RosterSeries } from "@/lib/coach/data";
-import { seriesMean } from "@/lib/charts/series";
+import { seriesMean, movingAverage, smoothingWindow, type SeriesPoint } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-import { BarChart } from "@/components/charts/BarChart";
 
 export interface WeightSplit {
   losing: number;
@@ -31,6 +30,10 @@ export function RosterTrends({
   const avgCons = seriesMean(series.avgConsistency);
   const avgCal = seriesMean(series.avgCalories);
   const avgPro = seriesMean(series.avgProtein);
+  const ma = smoothingWindow(days);
+  const pct = (s: SeriesPoint[]): SeriesPoint[] => s.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }));
+  const loggingPct = pct(series.loggingRate);
+  const consPct = pct(series.avgConsistency);
 
   return (
     <section className="flex flex-col gap-5 border border-hairline bg-surface p-5">
@@ -73,10 +76,10 @@ export function RosterTrends({
 
       <div>
         <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Clients logging food / day</p>
-        <BarChart
-          points={series.loggingRate.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
-          max={100}
-          ariaLabel="Percent of clients who logged food each day"
+        <LineChart
+          points={loggingPct}
+          overlay={movingAverage(loggingPct, ma)}
+          ariaLabel="Percent of clients who logged food each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}%`}
         />
       </div>
@@ -85,7 +88,8 @@ export function RosterTrends({
         <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Avg calories logged / day</p>
         <LineChart
           points={series.avgCalories}
-          ariaLabel="Average calories logged across the roster each day"
+          overlay={movingAverage(series.avgCalories, ma)}
+          ariaLabel="Average calories logged across the roster each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}`}
         />
       </div>
@@ -94,20 +98,20 @@ export function RosterTrends({
         <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Avg protein logged / day</p>
         <LineChart
           points={series.avgProtein}
-          color="#1f8a4c"
-          ariaLabel="Average protein logged across the roster each day"
+          overlay={movingAverage(series.avgProtein, ma)}
+          overlayColor="#1f8a4c"
+          ariaLabel="Average protein logged across the roster each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)} g`}
         />
       </div>
 
       <div>
         <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Avg habit engagement / day</p>
-        <BarChart
-          points={series.avgConsistency.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
-          max={100}
-          color="#1f8a4c"
-          overColor="#1f8a4c"
-          ariaLabel="Average share of clients engaging their habits each day"
+        <LineChart
+          points={consPct}
+          overlay={movingAverage(consPct, ma)}
+          overlayColor="#1f8a4c"
+          ariaLabel="Average share of clients engaging their habits each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}%`}
         />
       </div>

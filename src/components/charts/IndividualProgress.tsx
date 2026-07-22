@@ -8,12 +8,13 @@ import {
   dailyCalories,
   dailyMacro,
   dailyConsistency,
+  movingAverage,
+  smoothingWindow,
   seriesMean,
   daysLogged,
   type SeriesPoint,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-import { BarChart } from "@/components/charts/BarChart";
 
 /**
  * The individual stats & graphs block (§9 "full picture … nutrition trends,
@@ -42,6 +43,7 @@ export function IndividualProgress({
   const dates = lastNDates(days);
   const cutoff = dates[0];
   const windowed = measurements.filter((m) => m.log_date >= cutoff);
+  const maWindow = smoothingWindow(days);
 
   // Weight
   const trend = weightTrend(windowed);
@@ -126,8 +128,8 @@ export function IndividualProgress({
           <p className="mb-3 font-label text-xs uppercase tracking-wide text-ink/50">Body fat %</p>
           <LineChart
             points={bfPoints}
-            color="#e10600"
-            ariaLabel="Body-fat percentage over time"
+            overlay={movingAverage(bfPoints, 3)}
+            ariaLabel="Body-fat percentage over time, with a smoothed trend line"
             formatValue={(n) => `${Math.round(n * 10) / 10}%`}
           />
         </section>
@@ -142,15 +144,16 @@ export function IndividualProgress({
             {targets ? ` · target ${targets.calories}` : ""}
           </p>
         </div>
-        <BarChart
+        <LineChart
           points={calSeries}
+          overlay={movingAverage(calSeries, maWindow)}
           targetLine={targets?.calories ?? null}
-          ariaLabel="Calories logged each day, against the daily target"
+          ariaLabel="Calories logged each day, with a smoothed trend line, against the daily target"
           formatValue={(n) => `${Math.round(n)} cal`}
         />
         <p className="mt-2 font-body text-xs text-ink/50">
           Logged food on <span className="text-ink/70">{logged}</span> of the last {days} days.
-          {targets ? <span className="text-ink/40"> Dashed line = calorie target.</span> : null}
+          <span className="text-ink/40"> Red line = trend{targets ? "; dashed = target" : ""}.</span>
         </p>
       </section>
 
@@ -163,12 +166,12 @@ export function IndividualProgress({
             {targets ? ` · target ${targets.protein_g} g` : ""}
           </p>
         </div>
-        <BarChart
+        <LineChart
           points={proteinSeries}
+          overlay={movingAverage(proteinSeries, maWindow)}
+          overlayColor="#1f8a4c"
           targetLine={targets?.protein_g ?? null}
-          color="#1f8a4c"
-          overColor="#1f8a4c"
-          ariaLabel="Grams of protein logged each day, against the protein target"
+          ariaLabel="Grams of protein logged each day, with a smoothed trend line, against the protein target"
           formatValue={(n) => `${Math.round(n)} g`}
         />
         <p className="mt-2 font-body text-xs text-ink/50">Protein is the target we chase first — hitting it protects muscle in a cut and builds it in a gain.</p>
@@ -182,13 +185,12 @@ export function IndividualProgress({
             {avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}
           </p>
         </div>
-        <BarChart
+        <LineChart
           points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
-          max={100}
+          overlay={movingAverage(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })), maWindow)}
+          overlayColor="#1f8a4c"
           targetLine={100}
-          color="#1f8a4c"
-          overColor="#1f8a4c"
-          ariaLabel="Percent of due habits completed each day"
+          ariaLabel="Percent of due habits completed each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}%`}
         />
         <p className="mt-2 font-body text-xs text-ink/50">Share of each day&apos;s due habits that got checked off.</p>

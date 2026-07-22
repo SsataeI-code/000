@@ -6,7 +6,7 @@ import { getRoster, getRosterSeries } from "@/lib/coach/data";
 import { RosterCohorts } from "@/components/coach/RosterCohorts";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { parseRange } from "@/lib/charts/series";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const range = parseRange((await searchParams).range);
+  const range = await resolveRange((await searchParams).range);
 
   const [roster, series] = await Promise.all([getRoster(user.id), getRosterSeries(user.id, range)]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;

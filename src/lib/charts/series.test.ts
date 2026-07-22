@@ -76,9 +76,32 @@ describe("parseRange", () => {
     const { parseRange } = await import("@/lib/charts/series");
     expect(parseRange("7")).toBe(7);
     expect(parseRange("30")).toBe(30);
+    expect(parseRange("60")).toBe(60);
     expect(parseRange("90")).toBe(90);
     expect(parseRange(undefined)).toBe(30);
     expect(parseRange("14")).toBe(30);
     expect(parseRange("abc", 7)).toBe(7);
+  });
+});
+
+describe("movingAverage", () => {
+  it("smooths over a trailing window and skips nulls", async () => {
+    const { movingAverage } = await import("@/lib/charts/series");
+    const s = [
+      { date: "a", value: 10 },
+      { date: "b", value: null },
+      { date: "c", value: 20 },
+      { date: "d", value: 30 },
+    ];
+    const ma = movingAverage(s, 2);
+    expect(ma[0].value).toBe(10); // just 10
+    expect(ma[1].value).toBe(10); // window [10, null] -> 10
+    expect(ma[2].value).toBe(20); // window [null, 20] -> 20
+    expect(ma[3].value).toBe(25); // window [20, 30] -> 25
+  });
+
+  it("is all-null when the series has no data", async () => {
+    const { movingAverage } = await import("@/lib/charts/series");
+    expect(movingAverage([{ date: "a", value: null }], 3)[0].value).toBeNull();
   });
 });

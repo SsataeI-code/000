@@ -9,7 +9,7 @@ import { getHabits, getHabitLogs } from "@/lib/habits/data";
 import { BodyLogForm } from "@/components/body/BodyLogForm";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { parseRange } from "@/lib/charts/series";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const range = parseRange((await searchParams).range);
+  const range = await resolveRange((await searchParams).range);
 
   const [measurements, foodLogs, habits, habitLogs, targets] = await Promise.all([
     getBodyMeasurements(user.id),
