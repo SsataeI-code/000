@@ -19,10 +19,13 @@ import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
 import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
 import { ReviewNudges } from "@/components/nutrition/ReviewNudges";
 import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabits";
+import { HabitGame } from "@/components/habits/HabitGame";
+import { Greeting } from "@/components/client/Greeting";
 import { WaterTracker } from "@/components/body/WaterTracker";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { getTodayWaterMl } from "@/lib/body/data";
 import { currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
@@ -94,6 +97,23 @@ export default async function TodayPage() {
     });
   const name = user.profile?.display_name?.split(" ")[0];
 
+  // Habit game state — points, level, streaks, badges (§5A the star; §4 celebrate).
+  const totalCompletions = habitLogs.filter((l) => l.completed).length;
+  const bestCurrentStreak = habits.reduce(
+    (m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), now)),
+    0,
+  );
+  const todayDone = habitItems.filter((i) => i.doneToday).length;
+  const gameStats = habitGameStats({
+    habits,
+    completedByHabit: byHabit,
+    totalCompletions,
+    bestCurrentStreak,
+    todayDone,
+    todayDue: habitItems.length,
+  });
+  const gameState = computeGameState(gameStats);
+
   // "Fill your rings" suggestions from what's still short today.
   const microTotals = sumMicros(logs);
   const fiberGoal = Math.round((14 * targets.calories) / 1000);
@@ -119,12 +139,20 @@ export default async function TodayPage() {
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">
           {getCopy("client.today.title")}
         </p>
-        <h1 className="mt-1 text-4xl text-ink">
-          {name ? `Hi, ${name}.` : getCopy("client.today.greeting")}
-        </h1>
+        <Greeting name={name} fallback={name ? `Hi, ${name}.` : getCopy("client.today.greeting")} />
       </div>
 
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
+
+      {habits.length > 0 ? (
+        <HabitGame
+          state={gameState}
+          todayDone={todayDone}
+          todayDue={habitItems.length}
+          bestStreak={gameStats.bestStreak}
+          currentStreak={bestCurrentStreak}
+        />
+      ) : null}
 
       <TodayHabits items={habitItems} />
 

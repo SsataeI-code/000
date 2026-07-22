@@ -4,7 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleHabitAction, setHabitValueAction } from "@/lib/habits/actions";
+import { IconFlame } from "@/components/icons";
 import type { HabitCategory, HabitType } from "@/lib/types/db";
+
+const STREAK_MILESTONE = new Set([3, 7, 14, 30, 60, 100]);
 
 export interface TodayHabitItem {
   id: string;
@@ -49,8 +52,6 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
     );
   }
 
-  const done = items.filter((i) => i.doneToday).length;
-
   return (
     <section aria-label="Today's habits" className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -59,9 +60,6 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
           Manage
         </Link>
       </div>
-      <p className="font-label text-xs uppercase tracking-wide text-ink/50">
-        {done} of {items.length} done today
-      </p>
       <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
         {items.map((item) => (
           <HabitRow key={item.id} item={item} />
@@ -75,11 +73,21 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [done, setDone] = useState(item.doneToday);
+  const [celebrate, setCelebrate] = useState(false);
   const [value, setValue] = useState(item.todayValue ? String(item.todayValue) : "");
   const isCounter = item.type !== "checkbox";
 
+  // Optimistic streak so the flame ticks up the instant they tap.
+  const shownStreak = done ? (item.doneToday ? item.streak : item.streak + 1) : item.streak;
+  const isMilestone = done && STREAK_MILESTONE.has(shownStreak);
+
   function toggle() {
-    setDone((v) => !v);
+    const next = !done;
+    setDone(next);
+    if (next) {
+      setCelebrate(true);
+      setTimeout(() => setCelebrate(false), 900);
+    }
     start(async () => {
       await toggleHabitAction(item.id);
       router.refresh();
@@ -100,7 +108,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
           onClick={toggle}
           aria-pressed={done}
           aria-label={done ? `Mark ${item.name} not done` : `Mark ${item.name} done`}
-          className="flex h-7 w-7 shrink-0 items-center justify-center border-2"
+          className={`flex h-7 w-7 shrink-0 items-center justify-center border-2 ${celebrate ? "animate-red-pulse" : ""}`}
           style={{ borderColor: done ? "#1f8a4c" : "#ececea", background: done ? "#1f8a4c" : "transparent" }}
         >
           {done ? (
@@ -145,10 +153,21 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
           </div>
         ) : (
           <span className="flex shrink-0 items-center gap-2">
-            <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: CATEGORY_DOT[item.category] }} />
-            {item.streak > 0 ? (
-              <span className="font-label text-xs uppercase tracking-wide text-ink/60">{item.streak}d</span>
+            {celebrate ? (
+              <span className="animate-red-pulse font-label text-[11px] font-600 uppercase tracking-wide text-red">+10 XP</span>
             ) : null}
+            {shownStreak > 0 ? (
+              <span
+                className={`inline-flex items-center gap-1 font-label text-xs uppercase tracking-wide ${
+                  isMilestone ? "text-red" : "text-ink/60"
+                }`}
+              >
+                <span className={`h-3.5 w-3.5 ${shownStreak > 0 ? "text-red" : "text-ink/30"}`}><IconFlame /></span>
+                {shownStreak}d
+              </span>
+            ) : (
+              <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: CATEGORY_DOT[item.category] }} />
+            )}
           </span>
         )}
       </div>

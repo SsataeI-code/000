@@ -3,10 +3,13 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { consistency, currentStreak, longestStreak } from "@/lib/habits/streaks";
+import { consistency, currentStreak, longestStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
 import { HabitManageList, type ManageItem } from "@/components/habits/HabitManageList";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
+import { HabitGame } from "@/components/habits/HabitGame";
+import { Achievements } from "@/components/habits/Achievements";
 import { seedStarterHabitsAction } from "@/lib/habits/actions";
 import type { Habit } from "@/lib/types/db";
 
@@ -47,6 +50,19 @@ export default async function HabitsPage() {
     0,
   );
 
+  // Game state — points, level, streaks, badges.
+  const todayStr = isoDate(today);
+  const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), today));
+  const gameStats = habitGameStats({
+    habits,
+    completedByHabit: byHabit,
+    totalCompletions: logs.filter((l) => l.completed).length,
+    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today)), 0),
+    todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
+    todayDue: dueToday.length,
+  });
+  const gameState = computeGameState(gameStats);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -57,15 +73,27 @@ export default async function HabitsPage() {
       </div>
 
       {habits.length > 0 ? (
-        <section className="border border-hairline bg-surface p-5">
-          <div className="flex items-baseline justify-between">
-            <p className="font-label text-xs uppercase tracking-wide text-ink/50">Consistency</p>
-            <p className="font-body text-xs text-ink/60">Best streak: {bestStreak}d</p>
-          </div>
-          <div className="mt-3">
-            <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
-          </div>
-        </section>
+        <>
+          <HabitGame
+            state={gameState}
+            todayDone={gameStats.todayDone}
+            todayDue={gameStats.todayDue}
+            bestStreak={bestStreak}
+            currentStreak={gameStats.bestCurrentStreak}
+          />
+
+          <Achievements achievements={gameState.achievements} />
+
+          <section className="border border-hairline bg-surface p-5">
+            <div className="flex items-baseline justify-between">
+              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Consistency</p>
+              <p className="font-body text-xs text-ink/60">Best streak: {bestStreak}d</p>
+            </div>
+            <div className="mt-3">
+              <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
+            </div>
+          </section>
+        </>
       ) : null}
 
       {habits.length === 0 ? (

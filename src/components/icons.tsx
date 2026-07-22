@@ -65,3 +65,29 @@ export const IconMessages = (p: SVGProps<SVGSVGElement>) => (
     <path d="M4 5h16v11H8l-4 3z" />
   </svg>
 );
+
+export const IconFlame = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M12 3c1 3-1 4-1 6a2 2 0 104 0c0-1 0-2-.5-2.5C16 9 18 11 18 14a6 6 0 11-12 0c0-3 2-5 3-7 .8 1 2 1.5 3-4z" />
+  </svg>
+);
+
+export const IconMedal = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="14" r="6" />
+    <path d="M9 8L7 3M15 8l2-5M12 12l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2L9.1 14l2-.3z" />
+  </svg>
+);
+
+export const IconLock = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <rect x="5" y="11" width="14" height="9" rx="1" />
+    <path d="M8 11V8a4 4 0 018 0v3" />
+  </svg>
+);
+
+export const IconBolt = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M13 3L5 13h6l-1 8 8-10h-6z" />
+  </svg>
+);
