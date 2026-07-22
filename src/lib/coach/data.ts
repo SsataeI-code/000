@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { computeAttention, type AttentionFlag } from "@/lib/coach/attention";
 import { isoDate, addDays } from "@/lib/habits/streaks";
 import { lastNDates, type SeriesPoint } from "@/lib/charts/series";
-import type { Goal, Sex, ActivityLevel } from "@/lib/types/db";
+import { reconcileLayout } from "@/lib/coach/dashboard";
+import type { Goal, Sex, ActivityLevel, DashboardTilePref } from "@/lib/types/db";
 
 export interface RosterClient {
   id: string;
@@ -211,6 +212,13 @@ export async function getRosterSeries(coachId: string, days = 30): Promise<Roste
   });
 
   return { dates, avgCalories, avgProtein, loggingRate, avgConsistency, clientCount: ids.length };
+}
+
+/** The coach's saved dashboard layout, reconciled against the tile registry. */
+export async function getDashboardLayout(coachId: string): Promise<DashboardTilePref[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("coach_prefs").select("dashboard").eq("coach_id", coachId).maybeSingle();
+  return reconcileLayout(data?.dashboard);
 }
 
 /** Confirm the current coach actually coaches this client (authorization). */

@@ -185,6 +185,16 @@ export type HabitLog = {
   created_at: string;
 };
 
+// --- Phase 3: coach dashboard preferences ---
+
+export type DashboardTilePref = { id: string; visible: boolean };
+
+export type CoachPrefs = {
+  coach_id: string;
+  dashboard: DashboardTilePref[];
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -264,6 +274,12 @@ export type Database = {
         Row: BodyMeasurement;
         Insert: Partial<BodyMeasurement> & { client_id: string; log_date: string };
         Update: Partial<BodyMeasurement>;
+        Relationships: [];
+      };
+      coach_prefs: {
+        Row: CoachPrefs;
+        Insert: Partial<CoachPrefs> & { coach_id: string };
+        Update: Partial<CoachPrefs>;
         Relationships: [];
       };
     };
