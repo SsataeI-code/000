@@ -273,13 +273,16 @@ See `README.md` for the full runbook.
 - **Body** (`src/lib/body`, migration `0006`): `body_measurements`; `/client/body` logs weight (lb/kg) + optional bf%/waist/hips; moving-average trend + sparkline (`trend.ts`, tested).
 - **Review nudges:** weekly habit review + monthly targets-recalc banners on Today.
 
-### Phase 3 — Coach dashboard 🔨 (in progress; slice 1 live)
+### Phase 3 — Coach dashboard 🔨 (in progress; slices 1–3 live)
 
 - **Needs-Attention scoring** (`src/lib/coach/attention.ts`, pure/tested): flags quiet / no-food / missed-habits / weight-off-track, most urgent first.
-- **Coach data** (`coach/data.ts`): batched roster + per-client metrics (RLS scopes to the coach's clients); `coachHasClient` authz.
-- **UI:** `/coach` Needs-Attention queue + Steady list; `/coach/clients/[id]` deep-dive (nutrition rings, water, habits + heatmap, weight trend); `/coach/roster` list + aggregates; messages/you tabs.
-- **Next:** plan-assignment (coach edits a client's targets, adds/vetoes habits), cohort segmentation & per-segment stats.
+- **Coach data** (`coach/data.ts`): batched roster + per-client metrics (RLS scopes to the coach's clients); `coachHasClient` authz; roster now carries sex/age/activity/bodyFatPct; `getRosterSeries` for roster-wide daily trends.
+- **Plan assignment** (`coach/actions.ts`): coach edits a client's calorie/macro targets (new `nutrition_targets` row, method="coach"), assigns a daily habit, or vetoes (archives) one — all authorized server-side to the coach's own client. UI: `ClientPlanTools` on the deep-dive.
+- **Cohort slicing** (`coach/cohorts.ts`, pure/tested): segment the roster by goal / gender / age band / activity / body-fat band with per-segment count, active-today, flagged, avg weight, avg body-fat. UI: `RosterCohorts` (client-side dimension picker).
+- **Graphs & stats** (`src/lib/charts/series.ts` pure/tested; `src/components/charts/*` flat SVG, no libs): weight (line + moving-avg), calories-vs-target (bars), habit-consistency (bars) — per-client via `IndividualProgress` (coach deep-dive **and** the client's own `/client/body` "Progress" tab, same numbers both sides) and roster-wide via `RosterTrends` (logging rate, avg calories, avg engagement).
+- **UI:** `/coach` Needs-Attention queue + Steady list; `/coach/clients/[id]` deep-dive (rings, water, habits + heatmap, **progress graphs**, **plan tools**); `/coach/roster` list + aggregates + **trends + cohorts**; messages/you tabs.
+- **Next:** configurable/editable dashboard tiles (coach arranges the layout, §9).
 
-**Testing:** 119 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent. Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
+**Testing:** 131 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent. Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
 
 **Owner setup done:** Supabase live, all migrations 0001–0007 applied, owner = jakekatz8@gmail.com, deployed on Vercel at total-form-fitness.vercel.app.

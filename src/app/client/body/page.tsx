@@ -4,7 +4,10 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getBodyMeasurements } from "@/lib/body/data";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
+import { getFoodLogsSince, getLatestTargets } from "@/lib/nutrition/data";
+import { getHabits, getHabitLogs } from "@/lib/habits/data";
 import { BodyLogForm } from "@/components/body/BodyLogForm";
+import { IndividualProgress } from "@/components/charts/IndividualProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +16,13 @@ export default async function BodyPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const measurements = await getBodyMeasurements(user.id);
+  const [measurements, foodLogs, habits, habitLogs, targets] = await Promise.all([
+    getBodyMeasurements(user.id),
+    getFoodLogsSince(user.id, 30),
+    getHabits(user.id),
+    getHabitLogs(user.id),
+    getLatestTargets(user.id),
+  ]);
   const trend = weightTrend(measurements);
   const latest = trend[trend.length - 1];
   const change = trendChangeKg(trend);
@@ -21,7 +30,7 @@ export default async function BodyPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl text-ink">Body</h1>
+        <h1 className="text-4xl text-ink">Progress</h1>
         <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
@@ -36,7 +45,6 @@ export default async function BodyPage() {
               {change === 0 ? "Holding steady" : `${change < 0 ? "↓" : "↑"} ${Math.abs(kgToLb(Math.abs(change)))} lb since you started tracking`}
             </p>
           ) : null}
-          <Sparkline trend={trend} />
         </section>
       ) : (
         <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
@@ -44,32 +52,20 @@ export default async function BodyPage() {
         </p>
       )}
 
+      {/* Your graphs — weight, food logging, consistency over the last 30 days */}
+      <IndividualProgress
+        measurements={measurements}
+        foodLogs={foodLogs}
+        habits={habits}
+        habitLogs={habitLogs}
+        targets={targets}
+        days={30}
+      />
+
       <div>
         <h2 className="mb-3 text-2xl text-ink">Log</h2>
         <BodyLogForm />
       </div>
     </div>
-  );
-}
-
-function Sparkline({ trend }: { trend: { avgKg: number }[] }) {
-  if (trend.length < 2) return null;
-  const vals = trend.map((t) => t.avgKg);
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const range = max - min || 1;
-  const w = 280;
-  const h = 60;
-  const pts = vals
-    .map((v, i) => {
-      const x = (i / (vals.length - 1)) * w;
-      const y = h - ((v - min) / range) * h;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 w-full" preserveAspectRatio="none" aria-hidden>
-      <polyline points={pts} fill="none" stroke="#e10600" strokeWidth="2" />
-    </svg>
   );
 }

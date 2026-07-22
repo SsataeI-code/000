@@ -67,3 +67,17 @@ export async function getTodayFoodLogs(clientId: string): Promise<FoodLog[]> {
     .order("logged_at", { ascending: false });
   return (data as FoodLog[] | null) ?? [];
 }
+
+/** Food logs over the last `days` (for history charts). Ascending by date. */
+export async function getFoodLogsSince(clientId: string, days = 30): Promise<FoodLog[]> {
+  const supabase = await createClient();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (days - 1));
+  const { data } = await supabase
+    .from("food_logs")
+    .select("*")
+    .eq("client_id", clientId)
+    .gte("log_date", since.toISOString().slice(0, 10))
+    .order("log_date", { ascending: true });
+  return (data as FoodLog[] | null) ?? [];
+}

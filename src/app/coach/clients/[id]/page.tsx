@@ -8,6 +8,7 @@ import {
   getClientProfile,
   getLatestTargets,
   getTodayFoodLogs,
+  getFoodLogsSince,
   totalMacros,
 } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
@@ -17,6 +18,7 @@ import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
+import { IndividualProgress } from "@/components/charts/IndividualProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +39,11 @@ export default async function ClientDeepDive({ params }: { params: Promise<{ id:
   const { data: nameRow } = await supabase.from("profiles").select("display_name").eq("id", id).maybeSingle();
   const name = nameRow?.display_name ?? "Client";
 
-  const [profile, targets, logs, habits, habitLogs, body, waterMl] = await Promise.all([
+  const [profile, targets, logs, foodHistory, habits, habitLogs, body, waterMl] = await Promise.all([
     getClientProfile(id),
     getLatestTargets(id),
     getTodayFoodLogs(id),
+    getFoodLogsSince(id, 30),
     getHabits(id),
     getHabitLogs(id),
     getBodyMeasurements(id),
@@ -138,6 +141,16 @@ export default async function ClientDeepDive({ params }: { params: Promise<{ id:
           <p className="mt-1 font-body text-sm text-ink/60">No weight logged yet.</p>
         )}
       </section>
+
+      {/* Stats & graphs — weight, food logging, consistency over 30 days */}
+      <IndividualProgress
+        measurements={body}
+        foodLogs={foodHistory}
+        habits={habits}
+        habitLogs={habitLogs}
+        targets={targets}
+        days={30}
+      />
 
       {/* Coach plan tools — adjust targets, assign / veto habits */}
       <ClientPlanTools

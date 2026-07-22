@@ -46,7 +46,7 @@ export const defaultCopy = {
   "client.nav.today": "Today",
   "client.nav.habits": "Habits",
   "client.nav.food": "Food",
-  "client.nav.body": "Body",
+  "client.nav.body": "Progress",
   "client.nav.you": "You",
 
   "coach.dashboard.title": "Command center",

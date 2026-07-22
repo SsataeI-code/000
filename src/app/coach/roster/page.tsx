@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getRoster } from "@/lib/coach/data";
+import { getRoster, getRosterSeries } from "@/lib/coach/data";
 import { RosterCohorts } from "@/components/coach/RosterCohorts";
+import { RosterTrends } from "@/components/charts/RosterTrends";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function RosterPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const roster = await getRoster(user.id);
+  const [roster, series] = await Promise.all([getRoster(user.id), getRosterSeries(user.id, 30)]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
   const flagged = roster.filter((c) => c.flags.length > 0).length;
 
@@ -36,6 +37,8 @@ export default async function RosterPage() {
             <Stat label="Active today" value={String(activeToday)} />
             <Stat label="Need attention" value={String(flagged)} />
           </section>
+
+          <RosterTrends series={series} days={30} />
 
           <RosterCohorts clients={roster} />
 
