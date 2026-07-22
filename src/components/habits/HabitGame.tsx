@@ -16,12 +16,17 @@ export function HabitGame({
   todayDue,
   bestStreak,
   currentStreak,
+  coachView = false,
+  name,
 }: {
   state: GameState;
   todayDone: number;
   todayDue: number;
   bestStreak: number;
   currentStreak: number;
+  /** When a coach/owner is looking at a client, copy reads observationally. */
+  coachView?: boolean;
+  name?: string;
 }) {
   const [fill, setFill] = useState(0);
   const [dayFill, setDayFill] = useState(0);
@@ -36,8 +41,16 @@ export function HabitGame({
     return () => cancelAnimationFrame(id);
   }, [state.progressToNext, dayPct]);
 
-  const line =
-    todayDue === 0
+  const who = name ? `${name} has` : "Has";
+  const line = coachView
+    ? todayDue === 0
+      ? "No habits due today."
+      : perfect
+        ? "Perfect day — everything done."
+        : todayDone === 0
+          ? `${who} ${todayDue} due today, none checked off yet.`
+          : `${todayDone} of ${todayDue} done today.`
+    : todayDue === 0
       ? "Add a habit and start earning."
       : todayDone === 0
         ? "Let's put the first win on the board."

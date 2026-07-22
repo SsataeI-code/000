@@ -12,11 +12,14 @@ import {
   totalMacros,
 } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { consistency, currentStreak } from "@/lib/habits/streaks";
+import { consistency, currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { getBodyMeasurements, getTodayWaterMl } from "@/lib/body/data";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
+import { HabitGame } from "@/components/habits/HabitGame";
+import { Achievements } from "@/components/habits/Achievements";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
@@ -67,6 +70,20 @@ export default async function ClientDeepDive({
   const trend = weightTrend(body);
   const latestWeight = trend[trend.length - 1];
 
+  // The same habit game the client sees — so the owner/coach sees all of it too.
+  const todayStr = isoDate(today);
+  const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), today));
+  const gameStats = habitGameStats({
+    habits,
+    completedByHabit: byHabit,
+    totalCompletions: habitLogs.filter((l) => l.completed).length,
+    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today)), 0),
+    todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
+    todayDue: dueToday.length,
+  });
+  const gameState = computeGameState(gameStats);
+  const firstName = name.split(" ")[0];
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -106,13 +123,23 @@ export default async function ClientDeepDive({
       </section>
 
       {/* Habits */}
-      <div>
-        <h2 className="mb-3 text-2xl text-ink">Habits</h2>
+      <div className="flex flex-col gap-3">
+        <h2 className="text-2xl text-ink">Habits</h2>
         {habits.length === 0 ? (
           <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No habits yet.</p>
         ) : (
           <>
-            <section className="mb-3 border border-hairline bg-surface p-5">
+            <HabitGame
+              state={gameState}
+              todayDone={gameStats.todayDone}
+              todayDue={gameStats.todayDue}
+              bestStreak={gameStats.bestStreak}
+              currentStreak={gameStats.bestCurrentStreak}
+              coachView
+              name={firstName}
+            />
+            <Achievements achievements={gameState.achievements} />
+            <section className="border border-hairline bg-surface p-5">
               <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
             </section>
             <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
