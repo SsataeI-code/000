@@ -1,12 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { computeAttention, type AttentionFlag } from "@/lib/coach/attention";
 import { isoDate, addDays } from "@/lib/habits/streaks";
-import type { Goal } from "@/lib/types/db";
+import type { Goal, Sex, ActivityLevel } from "@/lib/types/db";
 
 export interface RosterClient {
   id: string;
   name: string;
   goal: Goal;
+  sex: Sex | null;
+  age: number | null;
+  activity: ActivityLevel | null;
+  bodyFatPct: number | null;
   daysSinceActivity: number;
   daysSinceFood: number;
   lastWeightKg: number | null;
@@ -46,27 +50,30 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
   const since = isoDate(addDays(new Date(), -60));
   const [profiles, cprofiles, food, habitL, water, habits, body] = await Promise.all([
     supabase.from("profiles").select("id,display_name").in("id", ids),
-    supabase.from("client_profiles").select("id,goal").in("id", ids),
+    supabase.from("client_profiles").select("id,goal,sex,age,activity").in("id", ids),
     supabase.from("food_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("habit_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("water_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("habits").select("client_id").in("client_id", ids).eq("active", true),
-    supabase.from("body_measurements").select("client_id,log_date,weight_kg").in("client_id", ids).gte("log_date", since).not("weight_kg", "is", null).order("log_date", { ascending: true }),
+    supabase.from("body_measurements").select("client_id,log_date,weight_kg,body_fat_pct").in("client_id", ids).gte("log_date", since).not("weight_kg", "is", null).order("log_date", { ascending: true }),
   ]);
 
   const nameById = new Map((profiles.data ?? []).map((p) => [p.id, p.display_name ?? "Client"]));
-  const goalById = new Map((cprofiles.data ?? []).map((p) => [p.id, p.goal as Goal]));
+  const cprofileById = new Map((cprofiles.data ?? []).map((p) => [p.id, p]));
   const lastFood = latestByClient(food.data);
   const lastHabit = latestByClient(habitL.data);
   const lastWater = latestByClient(water.data);
   const hasHabits = new Set((habits.data ?? []).map((h) => h.client_id));
 
   // Weight change over the window: earliest vs latest weight per client.
+  // Body rows arrive oldest-first, so the last body_fat_pct seen is the latest.
   const weightFirst = new Map<string, number>();
   const weightLast = new Map<string, number>();
+  const bodyFatLast = new Map<string, number>();
   for (const row of body.data ?? []) {
     if (!weightFirst.has(row.client_id)) weightFirst.set(row.client_id, Number(row.weight_kg));
     weightLast.set(row.client_id, Number(row.weight_kg));
+    if (row.body_fat_pct != null) bodyFatLast.set(row.client_id, Number(row.body_fat_pct));
   }
 
   const roster: RosterClient[] = ids.map((id) => {
@@ -74,7 +81,8 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
     const dHabit = daysSince(lastHabit.get(id));
     const dWater = daysSince(lastWater.get(id));
     const dActivity = Math.min(dFood, dHabit, dWater);
-    const goal = goalById.get(id) ?? "maintain";
+    const cp = cprofileById.get(id);
+    const goal = (cp?.goal as Goal) ?? "maintain";
     const first = weightFirst.get(id);
     const last = weightLast.get(id);
     const hasWeightTrend = first != null && last != null && weightFirst.get(id) !== undefined && (body.data ?? []).filter((b) => b.client_id === id).length >= 2;
@@ -94,6 +102,10 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
       id,
       name: nameById.get(id) ?? "Client",
       goal,
+      sex: (cp?.sex as Sex | null) ?? null,
+      age: cp?.age ?? null,
+      activity: (cp?.activity as ActivityLevel | null) ?? null,
+      bodyFatPct: bodyFatLast.get(id) ?? null,
       daysSinceActivity: dActivity,
       daysSinceFood: dFood,
       lastWeightKg: last ?? null,

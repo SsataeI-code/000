@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getRoster } from "@/lib/coach/data";
+import { RosterCohorts } from "@/components/coach/RosterCohorts";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ const GOAL_LABEL: Record<string, string> = {
   lose: "Fat loss", gain: "Muscle gain", maintain: "Maintain", recomp: "Recomp", habits_only: "Habits",
 };
 
-/** Full roster with simple aggregates (§9 — deeper cohort slicing comes next). */
+/** Full roster with aggregates and cohort slicing (§9). */
 export default async function RosterPage() {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
@@ -19,10 +20,6 @@ export default async function RosterPage() {
   const roster = await getRoster(user.id);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
   const flagged = roster.filter((c) => c.flags.length > 0).length;
-  const goalCounts = roster.reduce<Record<string, number>>((acc, c) => {
-    acc[c.goal] = (acc[c.goal] ?? 0) + 1;
-    return acc;
-  }, {});
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,14 +37,7 @@ export default async function RosterPage() {
             <Stat label="Need attention" value={String(flagged)} />
           </section>
 
-          <section className="border border-hairline bg-surface p-4">
-            <p className="font-label text-xs uppercase tracking-wide text-ink/50">By goal</p>
-            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
-              {Object.entries(goalCounts).map(([g, n]) => (
-                <span key={g} className="font-body text-sm text-ink/70">{GOAL_LABEL[g] ?? g}: {n}</span>
-              ))}
-            </div>
-          </section>
+          <RosterCohorts clients={roster} />
 
           <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
             {roster.map((c) => (

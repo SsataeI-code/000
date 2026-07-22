@@ -16,6 +16,7 @@ import { getBodyMeasurements, getTodayWaterMl } from "@/lib/body/data";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
+import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
 
 export const dynamic = "force-dynamic";
 
@@ -137,6 +138,13 @@ export default async function ClientDeepDive({ params }: { params: Promise<{ id:
           <p className="mt-1 font-body text-sm text-ink/60">No weight logged yet.</p>
         )}
       </section>
+
+      {/* Coach plan tools — adjust targets, assign / veto habits */}
+      <ClientPlanTools
+        clientId={id}
+        targets={targets ? { calories: targets.calories, protein_g: targets.protein_g, carbs_g: targets.carbs_g, fat_g: targets.fat_g } : null}
+        habits={habits}
+      />
     </div>
   );
 }
