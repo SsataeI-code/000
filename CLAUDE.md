@@ -251,3 +251,35 @@ We ship the full product, but we never stack a new floor on a cracked one. Each 
 4. Deploy to Vercel (`vercel.json` present). Then run the Definition-of-Done device pass on a real iPhone.
 
 See `README.md` for the full runbook.
+
+### Phase 1 — Core client loop ✅ (live)
+
+**Nutrition core (`src/lib/nutrition`, `src/lib/food`):**
+- **PN targets calculator** (`targets.ts`): Mifflin-St Jeor TDEE × activity, goal deficit/surplus floored at BMR, protein-first g/lb sliding scale, carbs/fat by diet preference. Recalc via `recalcTargetsAction`.
+- **Open Food Facts** (`off.ts`): defensive parse (HTTP-200 + `status:0` trap, missing fields, kJ→kcal), barcode lookup, **text search**, shared `normalizeOffProduct`. Never throws.
+- **Built-in generic foods** (`generic-foods.ts`): **535** foods, no duplicates (test-enforced), fuzzy + case-insensitive matcher (bounded Levenshtein), core + vitamin micros on ~77 foods (standard reference values, never invented). `searchFoodsAction` blends generics → shared cache → OFF, de-duped.
+- **Portions** (`portions.ts`): log by servings/oz/cups/tbsp/tsp/pieces/handful/grams (most clients can't eyeball grams).
+- **Micros** (`micros.ts`): full nutriment map stored per log (scaled), essential vitamin/mineral **goals** (FDA 2000-cal DVs; vitamins fixed even at low cal, fiber/sat-fat/sugar caps scale, iron by sex), daily tracker + "fill your rings" recommender + meal-combo suggestions (`recommend.ts`, `meals.ts`).
+- **Food logging:** barcode (WASM ZBar), search, manual; optional **food photo** (private Storage bucket, signed URLs); one-tap **saved meals** (`meals` table) and built-in meal ideas (customizable inline).
+
+**Schema:** migrations `0003_nutrition` (client_profiles, nutrition_targets, food_products cache, food_logs), `0004_meals`, `0007_food_photos`.
+
+**Today screen (`/client`):** habits (top) → macro rings + water → food log (+ photos) → meal ideas → micro tracker. Onboarding (`/client/onboarding`) generates targets + starter habits and **requires the client to pick one habit of their own**.
+
+### Phase 2 — Habits + Body ✅ (live)
+
+- **Habits** (`src/lib/habits`, migration `0005_habits`): builder (name/category/type/cadence daily|weekly-count|specific-days/target/unit/reminder/why/anchor-stacking), one-tap check-off + **counter/step value entry** (manual — web can't read a phone health app; cloud-tracker OAuth is a later phase), streaks/consistency/heatmap (pure `streaks.ts`, tested), **tailored starter habits** from goal+activity (`starter.ts`, always incl. steps + activity) with a seed button for existing clients, habit **ideas** (`ideas.ts`).
+- **Hydration** (dedicated, migration `0006`): `water_logs` + `water_goal_ml`; Today ring with one-tap **+1 bottle (16.9 oz)** / +1 cup, oz display.
+- **Body** (`src/lib/body`, migration `0006`): `body_measurements`; `/client/body` logs weight (lb/kg) + optional bf%/waist/hips; moving-average trend + sparkline (`trend.ts`, tested).
+- **Review nudges:** weekly habit review + monthly targets-recalc banners on Today.
+
+### Phase 3 — Coach dashboard 🔨 (in progress; slice 1 live)
+
+- **Needs-Attention scoring** (`src/lib/coach/attention.ts`, pure/tested): flags quiet / no-food / missed-habits / weight-off-track, most urgent first.
+- **Coach data** (`coach/data.ts`): batched roster + per-client metrics (RLS scopes to the coach's clients); `coachHasClient` authz.
+- **UI:** `/coach` Needs-Attention queue + Steady list; `/coach/clients/[id]` deep-dive (nutrition rings, water, habits + heatmap, weight trend); `/coach/roster` list + aggregates; messages/you tabs.
+- **Next:** plan-assignment (coach edits a client's targets, adds/vetoes habits), cohort segmentation & per-segment stats.
+
+**Testing:** 119 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent. Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
+
+**Owner setup done:** Supabase live, all migrations 0001–0007 applied, owner = jakekatz8@gmail.com, deployed on Vercel at total-form-fitness.vercel.app.
