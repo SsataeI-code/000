@@ -23,7 +23,8 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
   if (!user) redirect("/login");
   const range = await resolveRange((await searchParams).range);
 
-  const [roster, series] = await Promise.all([getRoster(user.id), getRosterSeries(user.id, range)]);
+  const owner = { owner: user.role === "owner" };
+  const [roster, series] = await Promise.all([getRoster(user.id, owner), getRosterSeries(user.id, range, owner)]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
   const flagged = roster.filter((c) => c.flags.length > 0).length;
 
@@ -62,7 +63,8 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
                   <span className="min-w-0">
                     <span className="block truncate font-body text-base text-ink">{c.name}</span>
                     <span className="block font-body text-xs text-ink/50">
-                      {GOAL_LABEL[c.goal]} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
+                      {GOAL_LABEL[c.goal]} · Lv{c.habitLevel} {c.habitLevelName}
+                      {c.habitCurrentStreak > 0 ? ` · ${c.habitCurrentStreak}d streak` : ""} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                     </span>
                   </span>
                   {c.flags.length > 0 ? (

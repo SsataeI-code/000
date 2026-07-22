@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { consistency, currentStreak, longestStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { consistency, currentStreak, longestStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
 import { HabitManageList, type ManageItem } from "@/components/habits/HabitManageList";
@@ -37,7 +37,7 @@ export default async function HabitsPage() {
       id: h.id,
       name: h.name,
       cadenceLabel: cadenceLabel(h),
-      streak: currentStreak(h, done, today),
+      streak: currentStreak(h, done, today, FREEZE_BUDGET),
       consistencyPct: Math.round(consistency(h, done, today) * 100),
     };
   });
@@ -57,7 +57,7 @@ export default async function HabitsPage() {
     habits,
     completedByHabit: byHabit,
     totalCompletions: logs.filter((l) => l.completed).length,
-    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today)), 0),
+    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today, FREEZE_BUDGET)), 0),
     todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
     todayDue: dueToday.length,
   });

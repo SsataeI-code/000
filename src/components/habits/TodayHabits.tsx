@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleHabitAction, setHabitValueAction } from "@/lib/habits/actions";
-import { IconFlame } from "@/components/icons";
+import { IconFlame, IconShield } from "@/components/icons";
 import type { HabitCategory, HabitType } from "@/lib/types/db";
 
 const STREAK_MILESTONE = new Set([3, 7, 14, 30, 60, 100]);
@@ -19,6 +19,7 @@ export interface TodayHabitItem {
   todayValue: number;
   doneToday: boolean;
   streak: number;
+  frozen?: boolean;
   why: string | null;
 }
 
@@ -155,6 +156,15 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
           <span className="flex shrink-0 items-center gap-2">
             {celebrate ? (
               <span className="animate-red-pulse font-label text-[11px] font-600 uppercase tracking-wide text-red">+10 XP</span>
+            ) : null}
+            {item.frozen && !celebrate ? (
+              <span
+                title="Streak freeze: a missed day is protecting your chain."
+                className="inline-flex items-center gap-1 font-label text-[11px] uppercase tracking-wide text-[#1f6d8a]"
+              >
+                <span className="h-3.5 w-3.5"><IconShield /></span>
+                saved
+              </span>
             ) : null}
             {shownStreak > 0 ? (
               <span

@@ -24,7 +24,7 @@ import { Greeting } from "@/components/client/Greeting";
 import { WaterTracker } from "@/components/body/WaterTracker";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { getTodayWaterMl } from "@/lib/body/data";
-import { currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { currentStreak, isStreakFrozen, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
@@ -91,7 +91,8 @@ export default async function TodayPage() {
         unit: h.unit,
         todayValue: todayValueByHabit.get(h.id) ?? 0,
         doneToday: done.has(todayStr),
-        streak: currentStreak(h, done, now),
+        streak: currentStreak(h, done, now, FREEZE_BUDGET),
+        frozen: isStreakFrozen(h, done, now),
         why: h.why,
       };
     });
@@ -100,7 +101,7 @@ export default async function TodayPage() {
   // Habit game state — points, level, streaks, badges (§5A the star; §4 celebrate).
   const totalCompletions = habitLogs.filter((l) => l.completed).length;
   const bestCurrentStreak = habits.reduce(
-    (m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), now)),
+    (m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), now, FREEZE_BUDGET)),
     0,
   );
   const todayDone = habitItems.filter((i) => i.doneToday).length;

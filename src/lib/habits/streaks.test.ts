@@ -3,6 +3,7 @@ import {
   addDays,
   consistency,
   currentStreak,
+  isStreakFrozen,
   isDueToday,
   isoDate,
   isScheduledOn,
@@ -29,6 +30,21 @@ describe("habit streaks", () => {
 
   it("returns 0 when there's a fresh miss", () => {
     expect(currentStreak(daily, set(2, 3), TODAY)).toBe(0); // yesterday missed
+  });
+
+  it("streak freeze forgives a single missed day but not two in a row", () => {
+    // Done today, missed yesterday, done the 3 days before that.
+    const oneMiss = set(0, 2, 3, 4);
+    expect(currentStreak(daily, oneMiss, TODAY)).toBe(1); // strict: breaks at the miss
+    expect(currentStreak(daily, oneMiss, TODAY, 1)).toBe(4); // freeze bridges the gap
+    // Two consecutive misses still break, even with a freeze.
+    const twoMiss = set(0, 3, 4, 5);
+    expect(currentStreak(daily, twoMiss, TODAY, 1)).toBe(1);
+  });
+
+  it("isStreakFrozen reports when a freeze is holding the chain together", () => {
+    expect(isStreakFrozen(daily, set(0, 2, 3, 4), TODAY, 1)).toBe(true);
+    expect(isStreakFrozen(daily, set(0, 1, 2, 3), TODAY, 1)).toBe(false); // no miss to forgive
   });
 
   it("respects specific-days cadence (non-scheduled days don't break it)", () => {

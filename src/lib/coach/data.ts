@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { computeAttention, type AttentionFlag } from "@/lib/coach/attention";
-import { isoDate, addDays } from "@/lib/habits/streaks";
+import { isoDate, addDays, currentStreak, longestStreak, FREEZE_BUDGET } from "@/lib/habits/streaks";
+import { computeXp, levelForXp } from "@/lib/habits/game";
 import { lastNDates, type SeriesPoint } from "@/lib/charts/series";
 import { reconcileLayout } from "@/lib/coach/dashboard";
-import type { Goal, Sex, ActivityLevel, DashboardTilePref } from "@/lib/types/db";
+import type { Goal, Sex, ActivityLevel, DashboardTilePref, Habit } from "@/lib/types/db";
 
 export interface RosterClient {
   id: string;
@@ -19,6 +20,17 @@ export interface RosterClient {
   weightChangeKg: number;
   flags: AttentionFlag[];
   score: number;
+  // Habit game (§5A) — a progress glance without opening the deep-dive.
+  habitLevel: number;
+  habitLevelName: string;
+  habitXp: number;
+  habitBestStreak: number;
+  habitCurrentStreak: number;
+}
+
+/** How the roster is scoped: a single coach's clients, or every client (owner). */
+export interface RosterScope {
+  owner?: boolean;
 }
 
 const DAY = 86_400_000;
@@ -34,19 +46,34 @@ function latestByClient(rows: { client_id: string; log_date: string }[] | null):
   return map;
 }
 
-/**
- * The coach's roster with per-client Needs-Attention scoring (§9). Batched
- * queries (RLS scopes every row to this coach's clients), then pure scoring.
- */
-export async function getRoster(coachId: string): Promise<RosterClient[]> {
-  const supabase = await createClient();
-
+/** Resolve the client ids in scope: one coach's active clients, or all (owner). */
+async function rosterClientIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  coachId: string,
+  scope: RosterScope,
+): Promise<string[]> {
+  if (scope.owner) {
+    // Owner oversees everyone (§1). RLS (is_owner) permits reading all clients.
+    const { data } = await supabase.from("profiles").select("id").eq("role", "client");
+    return (data ?? []).map((p) => p.id);
+  }
   const { data: links } = await supabase
     .from("coach_clients")
     .select("client_id")
     .eq("coach_id", coachId)
     .eq("status", "active");
-  const ids = (links ?? []).map((l) => l.client_id);
+  return (links ?? []).map((l) => l.client_id);
+}
+
+/**
+ * The coach's roster with per-client Needs-Attention scoring + habit level (§9,
+ * §5A). Batched queries (RLS scopes rows to the coach's clients; the owner sees
+ * everyone), then pure scoring. Pass `{ owner: true }` for the owner's view.
+ */
+export async function getRoster(coachId: string, scope: RosterScope = {}): Promise<RosterClient[]> {
+  const supabase = await createClient();
+
+  const ids = await rosterClientIds(supabase, coachId, scope);
   if (ids.length === 0) return [];
 
   const since = isoDate(addDays(new Date(), -60));
@@ -54,9 +81,9 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
     supabase.from("profiles").select("id,display_name").in("id", ids),
     supabase.from("client_profiles").select("id,goal,sex,age,activity").in("id", ids),
     supabase.from("food_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
-    supabase.from("habit_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
+    supabase.from("habit_logs").select("client_id,habit_id,log_date,completed").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("water_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
-    supabase.from("habits").select("client_id").in("client_id", ids).eq("active", true),
+    supabase.from("habits").select("id,client_id,cadence,days_of_week").in("client_id", ids).eq("active", true),
     supabase.from("body_measurements").select("client_id,log_date,weight_kg,body_fat_pct").in("client_id", ids).gte("log_date", since).not("weight_kg", "is", null).order("log_date", { ascending: true }),
   ]);
 
@@ -66,6 +93,36 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
   const lastHabit = latestByClient(habitL.data);
   const lastWater = latestByClient(water.data);
   const hasHabits = new Set((habits.data ?? []).map((h) => h.client_id));
+
+  // Per-client habit game: group completed logs by habit → streaks → XP → level.
+  const habitsByClient = new Map<string, Pick<Habit, "id" | "cadence" | "days_of_week">[]>();
+  for (const h of habits.data ?? []) {
+    const arr = habitsByClient.get(h.client_id) ?? [];
+    arr.push({ id: h.id, cadence: h.cadence as Habit["cadence"], days_of_week: h.days_of_week as number[] | null });
+    habitsByClient.set(h.client_id, arr);
+  }
+  const completedByClientHabit = new Map<string, Map<string, Set<string>>>();
+  const completionsByClient = new Map<string, number>();
+  for (const row of habitL.data ?? []) {
+    if (!row.completed) continue;
+    completionsByClient.set(row.client_id, (completionsByClient.get(row.client_id) ?? 0) + 1);
+    let byHabit = completedByClientHabit.get(row.client_id);
+    if (!byHabit) { byHabit = new Map(); completedByClientHabit.set(row.client_id, byHabit); }
+    let set = byHabit.get(row.habit_id);
+    if (!set) { set = new Set(); byHabit.set(row.habit_id, set); }
+    set.add(row.log_date);
+  }
+  const now = new Date();
+  function gameFor(id: string) {
+    const hs = habitsByClient.get(id) ?? [];
+    const byHabit = completedByClientHabit.get(id) ?? new Map<string, Set<string>>();
+    const perHabitLongest = hs.map((h) => longestStreak(byHabit.get(h.id) ?? new Set()));
+    const xp = computeXp({ totalCompletions: completionsByClient.get(id) ?? 0, perHabitLongest });
+    const lvl = levelForXp(xp);
+    const bestStreak = perHabitLongest.reduce((m, v) => Math.max(m, v), 0);
+    const curStreak = hs.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set(), now, FREEZE_BUDGET)), 0);
+    return { xp, level: lvl.level, levelName: lvl.name, bestStreak, curStreak };
+  }
 
   // Weight change over the window: earliest vs latest weight per client.
   // Body rows arrive oldest-first, so the last body_fat_pct seen is the latest.
@@ -100,6 +157,8 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
       hasWeightTrend,
     });
 
+    const game = gameFor(id);
+
     return {
       id,
       name: nameById.get(id) ?? "Client",
@@ -114,6 +173,11 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
       weightChangeKg,
       flags,
       score,
+      habitLevel: game.level,
+      habitLevelName: game.levelName,
+      habitXp: game.xp,
+      habitBestStreak: game.bestStreak,
+      habitCurrentStreak: game.curStreak,
     };
   });
 
@@ -136,16 +200,11 @@ export interface RosterSeries {
  * Batched, RLS-scoped queries; all math is the shared pure series helpers so it
  * lines up 1:1 with what each client sees individually.
  */
-export async function getRosterSeries(coachId: string, days = 30): Promise<RosterSeries> {
+export async function getRosterSeries(coachId: string, days = 30, scope: RosterScope = {}): Promise<RosterSeries> {
   const supabase = await createClient();
   const dates = lastNDates(days);
 
-  const { data: links } = await supabase
-    .from("coach_clients")
-    .select("client_id")
-    .eq("coach_id", coachId)
-    .eq("status", "active");
-  const ids = (links ?? []).map((l) => l.client_id);
+  const ids = await rosterClientIds(supabase, coachId, scope);
   const empty = dates.map((date) => ({ date, value: null }));
   if (ids.length === 0) {
     return { dates, avgCalories: empty, avgProtein: empty, loggingRate: empty, avgConsistency: empty, clientCount: 0 };

@@ -91,3 +91,10 @@ export const IconBolt = (p: SVGProps<SVGSVGElement>) => (
     <path d="M13 3L5 13h6l-1 8 8-10h-6z" />
   </svg>
 );
+
+export const IconShield = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);

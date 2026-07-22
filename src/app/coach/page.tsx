@@ -26,7 +26,8 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   const supabase = await createClient();
   const { data: coach } = await supabase.from("coaches").select("coach_code").eq("id", user.id).maybeSingle();
 
-  const [roster, layout] = await Promise.all([getRoster(user.id), getDashboardLayout(user.id)]);
+  const isOwner = user.role === "owner";
+  const [roster, layout] = await Promise.all([getRoster(user.id, { owner: isOwner }), getDashboardLayout(user.id)]);
 
   // Empty roster: a focused onboarding card, no tiles to fill yet.
   if (roster.length === 0) {
@@ -54,7 +55,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   let series = null;
   let weightSplit: WeightSplit | null = null;
   if (tiles.includes("roster_trends")) {
-    series = await getRosterSeries(user.id, range);
+    series = await getRosterSeries(user.id, range, { owner: isOwner });
     const tracked = roster.filter((c) => c.lastWeightKg != null);
     weightSplit = {
       losing: tracked.filter((c) => c.weightChangeKg < -WEIGHT_THRESHOLD_KG).length,
@@ -98,7 +99,8 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                     <span className="min-w-0">
                       <span className="block truncate font-body text-base text-ink">{c.name}</span>
                       <span className="block font-body text-xs text-ink/50">
-                        {GOAL_LABEL[c.goal]} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
+                        {GOAL_LABEL[c.goal]} · Lv{c.habitLevel} {c.habitLevelName}
+                        {c.habitCurrentStreak > 0 ? ` · ${c.habitCurrentStreak}d streak` : ""} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                       </span>
                     </span>
                     {c.flags.length > 0 ? (
@@ -122,7 +124,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                   <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between px-4 py-3 hover:bg-surface-muted">
                     <span className="font-body text-base text-ink">{c.name}</span>
                     <span className="font-body text-xs text-ink/50">
-                      {GOAL_LABEL[c.goal]} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
+                      Lv{c.habitLevel} {c.habitLevelName} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                     </span>
                   </Link>
                 </li>
@@ -181,10 +183,14 @@ function ClientCard({ client }: { client: RosterClient }) {
           <span className="text-xl text-ink">{client.name}</span>
           <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">{GOAL_LABEL[client.goal]}</span>
         </div>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-2">
           {client.flags.map((f) => (
             <span key={f.kind} className="border border-red px-2 py-0.5 font-label text-[10px] uppercase tracking-wide text-red-ink">{f.label}</span>
           ))}
+          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">
+            Lv{client.habitLevel} {client.habitLevelName}
+            {client.habitCurrentStreak > 0 ? ` · ${client.habitCurrentStreak}d` : ""}
+          </span>
         </div>
       </Link>
     </li>

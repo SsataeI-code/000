@@ -28,15 +28,26 @@ export function isScheduledOn(
 }
 
 /**
+ * Streak freeze budget (§5A "forgiving miss-recovery") — how many missed
+ * scheduled days a current streak survives before it breaks. One slip won't
+ * wipe a long chain; a second consecutive miss still does. Never shaming.
+ */
+export const FREEZE_BUDGET = 1;
+
+/**
  * Current streak — consecutive scheduled days completed, ending today (or
  * yesterday if today isn't done yet, so an unfinished today never breaks it).
+ * `freezes` missed scheduled days are forgiven (they're skipped, not counted);
+ * the streak only breaks once the budget is spent (default 0 = strict).
  */
 export function currentStreak(
   habit: Pick<Habit, "cadence" | "days_of_week">,
   completed: Set<string>,
   today: Date,
+  freezes = 0,
 ): number {
   let streak = 0;
+  let budget = freezes;
   let d = new Date(today);
 
   if (isScheduledOn(habit, d) && !completed.has(isoDate(d))) {
@@ -46,11 +57,22 @@ export function currentStreak(
   for (let i = 0; i < 400; i++) {
     if (isScheduledOn(habit, d)) {
       if (completed.has(isoDate(d))) streak++;
+      else if (budget > 0) budget--; // frozen: forgive this miss, don't count it
       else break;
     }
     d = addDays(d, -1);
   }
   return streak;
+}
+
+/** True when a streak freeze is currently protecting this habit's chain. */
+export function isStreakFrozen(
+  habit: Pick<Habit, "cadence" | "days_of_week">,
+  completed: Set<string>,
+  today: Date,
+  freezes = FREEZE_BUDGET,
+): boolean {
+  return currentStreak(habit, completed, today, freezes) > currentStreak(habit, completed, today, 0);
 }
 
 /** Longest run of consecutive completed calendar days on record. */

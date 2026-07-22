@@ -273,6 +273,8 @@ See `README.md` for the full runbook.
 - **Body** (`src/lib/body`, migration `0006`): `body_measurements`; `/client/body` logs weight (lb/kg) + optional bf%/waist/hips; moving-average trend + sparkline (`trend.ts`, tested).
 - **Review nudges:** weekly habit review + monthly targets-recalc banners on Today.
 - **Gamification (habits as the star; §4 celebrate wins):** `src/lib/habits/game.ts` (pure/tested) — XP (10/completion + streak-milestone bonuses), warm level ladder (Spark→Legend), achievement badges (first step, perfect day/week, week/month/centurion streaks, comeback, builder, 50-club), `perfectDayCount`/`comebackCount`. `HabitGame` banner (level + animated XP bar, streak flame, today's fill + one warm line, on-brand red "Perfect day" stamp — never confetti), `Achievements` badge grid, and per-check-off micro-celebration (red-pulse + "+10 XP" + flame streak with milestone highlight) on `TodayHabits`. Time-aware `Greeting` (morning/afternoon/evening on the client's own clock). On `/client` and `/client/habits`.
+- **Streak freeze (§5A forgiving miss-recovery):** `currentStreak(..., freezes)` + `isStreakFrozen` + `FREEZE_BUDGET=1` (pure/tested) — one missed scheduled day is forgiven so a long chain survives a slip; a second consecutive miss still breaks it. Applied everywhere current streaks show (Today, habits, deep-dive, roster); a shield "saved" indicator appears on a protected habit row. Never shaming.
+- **Owner sees everyone:** `getRoster`/`getRosterSeries` take a `{ owner }` scope — the owner's roster spans *all* clients (RLS `is_owner()` permits it), not just those linked to one coach (§1 owner oversight). Each roster row/card now shows the client's **habit level + name + current streak** (computed in `getRoster` from their logs) so progress is visible at a glance without opening a deep-dive.
 
 ### Phase 3 — Coach dashboard 🔨 (in progress; slices 1–3 live)
 
@@ -285,7 +287,7 @@ See `README.md` for the full runbook.
 - **UI:** `/coach` configurable tiles + "Customize" link; `/coach/clients/[id]` deep-dive (rings, water, **habit game — level/XP/streak-flame/badges, same as the client sees, in coach-view copy**, heatmap, **progress graphs**, **plan tools**); `/coach/roster` list + aggregates + **trends + cohorts**; `/coach/dashboard` layout editor; messages/you tabs. Owner sees every client's full deep-dive (role bypass).
 - **Phase 3 essentially complete** — Needs-Attention, deep-dive, roster stats/trends/cohorts, plan assignment, graphs, and a configurable dashboard all live.
 
-**Testing:** 149 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008 RLS isolation checked end-to-end: coach sees/writes only own prefs). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
+**Testing:** 151 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008 RLS isolation checked end-to-end: coach sees/writes only own prefs). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
 
 **Owner setup done:** Supabase live, migrations 0001–0007 applied, owner = jakekatz8@gmail.com, deployed on Vercel at total-form-fitness.vercel.app.
 **Owner action needed:** run `supabase/phase3_coach_prefs.sql` (migration `0008`) once to enable saving dashboard layouts — until then the dashboard shows default tiles and a save will error.

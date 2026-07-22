@@ -12,7 +12,7 @@ import {
   totalMacros,
 } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { consistency, currentStreak, isDueToday, isoDate } from "@/lib/habits/streaks";
+import { consistency, currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { getBodyMeasurements, getTodayWaterMl } from "@/lib/body/data";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
@@ -77,7 +77,7 @@ export default async function ClientDeepDive({
     habits,
     completedByHabit: byHabit,
     totalCompletions: habitLogs.filter((l) => l.completed).length,
-    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today)), 0),
+    bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today, FREEZE_BUDGET)), 0),
     todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
     todayDue: dueToday.length,
   });
@@ -149,7 +149,7 @@ export default async function ClientDeepDive({
                   <li key={h.id} className="flex items-center justify-between px-4 py-3">
                     <span className="font-body text-base text-ink">{h.name}</span>
                     <span className="font-body text-xs text-ink/50">
-                      {currentStreak(h, done, today)}d streak · {Math.round(consistency(h, done, today) * 100)}%
+                      {currentStreak(h, done, today, FREEZE_BUDGET)}d streak · {Math.round(consistency(h, done, today) * 100)}%
                     </span>
                   </li>
                 );
