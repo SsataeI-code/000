@@ -82,6 +82,36 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
         ) : (
           <p key={id} className="border border-hairline bg-surface p-4 font-body text-sm text-ink/50">Nobody&apos;s flagged right now — nice.</p>
         );
+      case "full_roster":
+        return (
+          <section key={id} className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between">
+              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Full roster</p>
+              <Link href="/coach/roster" className="font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
+                Stats &amp; cohorts
+              </Link>
+            </div>
+            <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+              {roster.map((c) => (
+                <li key={c.id}>
+                  <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
+                    <span className="min-w-0">
+                      <span className="block truncate font-body text-base text-ink">{c.name}</span>
+                      <span className="block font-body text-xs text-ink/50">
+                        {GOAL_LABEL[c.goal]} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
+                      </span>
+                    </span>
+                    {c.flags.length > 0 ? (
+                      <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-red">{c.flags.length} flag{c.flags.length === 1 ? "" : "s"}</span>
+                    ) : (
+                      <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-success">on track</span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
       case "steady":
         return steady.length > 0 ? (
           <section key={id} className="flex flex-col gap-3">

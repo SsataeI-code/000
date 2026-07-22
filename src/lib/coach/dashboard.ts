@@ -7,7 +7,7 @@ import type { DashboardTilePref } from "@/lib/types/db";
  * new tiles being added later and never trusts raw JSON blindly.
  */
 
-export type TileId = "snapshot" | "needs_attention" | "steady" | "roster_trends" | "coach_code";
+export type TileId = "snapshot" | "needs_attention" | "full_roster" | "steady" | "roster_trends" | "coach_code";
 
 export interface TileDef {
   id: TileId;
@@ -20,7 +20,8 @@ export interface TileDef {
 export const DASHBOARD_TILES: TileDef[] = [
   { id: "snapshot", label: "Snapshot", description: "Client count, active today, and how many need attention.", defaultVisible: true },
   { id: "needs_attention", label: "Needs attention", description: "Flagged clients, most urgent first.", defaultVisible: true },
-  { id: "steady", label: "Steady", description: "Everyone who's on track right now.", defaultVisible: true },
+  { id: "full_roster", label: "Full roster", description: "Every client in one list, most urgent first.", defaultVisible: true },
+  { id: "steady", label: "Steady", description: "Everyone who's on track right now.", defaultVisible: false },
   { id: "roster_trends", label: "Roster trends", description: "Whole-roster logging, calories, protein, and engagement graphs.", defaultVisible: false },
   { id: "coach_code", label: "Your coach code", description: "Share-your-code card for bringing new clients in.", defaultVisible: true },
 ];

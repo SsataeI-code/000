@@ -55,8 +55,9 @@ describe("coach dashboard layout", () => {
   });
 
   it("toggles visibility without touching order", () => {
-    const toggled = toggleTile(DEFAULT_LAYOUT, "steady");
-    expect(toggled.find((t) => t.id === "steady")?.visible).toBe(false);
+    // snapshot ships visible by default → toggling turns it off.
+    const toggled = toggleTile(DEFAULT_LAYOUT, "snapshot");
+    expect(toggled.find((t) => t.id === "snapshot")?.visible).toBe(false);
     expect(toggled.map((t) => t.id)).toEqual(DEFAULT_LAYOUT.map((t) => t.id));
   });
 
