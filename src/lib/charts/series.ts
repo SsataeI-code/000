@@ -19,6 +19,16 @@ export function lastNDates(n: number, today: Date = new Date()): string[] {
   return out;
 }
 
+/** Allowed time-range windows for the graph toggles. */
+export const RANGE_OPTIONS = [7, 30, 90] as const;
+export type RangeDays = (typeof RANGE_OPTIONS)[number];
+
+/** Parse a `?range=` param to an allowed window, falling back to `def`. */
+export function parseRange(v: string | undefined, def: RangeDays = 30): RangeDays {
+  const n = Number(v);
+  return (RANGE_OPTIONS as readonly number[]).includes(n) ? (n as RangeDays) : def;
+}
+
 /** Sum a numeric field of dated rows per day, aligned to `dates` (0 when none). */
 export function dailySum<T extends { log_date: string }>(
   rows: T[],

@@ -124,6 +124,7 @@ export async function getRoster(coachId: string): Promise<RosterClient[]> {
 export interface RosterSeries {
   dates: string[];
   avgCalories: SeriesPoint[]; // avg calories across clients who logged that day
+  avgProtein: SeriesPoint[]; // avg protein (g) across clients who logged that day
   loggingRate: SeriesPoint[]; // % of clients who logged any food that day (0..1)
   avgConsistency: SeriesPoint[]; // avg habit consistency across clients (0..1)
   clientCount: number;
@@ -146,28 +147,35 @@ export async function getRosterSeries(coachId: string, days = 30): Promise<Roste
   const ids = (links ?? []).map((l) => l.client_id);
   const empty = dates.map((date) => ({ date, value: null }));
   if (ids.length === 0) {
-    return { dates, avgCalories: empty, loggingRate: empty, avgConsistency: empty, clientCount: 0 };
+    return { dates, avgCalories: empty, avgProtein: empty, loggingRate: empty, avgConsistency: empty, clientCount: 0 };
   }
 
   const since = dates[0];
   const [food, habitL, habits] = await Promise.all([
-    supabase.from("food_logs").select("client_id,log_date,calories").in("client_id", ids).gte("log_date", since),
+    supabase.from("food_logs").select("client_id,log_date,calories,protein_g").in("client_id", ids).gte("log_date", since),
     supabase.from("habit_logs").select("client_id,log_date,completed").in("client_id", ids).gte("log_date", since).eq("completed", true),
     supabase.from("habits").select("id,client_id,cadence,days_of_week").in("client_id", ids).eq("active", true),
   ]);
 
-  // Per-client daily calories → average across clients who logged that day.
+  // Per-client daily calories + protein → average across clients who logged that day.
   const calByClient = new Map<string, Map<string, number>>();
+  const proByClient = new Map<string, Map<string, number>>();
   for (const row of food.data ?? []) {
-    const m = calByClient.get(row.client_id) ?? new Map<string, number>();
-    m.set(row.log_date, (m.get(row.log_date) ?? 0) + (Number(row.calories) || 0));
-    calByClient.set(row.client_id, m);
+    const c = calByClient.get(row.client_id) ?? new Map<string, number>();
+    c.set(row.log_date, (c.get(row.log_date) ?? 0) + (Number(row.calories) || 0));
+    calByClient.set(row.client_id, c);
+    const p = proByClient.get(row.client_id) ?? new Map<string, number>();
+    p.set(row.log_date, (p.get(row.log_date) ?? 0) + (Number(row.protein_g) || 0));
+    proByClient.set(row.client_id, p);
   }
-  const avgCalories = dates.map((date) => {
-    const vals: number[] = [];
-    for (const m of calByClient.values()) { const v = m.get(date); if (v && v > 0) vals.push(v); }
-    return { date, value: vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null };
-  });
+  const dailyAvgAcrossClients = (byClient: Map<string, Map<string, number>>) =>
+    dates.map((date) => {
+      const vals: number[] = [];
+      for (const m of byClient.values()) { const v = m.get(date); if (v && v > 0) vals.push(v); }
+      return { date, value: vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null };
+    });
+  const avgCalories = dailyAvgAcrossClients(calByClient);
+  const avgProtein = dailyAvgAcrossClients(proByClient);
   const loggingRate = dates.map((date) => {
     let logged = 0;
     for (const m of calByClient.values()) if ((m.get(date) ?? 0) > 0) logged++;
@@ -202,7 +210,7 @@ export async function getRosterSeries(coachId: string, days = 30): Promise<Roste
     return { date, value: withHabits === 0 ? null : Math.round((engaged / withHabits) * 100) / 100 };
   });
 
-  return { dates, avgCalories, loggingRate, avgConsistency, clientCount: ids.length };
+  return { dates, avgCalories, avgProtein, loggingRate, avgConsistency, clientCount: ids.length };
 }
 
 /** Confirm the current coach actually coaches this client (authorization). */

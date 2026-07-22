@@ -70,3 +70,15 @@ describe("chart series", () => {
     expect(daysLogged([{ date: "a", value: 500 }, { date: "b", value: 0 }, { date: "c", value: 200 }])).toBe(2);
   });
 });
+
+describe("parseRange", () => {
+  it("accepts allowed windows and rejects anything else", async () => {
+    const { parseRange } = await import("@/lib/charts/series");
+    expect(parseRange("7")).toBe(7);
+    expect(parseRange("30")).toBe(30);
+    expect(parseRange("90")).toBe(90);
+    expect(parseRange(undefined)).toBe(30);
+    expect(parseRange("14")).toBe(30);
+    expect(parseRange("abc", 7)).toBe(7);
+  });
+});

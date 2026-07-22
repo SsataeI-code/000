@@ -8,17 +8,20 @@ import { getFoodLogsSince, getLatestTargets } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs } from "@/lib/habits/data";
 import { BodyLogForm } from "@/components/body/BodyLogForm";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
+import { RangeToggle } from "@/components/charts/RangeToggle";
+import { parseRange } from "@/lib/charts/series";
 
 export const dynamic = "force-dynamic";
 
-export default async function BodyPage() {
+export default async function BodyPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  const range = parseRange((await searchParams).range);
 
   const [measurements, foodLogs, habits, habitLogs, targets] = await Promise.all([
     getBodyMeasurements(user.id),
-    getFoodLogsSince(user.id, 30),
+    getFoodLogsSince(user.id, range),
     getHabits(user.id),
     getHabitLogs(user.id),
     getLatestTargets(user.id),
@@ -52,14 +55,15 @@ export default async function BodyPage() {
         </p>
       )}
 
-      {/* Your graphs — weight, food logging, consistency over the last 30 days */}
+      {/* Your graphs — weight, food logging, protein, consistency */}
       <IndividualProgress
         measurements={measurements}
         foodLogs={foodLogs}
         habits={habits}
         habitLogs={habitLogs}
         targets={targets}
-        days={30}
+        days={range}
+        toggle={<RangeToggle current={range} />}
       />
 
       <div>

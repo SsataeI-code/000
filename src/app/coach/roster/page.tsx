@@ -4,7 +4,9 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getRoster, getRosterSeries } from "@/lib/coach/data";
 import { RosterCohorts } from "@/components/coach/RosterCohorts";
-import { RosterTrends } from "@/components/charts/RosterTrends";
+import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
+import { RangeToggle } from "@/components/charts/RangeToggle";
+import { parseRange } from "@/lib/charts/series";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +14,26 @@ const GOAL_LABEL: Record<string, string> = {
   lose: "Fat loss", gain: "Muscle gain", maintain: "Maintain", recomp: "Recomp", habits_only: "Habits",
 };
 
-/** Full roster with aggregates and cohort slicing (§9). */
-export default async function RosterPage() {
+const WEIGHT_THRESHOLD_KG = 0.3; // below this either way = "holding"
+
+/** Full roster with aggregates, trends, and cohort slicing (§9). */
+export default async function RosterPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  const range = parseRange((await searchParams).range);
 
-  const [roster, series] = await Promise.all([getRoster(user.id), getRosterSeries(user.id, 30)]);
+  const [roster, series] = await Promise.all([getRoster(user.id), getRosterSeries(user.id, range)]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
   const flagged = roster.filter((c) => c.flags.length > 0).length;
+
+  const tracked = roster.filter((c) => c.lastWeightKg != null);
+  const weightSplit: WeightSplit = {
+    losing: tracked.filter((c) => c.weightChangeKg < -WEIGHT_THRESHOLD_KG).length,
+    gaining: tracked.filter((c) => c.weightChangeKg > WEIGHT_THRESHOLD_KG).length,
+    holding: tracked.filter((c) => Math.abs(c.weightChangeKg) <= WEIGHT_THRESHOLD_KG).length,
+    tracked: tracked.length,
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,7 +51,7 @@ export default async function RosterPage() {
             <Stat label="Need attention" value={String(flagged)} />
           </section>
 
-          <RosterTrends series={series} days={30} />
+          <RosterTrends series={series} days={range} weightSplit={weightSplit} toggle={<RangeToggle current={range} />} />
 
           <RosterCohorts clients={roster} />
 

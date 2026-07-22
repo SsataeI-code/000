@@ -19,6 +19,8 @@ import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
+import { RangeToggle } from "@/components/charts/RangeToggle";
+import { parseRange } from "@/lib/charts/series";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +28,18 @@ const GOAL_LABEL: Record<string, string> = {
   lose: "Fat loss", gain: "Muscle gain", maintain: "Maintain", recomp: "Recomp", habits_only: "Habits",
 };
 
-export default async function ClientDeepDive({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClientDeepDive({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ range?: string }>;
+}) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const { id } = await params;
+  const range = parseRange((await searchParams).range);
 
   // Authorization: the coach must coach this client (owner sees everyone).
   if (user.role !== "owner" && !(await coachHasClient(user.id, id))) notFound();
@@ -43,7 +52,7 @@ export default async function ClientDeepDive({ params }: { params: Promise<{ id:
     getClientProfile(id),
     getLatestTargets(id),
     getTodayFoodLogs(id),
-    getFoodLogsSince(id, 30),
+    getFoodLogsSince(id, range),
     getHabits(id),
     getHabitLogs(id),
     getBodyMeasurements(id),
@@ -142,14 +151,15 @@ export default async function ClientDeepDive({ params }: { params: Promise<{ id:
         )}
       </section>
 
-      {/* Stats & graphs — weight, food logging, consistency over 30 days */}
+      {/* Stats & graphs — weight, food logging, protein, consistency */}
       <IndividualProgress
         measurements={body}
         foodLogs={foodHistory}
         habits={habits}
         habitLogs={habitLogs}
         targets={targets}
-        days={30}
+        days={range}
+        toggle={<RangeToggle current={range} />}
       />
 
       {/* Coach plan tools — adjust targets, assign / veto habits */}
