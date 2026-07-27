@@ -287,7 +287,15 @@ See `README.md` for the full runbook.
 - **UI:** `/coach` configurable tiles + "Customize" link; `/coach/clients/[id]` deep-dive (rings, water, **habit game — level/XP/streak-flame/badges, same as the client sees, in coach-view copy**, heatmap, **progress graphs**, **plan tools**); `/coach/roster` list + aggregates + **trends + cohorts**; `/coach/dashboard` layout editor; messages/you tabs. Owner sees every client's full deep-dive (role bypass).
 - **Phase 3 essentially complete** — Needs-Attention, deep-dive, roster stats/trends/cohorts, plan assignment, graphs, and a configurable dashboard all live.
 
-**Testing:** 151 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008 RLS isolation checked end-to-end: coach sees/writes only own prefs). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
+### Phase 4 — Messaging 🔨 (in progress; chat live)
+
+- **Coach ↔ client chat** (migration `0009_messages`; `src/lib/messages/*`): one thread per (coach, client) pair, `messages` table with `kind ∈ {coach, client, nudge}` so real messages vs. app auto-nudges are labeled differently (§10 transparency). RLS scopes a thread to its two participants (owner sees all); insert requires `sender_id = auth.uid()` (no forging). Verified on Postgres 16 — idempotent, participant-only isolation + no-forgery checked end-to-end. Added to `supabase_realtime` publication.
+- **Realtime** (`ChatThread`, `src/lib/supabase/client.ts`): seeds from the server, then subscribes to Supabase Realtime INSERTs for the thread — new messages appear without a refresh; `router.refresh()` keeps unread counts current.
+- **Data/actions** (`messages/data.ts`, `messages/actions.ts`): `getThread`/`getThreads`/`markThreadRead`/unread counts; `getClientCoachId` (client's active coach, else the owner, so a thread always has a home); `sendCoachMessageAction` (authz to own client) + `sendClientMessageAction`.
+- **UI:** coach `/coach/messages` (thread list with unread badges + last-message preview) + `/coach/messages/[id]` (live thread, link to profile); client `/client/messages` ("Coach" tab, new bottom-nav item) live thread with the coach.
+- **Next:** notifications (in-app + PWA push; email re-engagement after 3 days idle), quiet hours, and the AI-drafted auto-nudge / escalate slip response (§9/§10, ties into Phase 5).
+
+**Testing:** 151 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008 & 0009 RLS isolation checked end-to-end). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
 
 **Owner setup done:** Supabase live, migrations 0001–0007 applied, owner = jakekatz8@gmail.com, deployed on Vercel at total-form-fitness.vercel.app.
-**Owner action needed:** run `supabase/phase3_coach_prefs.sql` (migration `0008`) once to enable saving dashboard layouts — until then the dashboard shows default tiles and a save will error.
+**Owner action needed:** run `supabase/phase3_coach_prefs.sql` (migration `0008`) and `supabase/phase4_messages.sql` (migration `0009`) once each — 0008 enables saving dashboard layouts; 0009 enables coach↔client chat. Until 0009 is run, the Messages tabs load but sending/reading will error.

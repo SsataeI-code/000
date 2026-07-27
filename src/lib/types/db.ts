@@ -195,6 +195,21 @@ export type CoachPrefs = {
   updated_at: string;
 };
 
+// --- Phase 4: messaging ---
+
+export type MessageKind = "coach" | "client" | "nudge";
+
+export type Message = {
+  id: string;
+  coach_id: string;
+  client_id: string;
+  sender_id: string;
+  kind: MessageKind;
+  body: string;
+  read_at: string | null;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -282,6 +297,12 @@ export type Database = {
         Update: Partial<CoachPrefs>;
         Relationships: [];
       };
+      messages: {
+        Row: Message;
+        Insert: Partial<Message> & { coach_id: string; client_id: string; sender_id: string; body: string };
+        Update: Partial<Message>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -305,6 +326,7 @@ export type Database = {
       habit_category: HabitCategory;
       habit_type: HabitType;
       habit_cadence: HabitCadence;
+      message_kind: MessageKind;
     };
     CompositeTypes: Record<never, never>;
   };

@@ -6,7 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopy } from "@/lib/content/copy";
-import { IconBody, IconFood, IconHabits, IconToday, IconYou } from "@/components/icons";
+import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
 export const dynamic = "force-dynamic";
@@ -16,6 +16,7 @@ const tabs: TabItem[] = [
   { href: "/client/habits", label: getCopy("client.nav.habits"), icon: <IconHabits /> },
   { href: "/client/food", label: getCopy("client.nav.food"), icon: <IconFood /> },
   { href: "/client/body", label: getCopy("client.nav.body"), icon: <IconBody /> },
+  { href: "/client/messages", label: getCopy("client.nav.coach"), icon: <IconMessages /> },
   { href: "/client/you", label: getCopy("client.nav.you"), icon: <IconYou /> },
 ];
 
