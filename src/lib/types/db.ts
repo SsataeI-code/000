@@ -210,6 +210,19 @@ export type Message = {
   created_at: string;
 };
 
+export type NotificationKind = "nudge" | "message" | "system" | "report";
+
+export type Notification = {
+  id: string;
+  recipient_id: string;
+  kind: NotificationKind;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -303,6 +316,12 @@ export type Database = {
         Update: Partial<Message>;
         Relationships: [];
       };
+      notifications: {
+        Row: Notification;
+        Insert: Partial<Notification> & { recipient_id: string; title: string };
+        Update: Partial<Notification>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -327,6 +346,7 @@ export type Database = {
       habit_type: HabitType;
       habit_cadence: HabitCadence;
       message_kind: MessageKind;
+      notification_kind: NotificationKind;
     };
     CompositeTypes: Record<never, never>;
   };

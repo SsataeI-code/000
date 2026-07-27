@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
+import { getNotifications } from "@/lib/notifications/data";
+import { NotificationsList } from "@/components/notifications/NotificationsList";
 import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +15,13 @@ export default async function CoachYouPage() {
 
   const supabase = await createClient();
   const { data: coach } = await supabase.from("coaches").select("coach_code").eq("id", user.id).maybeSingle();
+  const notifications = await getNotifications(user.id);
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-4xl text-ink">You</h1>
+
+      <NotificationsList notifications={notifications} />
 
       {coach?.coach_code ? (
         <section className="border border-hairline bg-surface p-5">

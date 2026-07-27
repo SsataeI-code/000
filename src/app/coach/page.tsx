@@ -5,10 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getRoster, getRosterSeries, getDashboardLayout, type RosterClient } from "@/lib/coach/data";
 import { visibleTiles, type TileId } from "@/lib/coach/dashboard";
+import { classifySlip } from "@/lib/coach/slip";
 import { getCopy } from "@/lib/content/copy";
 import { resolveRange } from "@/lib/charts/range";
 import { RangeToggle } from "@/components/charts/RangeToggle";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
+import { NudgeButton } from "@/components/coach/NudgeButton";
 
 export const dynamic = "force-dynamic";
 
@@ -176,9 +178,10 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function ClientCard({ client }: { client: RosterClient }) {
+  const decision = classifySlip(client.flags, client.score);
   return (
-    <li>
-      <Link href={`/coach/clients/${client.id}`} className="block border-l-4 border-red bg-surface p-4 hover:bg-surface-muted">
+    <li className="border-l-4 border-red bg-surface">
+      <Link href={`/coach/clients/${client.id}`} className="block p-4 pb-2 hover:bg-surface-muted">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-xl text-ink">{client.name}</span>
           <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">{GOAL_LABEL[client.goal]}</span>
@@ -193,6 +196,20 @@ function ClientCard({ client }: { client: RosterClient }) {
           </span>
         </div>
       </Link>
+      {/* Slip response (§9 hybrid): small slip → one-tap nudge; big slip → escalate. */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-3">
+        <span className="font-body text-[11px] text-ink/55">{decision.reason}</span>
+        {decision.level === "nudge" ? (
+          <NudgeButton clientId={client.id} primary={decision.primary ?? ""} />
+        ) : decision.level === "escalate" ? (
+          <Link
+            href={`/coach/messages/${client.id}`}
+            className="min-h-tap border border-red px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-red hover:bg-red hover:text-surface"
+          >
+            Reach out
+          </Link>
+        ) : null}
+      </div>
     </li>
   );
 }
