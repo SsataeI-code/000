@@ -7,6 +7,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { isoDate } from "@/lib/habits/streaks";
 import { starterHabits } from "@/lib/habits/starter";
 import { getClientProfile } from "@/lib/nutrition/data";
+import { getClientCoachId } from "@/lib/messages/data";
+import { notify } from "@/lib/notifications/data";
 import type {
   HabitCadence,
   HabitCategory,
@@ -106,6 +108,52 @@ export async function seedStarterHabitsAction(): Promise<void> {
   );
   revalidatePath("/client");
   revalidatePath("/client/habits");
+}
+
+/**
+ * A client adopts a suggested next habit themselves (§5A "client can adopt a
+ * suggestion themselves; the coach sees every adoption and can veto/remove it").
+ * Inserts the habit and notifies the client's coach so they can veto if needed.
+ */
+export async function adoptSuggestedHabitAction(
+  nameRaw: string,
+  categoryRaw: string,
+  whyRaw: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const user = await getSessionUser();
+  if (!user || user.role !== "client") return { ok: false, error: "Not allowed." };
+  const name = nameRaw.trim();
+  if (!name) return { ok: false, error: "Missing habit." };
+  const category = (CATEGORIES as string[]).includes(categoryRaw) ? (categoryRaw as HabitCategory) : "movement";
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("habits").insert({
+    client_id: user.id,
+    created_by: user.id,
+    name,
+    category,
+    type: "checkbox",
+    cadence: "daily",
+    why: whyRaw.trim() || null,
+  });
+  if (error) return { ok: false, error: "Couldn't add it — try again." };
+
+  // The coach sees every adoption (a heads-up; they can veto from the deep-dive).
+  const coachId = await getClientCoachId(user.id);
+  if (coachId) {
+    const first = user.profile?.display_name?.split(" ")[0] ?? "A client";
+    await notify({
+      recipientId: coachId,
+      kind: "system",
+      title: `${first} adopted a new habit`,
+      body: `Self-added from a suggestion: "${name}". You can veto it from their profile.`,
+      link: `/coach/clients/${user.id}`,
+    });
+  }
+
+  revalidatePath("/client");
+  revalidatePath("/client/habits");
+  return { ok: true };
 }
 
 /** Toggle a habit's completion for a given day (default today). One-tap check. */

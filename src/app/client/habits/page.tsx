@@ -5,11 +5,14 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { consistency, currentStreak, longestStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
+import { recommendNextHabit } from "@/lib/habits/recommend";
+import { getClientProfile } from "@/lib/nutrition/data";
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
 import { HabitManageList, type ManageItem } from "@/components/habits/HabitManageList";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { HabitGame } from "@/components/habits/HabitGame";
 import { Achievements } from "@/components/habits/Achievements";
+import { SuggestedHabit } from "@/components/habits/SuggestedHabit";
 import { seedStarterHabitsAction } from "@/lib/habits/actions";
 import type { Habit } from "@/lib/types/db";
 
@@ -27,9 +30,14 @@ export default async function HabitsPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [habits, logs] = await Promise.all([getHabits(user.id), getHabitLogs(user.id)]);
+  const [habits, logs, profile] = await Promise.all([
+    getHabits(user.id),
+    getHabitLogs(user.id),
+    getClientProfile(user.id),
+  ]);
   const byHabit = completedDatesByHabit(logs);
   const today = new Date();
+  const DAY = 86_400_000;
 
   const items: ManageItem[] = habits.map((h) => {
     const done = byHabit.get(h.id) ?? new Set<string>();
@@ -62,6 +70,17 @@ export default async function HabitsPage() {
     todayDue: dueToday.length,
   });
   const gameState = computeGameState(gameStats);
+
+  // Adaptive "next right habit" (§5A) — only surfaces once the last one sticks.
+  const recommendation = recommendNextHabit({
+    goal: profile?.goal ?? "maintain",
+    activity: profile?.activity ?? null,
+    existing: habits.map((h) => ({
+      category: h.category,
+      consistency: consistency(h, byHabit.get(h.id) ?? new Set<string>(), today),
+      ageDays: Math.floor((today.getTime() - new Date(h.created_at).getTime()) / DAY),
+    })),
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -112,6 +131,10 @@ export default async function HabitsPage() {
       ) : (
         <HabitManageList items={items} />
       )}
+
+      {recommendation ? (
+        <SuggestedHabit name={recommendation.name} category={recommendation.category} why={recommendation.why} />
+      ) : null}
 
       <div>
         <h2 className="mb-3 text-2xl text-ink">New habit</h2>
