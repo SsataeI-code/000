@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { sendPush } from "@/lib/push/send";
 import type { Notification, NotificationKind } from "@/lib/types/db";
 
 /** A user's recent notifications, newest first. */
@@ -44,4 +45,6 @@ export async function notify(input: {
     body: input.body ?? null,
     link: input.link ?? null,
   });
+  // Also buzz their phone/desktop if they've opted into push (best-effort).
+  await sendPush(input.recipientId, { title: input.title, body: input.body, link: input.link });
 }

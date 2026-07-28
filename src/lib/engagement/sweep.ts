@@ -4,6 +4,7 @@ import { computeAttention } from "@/lib/coach/attention";
 import { classifySlip, draftNudge } from "@/lib/coach/slip";
 import { decideEngagement, type EngagementState } from "@/lib/engagement/decide";
 import { sendReengagementEmail } from "@/lib/email/send";
+import { sendPush } from "@/lib/push/send";
 import type { Goal } from "@/lib/types/db";
 
 export interface SweepReport {
@@ -116,27 +117,37 @@ export async function runEngagementSweep(): Promise<SweepReport> {
         const body = draftNudge(name, slip.primary);
         await supabase.from("messages").insert({ coach_id: coachId, client_id: id, sender_id: coachId, kind: "nudge", body });
         await supabase.from("notifications").insert({ recipient_id: id, kind: "nudge", title: "A little nudge for today", body: body.slice(0, 140), link: "/client/messages" });
+        await sendPush(id, { title: "A little nudge for today", body: body.slice(0, 140), link: "/client/messages" });
         report.nudged++;
       }
 
       // Coach alert after 3 quiet days (§ "notify me after 3 days").
       if (decision.alertCoach && coachId) {
+        const alertBody = `No app activity for ${Number.isFinite(dActivity) ? dActivity : "several"} days — might be time to reach out.`;
         await supabase.from("notifications").insert({
           recipient_id: coachId,
           kind: "system",
           title: `${name} has gone quiet`,
-          body: `No app activity for ${Number.isFinite(dActivity) ? dActivity : "several"} days — might be time to reach out.`,
+          body: alertBody,
           link: `/coach/clients/${id}`,
         });
+        await sendPush(coachId, { title: `${name} has gone quiet`, body: alertBody, link: `/coach/clients/${id}` });
         report.coachAlerts++;
       }
 
-      // Re-engagement email at 3 / 5 / 7 days.
+      // Re-engagement at 3 / 5 / 7 days: always an in-app touch + push (the
+      // default channels), plus the email when a provider is configured.
       if (decision.emailDay != null) {
+        const t = decision.emailDay;
+        const title = t >= 7 ? "Your spot's still here" : t >= 5 ? "One small win today?" : "We miss you";
+        const reBody = "No pressure — even 30 seconds today keeps your momentum. Open the app whenever you're ready.";
+        await supabase.from("notifications").insert({ recipient_id: id, kind: "system", title, body: reBody, link: "/client" });
+        await sendPush(id, { title, body: reBody, link: "/client" });
+
         const { data: userRes } = await supabase.auth.admin.getUserById(id);
         const email = userRes?.user?.email ?? null;
         if (email) {
-          const r = await sendReengagementEmail({ to: email, name, dayCount: decision.emailDay });
+          const r = await sendReengagementEmail({ to: email, name, dayCount: t });
           if (r.sent) report.emailsSent++;
           else report.emailsSkipped++;
         } else {

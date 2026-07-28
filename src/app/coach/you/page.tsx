@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getNotifications } from "@/lib/notifications/data";
 import { NotificationsList } from "@/components/notifications/NotificationsList";
+import { PushToggle } from "@/components/push/PushToggle";
 import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,8 @@ export default async function CoachYouPage() {
       <h1 className="text-4xl text-ink">You</h1>
 
       <NotificationsList notifications={notifications} />
+
+      <PushToggle />
 
       {coach?.coach_code ? (
         <section className="border border-hairline bg-surface p-5">

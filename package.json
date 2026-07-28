@@ -18,7 +18,8 @@
     "@undecaf/zbar-wasm": "^0.11.0",
     "next": "^15.5.20",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -26,6 +27,7 @@
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/web-push": "^3.6.4",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
