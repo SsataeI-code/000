@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { coachHasClient } from "@/lib/coach/data";
-import type { HabitCategory } from "@/lib/types/db";
+import type { HabitCategory, HabitType, HabitCadence } from "@/lib/types/db";
 
 /** A coach may act on a client they coach; the owner on anyone. */
 async function authorize(clientId: string): Promise<boolean> {
@@ -53,8 +53,24 @@ export async function coachSetTargetsAction(
 }
 
 const CATS: HabitCategory[] = ["nutrition", "movement", "sleep", "mindfulness", "hydration", "recovery"];
+const TYPES: HabitType[] = ["checkbox", "counter", "duration", "quantity"];
+const CADENCES: HabitCadence[] = ["daily", "weekly_count", "specific_days"];
 
-/** Coach assigns a daily habit to a client (§5A: coach can add/veto). */
+function oneOf<T extends string>(v: FormDataEntryValue | null, allowed: T[], fallback: T): T {
+  const s = typeof v === "string" ? v : "";
+  return (allowed as string[]).includes(s) ? (s as T) : fallback;
+}
+function numOrNull(v: FormDataEntryValue | null): number | null {
+  const s = typeof v === "string" ? v.trim() : "";
+  if (s === "") return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Coach/owner builds a habit for a client — the full builder (§5A: coach can
+ * add/veto). Same shape as the client's own builder, authorized to this client.
+ */
 export async function coachAddHabitAction(
   clientId: string,
   _prev: PlanState,
@@ -64,22 +80,33 @@ export async function coachAddHabitAction(
   if (!user || !(await authorize(clientId))) return { error: "Not allowed." };
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Name the habit." };
-  const catRaw = String(formData.get("category") ?? "");
-  const category = (CATS as string[]).includes(catRaw) ? (catRaw as HabitCategory) : "movement";
+
+  const cadence = oneOf(formData.get("cadence"), CADENCES, "daily");
+  const daysRaw = formData.getAll("days_of_week").map((d) => Number(d)).filter((n) => Number.isInteger(n));
+  if (cadence === "specific_days" && daysRaw.length === 0) {
+    return { error: "Pick at least one day for a specific-days habit." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.from("habits").insert({
     client_id: clientId,
     created_by: user.id,
     name,
-    category,
-    type: "checkbox",
-    cadence: "daily",
-    why: "Added by your coach.",
+    category: oneOf(formData.get("category"), CATS, "movement"),
+    type: oneOf(formData.get("type"), TYPES, "checkbox"),
+    target: numOrNull(formData.get("target")),
+    unit: String(formData.get("unit") ?? "").trim() || null,
+    cadence,
+    times_per_week: cadence === "weekly_count" ? numOrNull(formData.get("times_per_week")) : null,
+    days_of_week: cadence === "specific_days" ? daysRaw : null,
+    reminder_time: String(formData.get("reminder_time") ?? "").trim() || null,
+    why: String(formData.get("why") ?? "").trim() || "Added by your coach.",
+    anchor: String(formData.get("anchor") ?? "").trim() || null,
   });
   if (error) return { error: "Couldn't add it — try again." };
   revalidatePath(`/coach/clients/${clientId}`);
   revalidatePath("/client");
+  revalidatePath("/client/habits");
   return { ok: true };
 }
 
