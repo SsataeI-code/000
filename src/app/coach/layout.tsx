@@ -6,18 +6,11 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getCopy } from "@/lib/content/copy";
+import { getCopyServer } from "@/lib/content/data";
 import { IconAttention, IconMessages, IconRoster, IconYou } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
 export const dynamic = "force-dynamic";
-
-const tabs: TabItem[] = [
-  { href: "/coach", label: getCopy("coach.nav.attention"), icon: <IconAttention /> },
-  { href: "/coach/roster", label: getCopy("coach.nav.roster"), icon: <IconRoster /> },
-  { href: "/coach/messages", label: getCopy("coach.nav.messages"), icon: <IconMessages /> },
-  { href: "/coach/you", label: getCopy("coach.nav.you"), icon: <IconYou /> },
-];
 
 export default async function CoachLayout({ children }: { children: React.ReactNode }) {
   if (!hasSupabaseConfig()) redirect("/");
@@ -26,13 +19,21 @@ export default async function CoachLayout({ children }: { children: React.ReactN
   if (!user) redirect("/login");
   if (!canAccessArea(user.role, "coach")) redirect("/client");
 
+  const t = await getCopyServer();
+  const tabs: TabItem[] = [
+    { href: "/coach", label: t("coach.nav.attention"), icon: <IconAttention /> },
+    { href: "/coach/roster", label: t("coach.nav.roster"), icon: <IconRoster /> },
+    { href: "/coach/messages", label: t("coach.nav.messages"), icon: <IconMessages /> },
+    { href: "/coach/you", label: t("coach.nav.you"), icon: <IconYou /> },
+  ];
+
   return (
     <div className="mx-auto min-h-dvh max-w-[960px] pb-24 md:pb-0">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
           <BrandMark size={22} />
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">
-            {getCopy("coach.dashboard.title")}
+            {t("coach.dashboard.title")}
           </span>
         </span>
         <div className="flex items-center gap-4">

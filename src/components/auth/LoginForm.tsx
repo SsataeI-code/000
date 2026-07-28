@@ -5,12 +5,13 @@ import Link from "next/link";
 import { signInAction, type AuthActionState } from "@/lib/auth/actions";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import { getCopy } from "@/lib/content/copy";
+import { getCopy, type CopyOverrides } from "@/lib/content/copy";
 
 const initial: AuthActionState = {};
 
-export function LoginForm() {
+export function LoginForm({ overrides = {} }: { overrides?: CopyOverrides }) {
   const [state, formAction, pending] = useActionState(signInAction, initial);
+  const t = (k: Parameters<typeof getCopy>[0]) => getCopy(k, overrides);
 
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
@@ -21,14 +22,14 @@ export function LoginForm() {
       ) : null}
 
       <Field
-        label={getCopy("auth.login.emailLabel")}
+        label={t("auth.login.emailLabel")}
         name="email"
         type="email"
         autoComplete="email"
         required
       />
       <Field
-        label={getCopy("auth.login.passwordLabel")}
+        label={t("auth.login.passwordLabel")}
         name="password"
         type="password"
         autoComplete="current-password"
@@ -36,11 +37,11 @@ export function LoginForm() {
       />
 
       <Button type="submit" disabled={pending}>
-        {pending ? getCopy("common.loading") : getCopy("auth.login.submit")}
+        {pending ? t("common.loading") : t("auth.login.submit")}
       </Button>
 
       <Link href="/signup" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
-        {getCopy("auth.login.toSignup")}
+        {t("auth.login.toSignup")}
       </Link>
     </form>
   );

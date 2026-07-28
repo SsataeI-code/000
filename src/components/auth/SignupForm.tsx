@@ -5,12 +5,21 @@ import Link from "next/link";
 import { signUpAction, type AuthActionState } from "@/lib/auth/actions";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import { getCopy } from "@/lib/content/copy";
+import { getCopy, type CopyOverrides } from "@/lib/content/copy";
 
 const initial: AuthActionState = {};
 
-export function SignupForm({ coachCode, referralCode }: { coachCode?: string; referralCode?: string }) {
+export function SignupForm({
+  coachCode,
+  referralCode,
+  overrides = {},
+}: {
+  coachCode?: string;
+  referralCode?: string;
+  overrides?: CopyOverrides;
+}) {
   const [state, formAction, pending] = useActionState(signUpAction, initial);
+  const t = (k: Parameters<typeof getCopy>[0]) => getCopy(k, overrides);
 
   if (state.notice) {
     return (
@@ -29,16 +38,16 @@ export function SignupForm({ coachCode, referralCode }: { coachCode?: string; re
         </p>
       ) : null}
 
-      <Field label={getCopy("auth.signup.nameLabel")} name="name" autoComplete="name" required />
+      <Field label={t("auth.signup.nameLabel")} name="name" autoComplete="name" required />
       <Field
-        label={getCopy("auth.signup.emailLabel")}
+        label={t("auth.signup.emailLabel")}
         name="email"
         type="email"
         autoComplete="email"
         required
       />
       <Field
-        label={getCopy("auth.signup.passwordLabel")}
+        label={t("auth.signup.passwordLabel")}
         name="password"
         type="password"
         autoComplete="new-password"
@@ -46,10 +55,10 @@ export function SignupForm({ coachCode, referralCode }: { coachCode?: string; re
         required
       />
       <Field
-        label={getCopy("auth.signup.coachCodeLabel")}
+        label={t("auth.signup.coachCodeLabel")}
         name="coach_code"
         defaultValue={coachCode}
-        hint={getCopy("auth.signup.coachCodeHint")}
+        hint={t("auth.signup.coachCodeHint")}
         autoCapitalize="characters"
         inputMode="text"
       />
@@ -61,15 +70,15 @@ export function SignupForm({ coachCode, referralCode }: { coachCode?: string; re
           required
           className="mt-1 h-5 w-5 shrink-0 accent-red"
         />
-        <span>{getCopy("auth.signup.consentLabel")}</span>
+        <span>{t("auth.signup.consentLabel")}</span>
       </label>
 
       <Button type="submit" disabled={pending}>
-        {pending ? getCopy("common.loading") : getCopy("auth.signup.submit")}
+        {pending ? t("common.loading") : t("auth.signup.submit")}
       </Button>
 
       <Link href="/login" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
-        {getCopy("auth.signup.toLogin")}
+        {t("auth.signup.toLogin")}
       </Link>
     </form>
   );

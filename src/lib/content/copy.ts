@@ -78,13 +78,24 @@ export const defaultCopy = {
   "common.loading": "One sec…",
 } as const;
 
+/** A CMS override map, keyed by CopyKey. Empty means "defaults win". */
+export type CopyOverrides = Partial<Record<CopyKey, string>>;
+
 /**
- * Resolve a copy key. `overrides` is where CMS-stored, coach-edited copy will be
- * injected later; today it's empty and the house-style defaults win.
+ * Resolve a copy key. `overrides` carries CMS-stored, owner-edited copy (loaded
+ * from `content_overrides`); an empty/missing entry falls back to the house-style
+ * default, so a missing or failed CMS read never blanks the UI (§2 reliability).
  */
-export function getCopy(
-  key: CopyKey,
-  overrides: Partial<Record<CopyKey, string>> = {},
-): string {
-  return overrides[key] ?? defaultCopy[key];
+export function getCopy(key: CopyKey, overrides: CopyOverrides = {}): string {
+  const v = overrides[key];
+  return v != null && v !== "" ? v : defaultCopy[key];
+}
+
+/** All copy keys (stable order) — used by the CMS editor to list every string. */
+export const copyKeys = Object.keys(defaultCopy) as CopyKey[];
+
+/** The section a key belongs to (its prefix before the first dot), for grouping. */
+export function copySection(key: CopyKey): string {
+  const dot = key.indexOf(".");
+  return dot === -1 ? key : key.slice(0, dot);
 }

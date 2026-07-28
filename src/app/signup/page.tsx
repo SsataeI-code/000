@@ -5,6 +5,7 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { coachCodeFromParams } from "@/lib/auth/coach-code";
 import { referralCodeFromParams } from "@/lib/referrals/code";
+import { getContentOverrides } from "@/lib/content/data";
 import { getCopy } from "@/lib/content/copy";
 
 export default async function SignupPage({
@@ -22,27 +23,28 @@ export default async function SignupPage({
   }
   const coachCode = coachCodeFromParams(usp) ?? undefined;
   const referralCode = referralCodeFromParams(usp) ?? undefined;
+  const overrides = await getContentOverrides();
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-6 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2">
         <BrandMark size={24} />
         <span className="font-label text-xs uppercase tracking-wide text-ink/70">
-          {getCopy("brand.name")}
+          {getCopy("brand.name", overrides)}
         </span>
       </Link>
 
-      <h1 className="text-4xl text-ink">{getCopy("auth.signup.title")}</h1>
-      <p className="mt-2 font-body text-ink/70">{getCopy("auth.signup.subtitle")}</p>
+      <h1 className="text-4xl text-ink">{getCopy("auth.signup.title", overrides)}</h1>
+      <p className="mt-2 font-body text-ink/70">{getCopy("auth.signup.subtitle", overrides)}</p>
 
       {referralCode ? (
         <p className="mt-4 border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
-          {getCopy("auth.signup.invited")}
+          {getCopy("auth.signup.invited", overrides)}
         </p>
       ) : null}
 
       <div className="mt-8">
-        {configured ? <SignupForm coachCode={coachCode} referralCode={referralCode} /> : <SetupNotice />}
+        {configured ? <SignupForm coachCode={coachCode} referralCode={referralCode} overrides={overrides} /> : <SetupNotice />}
       </div>
     </main>
   );

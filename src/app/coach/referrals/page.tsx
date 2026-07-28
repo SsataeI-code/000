@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCoachReferrals } from "@/lib/referrals/data";
 import { ReferralRow } from "@/components/referrals/ReferralRow";
-import { getCopy } from "@/lib/content/copy";
+import { getCopyServer } from "@/lib/content/data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,7 @@ export default async function CoachReferralsPage() {
   if (user.role === "client") redirect("/client");
 
   const owner = { owner: user.role === "owner" };
+  const t = await getCopyServer();
   const referrals = await getCoachReferrals(user.id, owner);
   const pending = referrals.filter((r) => r.status === "joined");
   const decided = referrals.filter((r) => r.status !== "joined");
@@ -25,7 +26,7 @@ export default async function CoachReferralsPage() {
       <div className="flex items-baseline justify-between gap-3">
         <div>
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Growth</p>
-          <h1 className="mt-1 text-4xl text-ink">{getCopy("coach.referrals.title")}</h1>
+          <h1 className="mt-1 text-4xl text-ink">{t("coach.referrals.title")}</h1>
         </div>
         <Link
           href="/coach"
@@ -34,11 +35,11 @@ export default async function CoachReferralsPage() {
           Dashboard
         </Link>
       </div>
-      <p className="font-body text-sm text-ink/60">{getCopy("coach.referrals.subtitle")}</p>
+      <p className="font-body text-sm text-ink/60">{t("coach.referrals.subtitle")}</p>
 
       {referrals.length === 0 ? (
         <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
-          {getCopy("coach.referrals.empty")}
+          {t("coach.referrals.empty")}
         </p>
       ) : (
         <>

@@ -29,7 +29,7 @@ import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
-import { getCopy } from "@/lib/content/copy";
+import { getCopyServer } from "@/lib/content/data";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,7 @@ export default async function TodayPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
+  const t = await getCopyServer();
   const [profile, targets] = await Promise.all([
     getClientProfile(user.id),
     getLatestTargets(user.id),
@@ -138,9 +139,9 @@ export default async function TodayPage() {
     <div className="flex flex-col gap-6">
       <div>
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">
-          {getCopy("client.today.title")}
+          {t("client.today.title")}
         </p>
-        <Greeting name={name} fallback={name ? `Hi, ${name}.` : getCopy("client.today.greeting")} />
+        <Greeting name={name} fallback={name ? `Hi, ${name}.` : t("client.today.greeting")} />
       </div>
 
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
@@ -181,7 +182,7 @@ export default async function TodayPage() {
       </Link>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl text-ink">{getCopy("client.nav.food")}</h2>
+        <h2 className="text-2xl text-ink">{t("client.nav.food")}</h2>
         <Link
           href="/client/food"
           className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"

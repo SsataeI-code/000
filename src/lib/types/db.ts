@@ -242,7 +242,14 @@ export type Notification = {
   created_at: string;
 };
 
-// --- Phase 6: growth (referrals) ---
+// --- Phase 6: growth (referrals + CMS) ---
+
+export type ContentOverride = {
+  key: string;
+  value: string;
+  updated_by: string | null;
+  updated_at: string;
+};
 
 export type ReferralStatus = "joined" | "rewarded" | "declined";
 
@@ -372,6 +379,12 @@ export type Database = {
         Row: Referral;
         Insert: Partial<Referral> & { referrer_id: string; referred_id: string; coach_id: string };
         Update: Partial<Referral>;
+        Relationships: [];
+      };
+      content_overrides: {
+        Row: ContentOverride;
+        Insert: Partial<ContentOverride> & { key: string; value: string };
+        Update: Partial<ContentOverride>;
         Relationships: [];
       };
     };

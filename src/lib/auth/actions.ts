@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { homePathForRole } from "@/lib/auth/roles";
 import { normalizeCoachCode } from "@/lib/auth/coach-code";
 import { normalizeReferralCode, isValidReferralCode } from "@/lib/referrals/code";
+import { getContentOverrides } from "@/lib/content/data";
 import { getCopy } from "@/lib/content/copy";
 
 export interface AuthActionState {
@@ -29,7 +30,8 @@ export async function signInAction(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: getCopy("auth.error.invalidCredentials") };
+    const overrides = await getContentOverrides();
+    return { error: getCopy("auth.error.invalidCredentials", overrides) };
   }
 
   const user = await getSessionUser();
@@ -56,8 +58,9 @@ export async function signUpAction(
   const rawRef = String(formData.get("referral_code") ?? "");
   const referralCode = rawRef && isValidReferralCode(rawRef) ? normalizeReferralCode(rawRef) : "";
 
+  const overrides = await getContentOverrides();
   if (!consent) {
-    return { error: getCopy("auth.error.consentRequired") };
+    return { error: getCopy("auth.error.consentRequired", overrides) };
   }
 
   // Carry the coach + referral codes through the email round-trip so they
@@ -78,13 +81,13 @@ export async function signUpAction(
   });
 
   if (error) {
-    return { error: error.message || getCopy("auth.error.generic") };
+    return { error: error.message || getCopy("auth.error.generic", overrides) };
   }
 
   // When email confirmation is on, there is no session yet — we can only link
   // after the user confirms and signs in. Surface a clear "check your email".
   if (!data.session) {
-    return { notice: getCopy("auth.signup.checkEmail") };
+    return { notice: getCopy("auth.signup.checkEmail", overrides) };
   }
 
   // We have a live session: link the client to a coach now.
@@ -96,7 +99,7 @@ export async function signUpAction(
 
   if (linkError) {
     // The account exists; linking can be retried, but tell the truth.
-    return { error: linkError.message || getCopy("auth.error.generic") };
+    return { error: linkError.message || getCopy("auth.error.generic", overrides) };
   }
 
   redirect("/client");

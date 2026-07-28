@@ -7,7 +7,7 @@ import { getRoster, getRosterSeries, getDashboardLayout, type RosterClient } fro
 import { visibleTiles, type TileId } from "@/lib/coach/dashboard";
 import { classifySlip } from "@/lib/coach/slip";
 import { getPendingReferralCount } from "@/lib/referrals/data";
-import { getCopy } from "@/lib/content/copy";
+import { getCopyServer } from "@/lib/content/data";
 import { resolveRange } from "@/lib/charts/range";
 import { RangeToggle } from "@/components/charts/RangeToggle";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
@@ -26,6 +26,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
+  const t = await getCopyServer();
   const supabase = await createClient();
   const { data: coach } = await supabase.from("coaches").select("coach_code").eq("id", user.id).maybeSingle();
 
@@ -42,7 +43,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
       <div className="flex flex-col gap-6">
         <h1 className="text-4xl text-ink">No clients yet</h1>
         <section className="border border-hairline bg-surface p-5">
-          <p className="font-body text-ink/70">{getCopy("coach.dashboard.empty")}</p>
+          <p className="font-body text-ink/70">{t("coach.dashboard.empty")}</p>
           {coach?.coach_code ? (
             <p className="mt-3 font-body text-sm text-ink/60">
               Your code: <span className="font-display text-xl uppercase tracking-widest text-red">{coach.coach_code}</span>
@@ -158,15 +159,20 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">{getCopy("coach.dashboard.needsAttention")}</p>
+          <p className="font-label text-xs uppercase tracking-wide text-ink/50">{t("coach.dashboard.needsAttention")}</p>
           <h1 className="mt-1 text-4xl text-ink">
             {needsAttention.length === 0 ? "All steady" : `${needsAttention.length} need${needsAttention.length === 1 ? "s" : ""} you`}
           </h1>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
           <Link href="/coach/referrals" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Referrals{pendingReferrals > 0 ? ` (${pendingReferrals})` : ""}
           </Link>
+          {isOwner ? (
+            <Link href="/coach/content" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+              Edit copy
+            </Link>
+          ) : null}
           <Link href="/coach/dashboard" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Customize
           </Link>

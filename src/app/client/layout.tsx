@@ -6,20 +6,11 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getCopy } from "@/lib/content/copy";
+import { getCopyServer } from "@/lib/content/data";
 import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
 export const dynamic = "force-dynamic";
-
-const tabs: TabItem[] = [
-  { href: "/client", label: getCopy("client.nav.today"), icon: <IconToday /> },
-  { href: "/client/habits", label: getCopy("client.nav.habits"), icon: <IconHabits /> },
-  { href: "/client/food", label: getCopy("client.nav.food"), icon: <IconFood /> },
-  { href: "/client/body", label: getCopy("client.nav.body"), icon: <IconBody /> },
-  { href: "/client/messages", label: getCopy("client.nav.coach"), icon: <IconMessages /> },
-  { href: "/client/you", label: getCopy("client.nav.you"), icon: <IconYou /> },
-];
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
   if (!hasSupabaseConfig()) redirect("/");
@@ -29,13 +20,23 @@ export default async function ClientLayout({ children }: { children: React.React
   if (!user) redirect("/login");
   if (!canAccessArea(user.role, "client")) redirect("/coach");
 
+  const t = await getCopyServer();
+  const tabs: TabItem[] = [
+    { href: "/client", label: t("client.nav.today"), icon: <IconToday /> },
+    { href: "/client/habits", label: t("client.nav.habits"), icon: <IconHabits /> },
+    { href: "/client/food", label: t("client.nav.food"), icon: <IconFood /> },
+    { href: "/client/body", label: t("client.nav.body"), icon: <IconBody /> },
+    { href: "/client/messages", label: t("client.nav.coach"), icon: <IconMessages /> },
+    { href: "/client/you", label: t("client.nav.you"), icon: <IconYou /> },
+  ];
+
   return (
     <div className="mx-auto min-h-dvh max-w-[560px] pb-24">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
           <BrandMark size={22} />
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">
-            {getCopy("brand.name")}
+            {t("brand.name")}
           </span>
         </span>
         <SignOutButton />

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defaultCopy, getCopy } from "@/lib/content/copy";
+import { defaultCopy, getCopy, copyKeys, copySection } from "@/lib/content/copy";
 
 describe("CMS-ready copy", () => {
   it("returns the house-style default when no override exists", () => {
@@ -21,5 +21,18 @@ describe("CMS-ready copy", () => {
   it("keeps consent copy present — consent is never skipped (§16)", () => {
     expect(getCopy("auth.signup.consentLabel").length).toBeGreaterThan(0);
     expect(getCopy("auth.error.consentRequired").length).toBeGreaterThan(0);
+  });
+
+  it("falls back to the default when an override is empty (a blank never blanks the UI)", () => {
+    expect(getCopy("brand.name", { "brand.name": "" })).toBe(defaultCopy["brand.name"]);
+    expect(getCopy("brand.name", {})).toBe(defaultCopy["brand.name"]);
+  });
+
+  it("exposes every key and groups them by section for the CMS editor", () => {
+    expect(copyKeys.length).toBe(Object.keys(defaultCopy).length);
+    expect(copySection("auth.signup.title")).toBe("auth");
+    expect(copySection("brand.name")).toBe("brand");
+    // Every key resolves to a known section prefix.
+    for (const k of copyKeys) expect(copySection(k)).toMatch(/^(brand|auth|client|coach|common)$/);
   });
 });
