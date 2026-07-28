@@ -27,7 +27,7 @@ export default async function CoachYouPage() {
 
       <PushToggle />
 
-      <TestEmailButton />
+      <TestEmailButton defaultEmail={user.email ?? ""} />
 
       {coach?.coach_code ? (
         <section className="border border-hairline bg-surface p-5">
