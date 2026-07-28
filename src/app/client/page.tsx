@@ -169,6 +169,17 @@ export default async function TodayPage() {
 
       <WaterTracker consumedMl={waterMl} goalMl={profile?.water_goal_ml ?? 2500} />
 
+      <Link
+        href="/client/assistant"
+        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block font-body text-base text-ink">Ask the assistant</span>
+          <span className="block font-body text-xs text-ink/50">Meal ideas &amp; swaps within your targets</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Ask →</span>
+      </Link>
+
       <div className="flex items-center justify-between">
         <h2 className="text-2xl text-ink">{getCopy("client.nav.food")}</h2>
         <Link

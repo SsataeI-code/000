@@ -300,7 +300,15 @@ See `README.md` for the full runbook.
 - **PWA Web Push** (migration `0012_push_subscriptions`; `src/lib/push/*`, `public/sw.js`): `push_subscriptions` table (per-device, user-managed, RLS-scoped, service-role sends). `PushToggle` on both `/you` pages registers the service worker, asks permission, subscribes with the VAPID public key, and stores it (honest states — iOS needs Add-to-Home-Screen first). `notify()` and the sweep now also `sendPush()` (best-effort, prunes expired subs). Gated on VAPID keys — in-app notifications work without them. Verified on Postgres 16 (idempotent, own-subs-only RLS).
 - **Next:** quiet hours.
 
-**Testing:** 165 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008/0009/0010 RLS isolation checked end-to-end; 0011 structure verified). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
+### Phase 5 — AI assistant 🔨 (in progress; client assistant + coach draft live)
+
+- **Powered by the Claude API** (`@anthropic-ai/sdk`; `src/lib/ai/*`): server-only `createAiClient` (key never reaches the browser), model = `ANTHROPIC_MODEL` or `claude-opus-5`. Gated on `ANTHROPIC_API_KEY` — everything degrades gracefully to an "ask your coach to enable it" state without it.
+- **Grounded + guardrailed** (`context.ts` + `prompts.ts`, pure/tested): every call embeds the client's *real* day (targets, today's totals, what's remaining, water, habits due) and the §11 hard guardrails baked into the system prompt — never medical advice (medical/injury/disordered-eating → steered to coach/professional), never invents nutrition numbers (uses only supplied figures), never changes targets/goal/the coach's plan, warm + never shaming. Safety `stop_reason:"refusal"` → safe fallback reply.
+- **Client assistant** (`askAssistantAction`, `/client/assistant`, `Assistant.tsx`): meal ideas, food swaps, and "what should I eat" answers within their targets, grounded in their logged day. Reached from a card on Today. History-aware (last 12 turns).
+- **Coach AI draft** (§11 "AI drafts; the coach sends"): `draftCoachMessageAction` writes a short, coach-voiced message from the client's real status; a **Draft with AI** button in the coach's chat composer fills the box for the coach to edit and send — it never sends anything itself. The auto-nudge templates stay as the no-AI fallback.
+- **Next:** habit-recommendation engine (the "next right habit"), swap the engagement-sweep nudge template for an AI draft, meal-plan generation.
+
+**Testing:** 170 Vitest tests (pure logic). Every migration verified on Postgres 16, idempotent (0008/0009/0010 RLS isolation checked end-to-end; 0011 structure verified). Migrations are also mirrored as one-file `supabase/phase*.sql` for the owner to paste-run.
 
 **Owner setup done:** Supabase live, migrations 0001–0007 applied, owner = jakekatz8@gmail.com, deployed on Vercel at total-form-fitness.vercel.app.
 **Owner action needed:**
@@ -308,3 +316,4 @@ See `README.md` for the full runbook.
 2. **Enable the daily automation:** set `CRON_SECRET` (any long random string) in Vercel env — Vercel Cron sends it as a Bearer token so the sweep endpoint is protected. The cron (`/api/cron/engagement`, daily) then auto-nudges slips, alerts the coach after 3 quiet days, and triggers the email ladder. `SUPABASE_SERVICE_ROLE_KEY` must be set server-side (already required).
 3. **Enable re-engagement email (3/5/7 days):** create a **Resend** account, verify a sender domain, and set `RESEND_API_KEY` (and optionally `EMAIL_FROM`) in Vercel. Without it, the in-app + push re-engagement touch still fires; only the email is skipped.
 4. **Enable PWA push:** run `supabase/phase4_push.sql` (0012), then set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` (mailto:) in Vercel. A generated keypair was provided in-session. Clients/coach turn it on from their **You** tab. Without the keys, push is skipped; in-app notifications still work.
+5. **Enable the AI assistant (Phase 5):** set `ANTHROPIC_API_KEY` (from console.anthropic.com) in Vercel — optionally `ANTHROPIC_MODEL` (defaults to `claude-opus-5`; set to `claude-sonnet-5` for lower cost). Without it, the client "Ask" screen and the coach "Draft with AI" button show a disabled state; nothing else is affected.

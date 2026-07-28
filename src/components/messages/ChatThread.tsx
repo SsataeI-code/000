@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { draftCoachMessageAction } from "@/lib/ai/actions";
 import type { Message } from "@/lib/types/db";
 import type { SendState } from "@/lib/messages/actions";
 
@@ -34,6 +35,8 @@ export function ChatThread({
   action,
   initialMessages,
   placeholder = "Write a message…",
+  canDraft = false,
+  aiEnabled = false,
 }: {
   coachId: string;
   clientId: string;
@@ -43,20 +46,35 @@ export function ChatThread({
   action: (prev: SendState, formData: FormData) => Promise<SendState>;
   initialMessages: Message[];
   placeholder?: string;
+  /** Coach thread: show the "Draft with AI" helper (§11 AI drafts; coach sends). */
+  canDraft?: boolean;
+  aiEnabled?: boolean;
 }) {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [body, setBody] = useState("");
+  const [drafting, startDraft] = useTransition();
+  const [draftError, setDraftError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   // Clear the box and refresh server data (unread counts) after a successful send.
   useEffect(() => {
     if (state.ok) {
-      formRef.current?.reset();
+      setBody("");
       router.refresh();
     }
   }, [state, router]);
+
+  function draft() {
+    setDraftError(null);
+    startDraft(async () => {
+      const res = await draftCoachMessageAction(clientId, body);
+      if (res.error) setDraftError(res.error);
+      else if (res.reply) setBody(res.reply);
+    });
+  }
 
   // Live subscription to this thread.
   useEffect(() => {
@@ -101,6 +119,9 @@ export function ChatThread({
         {state.error ? (
           <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
         ) : null}
+        {draftError ? (
+          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{draftError}</p>
+        ) : null}
         <div className="flex items-end gap-2">
           <label htmlFor="body" className="sr-only">Message</label>
           <textarea
@@ -109,6 +130,8 @@ export function ChatThread({
             rows={2}
             required
             maxLength={4000}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
             placeholder={placeholder}
             className="min-h-tap flex-1 resize-none border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
           />
@@ -120,6 +143,16 @@ export function ChatThread({
             {pending ? "Sending…" : "Send"}
           </button>
         </div>
+        {canDraft && aiEnabled ? (
+          <button
+            type="button"
+            onClick={draft}
+            disabled={drafting}
+            className="min-h-tap self-start border border-ink px-3 py-1.5 font-label text-[11px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+          >
+            {drafting ? "Drafting…" : body.trim() ? "Redraft with AI" : "Draft with AI"}
+          </button>
+        ) : null}
       </form>
     </div>
   );

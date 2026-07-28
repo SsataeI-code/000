@@ -6,6 +6,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { coachHasClient } from "@/lib/coach/data";
 import { getThread, markThreadRead } from "@/lib/messages/data";
 import { sendCoachMessageAction } from "@/lib/messages/actions";
+import { hasAiConfig } from "@/lib/ai/client";
 import { ChatThread } from "@/components/messages/ChatThread";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +52,8 @@ export default async function CoachThreadPage({ params }: { params: Promise<{ id
         action={sendCoachMessageAction.bind(null, id)}
         initialMessages={messages}
         placeholder={`Message ${clientName}…`}
+        canDraft
+        aiEnabled={hasAiConfig()}
       />
     </div>
   );
