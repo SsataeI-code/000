@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { answerQuestion, HELP_STARTERS, type HelpContext } from "@/lib/help/answer";
 
 interface Turn {
@@ -85,6 +86,14 @@ export function AnswerHelper({ ctx }: { ctx: HelpContext }) {
           Ask
         </button>
       </form>
+
+      {/* Anything the helper can't handle is a real message to the coach (§10). */}
+      <p className="font-body text-xs text-ink/50">
+        Need a real person, or want to change your plan?{" "}
+        <Link href="/client/messages" className="text-red underline underline-offset-2">
+          Message your coach →
+        </Link>
+      </p>
     </div>
   );
 }

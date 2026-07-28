@@ -42,10 +42,6 @@ export default async function AssistantPage() {
           <Assistant />
         </section>
       ) : null}
-
-      <p className="font-body text-xs text-ink/50">
-        Need a real person? Message your coach any time from the <Link href="/client/messages" className="text-red underline underline-offset-2">Coach</Link> tab.
-      </p>
     </div>
   );
 }
