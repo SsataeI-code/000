@@ -6,6 +6,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getRoster, getRosterSeries, getDashboardLayout, type RosterClient } from "@/lib/coach/data";
 import { visibleTiles, type TileId } from "@/lib/coach/dashboard";
 import { classifySlip } from "@/lib/coach/slip";
+import { getPendingReferralCount } from "@/lib/referrals/data";
 import { getCopy } from "@/lib/content/copy";
 import { resolveRange } from "@/lib/charts/range";
 import { RangeToggle } from "@/components/charts/RangeToggle";
@@ -29,7 +30,11 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   const { data: coach } = await supabase.from("coaches").select("coach_code").eq("id", user.id).maybeSingle();
 
   const isOwner = user.role === "owner";
-  const [roster, layout] = await Promise.all([getRoster(user.id, { owner: isOwner }), getDashboardLayout(user.id)]);
+  const [roster, layout, pendingReferrals] = await Promise.all([
+    getRoster(user.id, { owner: isOwner }),
+    getDashboardLayout(user.id),
+    getPendingReferralCount(user.id, { owner: isOwner }),
+  ]);
 
   // Empty roster: a focused onboarding card, no tiles to fill yet.
   if (roster.length === 0) {
@@ -158,9 +163,14 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
             {needsAttention.length === 0 ? "All steady" : `${needsAttention.length} need${needsAttention.length === 1 ? "s" : ""} you`}
           </h1>
         </div>
-        <Link href="/coach/dashboard" className="min-h-tap shrink-0 font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
-          Customize
-        </Link>
+        <div className="flex shrink-0 items-center gap-3">
+          <Link href="/coach/referrals" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            Referrals{pendingReferrals > 0 ? ` (${pendingReferrals})` : ""}
+          </Link>
+          <Link href="/coach/dashboard" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            Customize
+          </Link>
+        </div>
       </div>
 
       {tiles.map(renderTile)}

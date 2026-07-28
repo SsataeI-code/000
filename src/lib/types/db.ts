@@ -22,6 +22,7 @@ export type Profile = {
   role: AppRole;
   display_name: string | null;
   avatar_url: string | null;
+  referral_code: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -241,6 +242,21 @@ export type Notification = {
   created_at: string;
 };
 
+// --- Phase 6: growth (referrals) ---
+
+export type ReferralStatus = "joined" | "rewarded" | "declined";
+
+export type Referral = {
+  id: string;
+  referrer_id: string;
+  referred_id: string;
+  coach_id: string;
+  status: ReferralStatus;
+  reward_note: string | null;
+  created_at: string;
+  processed_at: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -352,6 +368,12 @@ export type Database = {
         Update: Partial<PushSubscriptionRow>;
         Relationships: [];
       };
+      referrals: {
+        Row: Referral;
+        Insert: Partial<Referral> & { referrer_id: string; referred_id: string; coach_id: string };
+        Update: Partial<Referral>;
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -362,6 +384,14 @@ export type Database = {
           p_referral_code: string | null;
         };
         Returns: string;
+      };
+      ensure_referral_code: {
+        Args: Record<string, never>;
+        Returns: string;
+      };
+      process_referral: {
+        Args: { p_id: string; p_status: ReferralStatus; p_note: string | null };
+        Returns: undefined;
       };
     };
     Enums: {
@@ -377,6 +407,7 @@ export type Database = {
       habit_cadence: HabitCadence;
       message_kind: MessageKind;
       notification_kind: NotificationKind;
+      referral_status: ReferralStatus;
     };
     CompositeTypes: Record<never, never>;
   };

@@ -34,6 +34,7 @@ export const defaultCopy = {
   "auth.signup.submit": "Create account",
   "auth.signup.toLogin": "Already have an account? Sign in",
   "auth.signup.checkEmail": "Check your email to confirm your account, then sign in.",
+  "auth.signup.invited": "A friend invited you — welcome. Let's get you started.",
 
   "auth.error.generic": "Something went wrong. Give it another try.",
   "auth.error.consentRequired":
@@ -50,10 +51,24 @@ export const defaultCopy = {
   "client.nav.coach": "Coach",
   "client.nav.you": "You",
 
+  "client.invite.title": "Invite a friend",
+  "client.invite.body":
+    "Share your personal link. When a friend joins, your coach takes care of the thank-you.",
+  "client.invite.share": "Share your link",
+  "client.invite.copy": "Copy link",
+  "client.invite.copied": "Copied",
+  "client.invite.joinedLabel": "friends joined",
+  "client.invite.rewardedLabel": "rewards given",
+
   "coach.dashboard.title": "Command center",
   "coach.dashboard.needsAttention": "Needs attention",
   "coach.dashboard.empty": "No clients yet. Share your coach code to bring your first one in.",
   "coach.dashboard.yourCode": "Your coach code",
+
+  "coach.referrals.title": "Referrals",
+  "coach.referrals.subtitle": "You control every reward — 10% off is only a default.",
+  "coach.referrals.empty":
+    "No referrals yet. When a client invites a friend who joins, they'll show up here to reward.",
   "coach.nav.roster": "Roster",
   "coach.nav.attention": "Attention",
   "coach.nav.messages": "Messages",

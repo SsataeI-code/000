@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { homePathForRole } from "@/lib/auth/roles";
 import { coachCodeFromParams } from "@/lib/auth/coach-code";
+import { referralCodeFromParams } from "@/lib/referrals/code";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 
 /**
@@ -32,10 +33,11 @@ export async function GET(request: NextRequest) {
 
   // Idempotent link: resolve_signup does nothing if already linked.
   const coachCode = coachCodeFromParams(searchParams);
+  const referralCode = referralCodeFromParams(searchParams);
   await supabase.rpc("resolve_signup", {
     p_coach_code: coachCode,
     p_consent: true,
-    p_referral_code: null,
+    p_referral_code: referralCode,
   });
 
   const user = await getSessionUser();

@@ -9,7 +9,7 @@ import { getCopy } from "@/lib/content/copy";
 
 const initial: AuthActionState = {};
 
-export function SignupForm({ coachCode }: { coachCode?: string }) {
+export function SignupForm({ coachCode, referralCode }: { coachCode?: string; referralCode?: string }) {
   const [state, formAction, pending] = useActionState(signUpAction, initial);
 
   if (state.notice) {
@@ -22,6 +22,7 @@ export function SignupForm({ coachCode }: { coachCode?: string }) {
 
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
+      {referralCode ? <input type="hidden" name="referral_code" value={referralCode} /> : null}
       {state.error ? (
         <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {state.error}

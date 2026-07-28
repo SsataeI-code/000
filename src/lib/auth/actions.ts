@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { homePathForRole } from "@/lib/auth/roles";
 import { normalizeCoachCode } from "@/lib/auth/coach-code";
+import { normalizeReferralCode, isValidReferralCode } from "@/lib/referrals/code";
 import { getCopy } from "@/lib/content/copy";
 
 export interface AuthActionState {
@@ -52,15 +53,19 @@ export async function signUpAction(
   const consent = formData.get("consent") === "on";
   const rawCode = String(formData.get("coach_code") ?? "");
   const coachCode = rawCode ? normalizeCoachCode(rawCode) : "";
+  const rawRef = String(formData.get("referral_code") ?? "");
+  const referralCode = rawRef && isValidReferralCode(rawRef) ? normalizeReferralCode(rawRef) : "";
 
   if (!consent) {
     return { error: getCopy("auth.error.consentRequired") };
   }
 
-  // Carry the coach code through the email round-trip so it survives to the
-  // callback (the confirmation link is a fresh request with no form state).
+  // Carry the coach + referral codes through the email round-trip so they
+  // survive to the callback (the confirmation link is a fresh request with no
+  // form state).
   const callbackUrl = new URL(`${siteUrl()}/auth/callback`);
   if (coachCode) callbackUrl.searchParams.set("coach", coachCode);
+  if (referralCode) callbackUrl.searchParams.set("ref", referralCode);
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -86,7 +91,7 @@ export async function signUpAction(
   const { error: linkError } = await supabase.rpc("resolve_signup", {
     p_coach_code: coachCode || null,
     p_consent: consent,
-    p_referral_code: null,
+    p_referral_code: referralCode || null,
   });
 
   if (linkError) {

@@ -4,6 +4,7 @@ import { SignupForm } from "@/components/auth/SignupForm";
 import { SetupNotice } from "@/components/SetupNotice";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { coachCodeFromParams } from "@/lib/auth/coach-code";
+import { referralCodeFromParams } from "@/lib/referrals/code";
 import { getCopy } from "@/lib/content/copy";
 
 export default async function SignupPage({
@@ -20,6 +21,7 @@ export default async function SignupPage({
     if (typeof v === "string") usp.set(k, v);
   }
   const coachCode = coachCodeFromParams(usp) ?? undefined;
+  const referralCode = referralCodeFromParams(usp) ?? undefined;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-6 py-12">
@@ -33,8 +35,14 @@ export default async function SignupPage({
       <h1 className="text-4xl text-ink">{getCopy("auth.signup.title")}</h1>
       <p className="mt-2 font-body text-ink/70">{getCopy("auth.signup.subtitle")}</p>
 
+      {referralCode ? (
+        <p className="mt-4 border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
+          {getCopy("auth.signup.invited")}
+        </p>
+      ) : null}
+
       <div className="mt-8">
-        {configured ? <SignupForm coachCode={coachCode} /> : <SetupNotice />}
+        {configured ? <SignupForm coachCode={coachCode} referralCode={referralCode} /> : <SetupNotice />}
       </div>
     </main>
   );
