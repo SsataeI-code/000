@@ -3,6 +3,17 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { hasAiConfig } from "@/lib/ai/client";
+import {
+  getClientProfile,
+  getLatestTargets,
+  getTodayFoodLogs,
+  totalMacros,
+} from "@/lib/nutrition/data";
+import { getTodayWaterMl } from "@/lib/body/data";
+import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
+import { isDueToday, isoDate } from "@/lib/habits/streaks";
+import type { HelpContext } from "@/lib/help/answer";
+import { AnswerHelper } from "@/components/help/AnswerHelper";
 import { Assistant } from "@/components/ai/Assistant";
 
 export const dynamic = "force-dynamic";
@@ -12,11 +23,44 @@ export default async function AssistantPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
+  const [profile, targets, logs, waterMl, habits, habitLogs] = await Promise.all([
+    getClientProfile(user.id),
+    getLatestTargets(user.id),
+    getTodayFoodLogs(user.id),
+    getTodayWaterMl(user.id),
+    getHabits(user.id),
+    getHabitLogs(user.id),
+  ]);
+  const totals = totalMacros(logs);
+  const byHabit = completedDatesByHabit(habitLogs);
+  const now = new Date();
+  const todayStr = isoDate(now);
+
+  const ctx: HelpContext = {
+    firstName: user.profile?.display_name?.split(" ")[0] ?? null,
+    goal: profile?.goal ?? "maintain",
+    remaining: targets
+      ? {
+          calories: targets.calories - totals.calories,
+          proteinG: targets.protein_g - totals.proteinG,
+          carbsG: targets.carbs_g - totals.carbsG,
+          fatG: targets.fat_g - totals.fatG,
+        }
+      : null,
+    waterOz: waterMl / 29.5735,
+    waterGoalOz: (profile?.water_goal_ml ?? 2500) / 29.5735,
+    habitsDue: habits
+      .filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now))
+      .map((h) => ({ name: h.name, done: (byHabit.get(h.id) ?? new Set<string>()).has(todayStr) })),
+  };
+
+  const aiOn = hasAiConfig();
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Assistant</p>
+          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Quick answers</p>
           <h1 className="mt-1 text-4xl text-ink">Ask</h1>
         </div>
         <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
@@ -24,14 +68,23 @@ export default async function AssistantPage() {
         </Link>
       </div>
 
-      {hasAiConfig() ? (
-        <Assistant />
-      ) : (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
-          The AI assistant isn&apos;t switched on yet. Your coach can enable it — then meal ideas and swaps within your
-          targets show up right here.
-        </p>
-      )}
+      {/* Always-on, no-AI answer helper */}
+      <AnswerHelper ctx={ctx} />
+
+      {/* AI assistant — richer meal planning, only when a key is configured */}
+      {aiOn ? (
+        <section className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-2xl text-ink">AI assistant</h2>
+            <p className="mt-1 font-body text-sm text-ink/60">Meal plans and swaps, grounded in your day.</p>
+          </div>
+          <Assistant />
+        </section>
+      ) : null}
+
+      <p className="font-body text-xs text-ink/50">
+        Need a real person? Message your coach any time from the <Link href="/client/messages" className="text-red underline underline-offset-2">Coach</Link> tab.
+      </p>
     </div>
   );
 }

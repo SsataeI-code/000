@@ -174,8 +174,8 @@ export default async function TodayPage() {
         className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
       >
         <span className="min-w-0">
-          <span className="block font-body text-base text-ink">Ask the assistant</span>
-          <span className="block font-body text-xs text-ink/50">Meal ideas &amp; swaps within your targets</span>
+          <span className="block font-body text-base text-ink">Ask</span>
+          <span className="block font-body text-xs text-ink/50">Quick answers from your numbers — calories, protein, water, habits</span>
         </span>
         <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Ask →</span>
       </Link>
