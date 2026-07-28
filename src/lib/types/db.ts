@@ -210,6 +210,15 @@ export type Message = {
   created_at: string;
 };
 
+export type EngagementStateRow = {
+  client_id: string;
+  last_activity_on: string | null;
+  coach_alerted: boolean;
+  emailed_threshold: number;
+  last_nudge_on: string | null;
+  updated_at: string;
+};
+
 export type NotificationKind = "nudge" | "message" | "system" | "report";
 
 export type Notification = {
@@ -320,6 +329,12 @@ export type Database = {
         Row: Notification;
         Insert: Partial<Notification> & { recipient_id: string; title: string };
         Update: Partial<Notification>;
+        Relationships: [];
+      };
+      engagement_state: {
+        Row: EngagementStateRow;
+        Insert: Partial<EngagementStateRow> & { client_id: string };
+        Update: Partial<EngagementStateRow>;
         Relationships: [];
       };
     };
