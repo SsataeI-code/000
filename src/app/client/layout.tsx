@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
 import { BrandMark } from "@/components/BrandMark";
+import { HelpLauncher } from "@/components/help/HelpLauncher";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea } from "@/lib/auth/roles";
@@ -41,6 +42,9 @@ export default async function ClientLayout({ children }: { children: React.React
       </header>
 
       <div className="px-5 py-6">{children}</div>
+
+      {/* Instant answer helper, reachable from every client screen. */}
+      <HelpLauncher />
 
       <BottomTabBar items={tabs} />
     </div>

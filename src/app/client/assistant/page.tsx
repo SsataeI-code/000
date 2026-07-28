@@ -3,17 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { hasAiConfig } from "@/lib/ai/client";
-import {
-  getClientProfile,
-  getLatestTargets,
-  getTodayFoodLogs,
-  totalMacros,
-} from "@/lib/nutrition/data";
-import { getTodayWaterMl } from "@/lib/body/data";
-import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { isDueToday, isoDate, consistency } from "@/lib/habits/streaks";
-import { recommendNextHabit } from "@/lib/habits/recommend";
-import type { HelpContext } from "@/lib/help/answer";
+import { buildHelpContext } from "@/lib/help/context";
 import { AnswerHelper } from "@/components/help/AnswerHelper";
 import { Assistant } from "@/components/ai/Assistant";
 
@@ -24,49 +14,7 @@ export default async function AssistantPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [profile, targets, logs, waterMl, habits, habitLogs] = await Promise.all([
-    getClientProfile(user.id),
-    getLatestTargets(user.id),
-    getTodayFoodLogs(user.id),
-    getTodayWaterMl(user.id),
-    getHabits(user.id),
-    getHabitLogs(user.id),
-  ]);
-  const totals = totalMacros(logs);
-  const byHabit = completedDatesByHabit(habitLogs);
-  const now = new Date();
-  const todayStr = isoDate(now);
-  const DAY = 86_400_000;
-
-  const nextHabit = recommendNextHabit({
-    goal: profile?.goal ?? "maintain",
-    activity: profile?.activity ?? null,
-    existing: habits.map((h) => ({
-      category: h.category,
-      consistency: consistency(h, byHabit.get(h.id) ?? new Set<string>(), now),
-      ageDays: Math.floor((now.getTime() - new Date(h.created_at).getTime()) / DAY),
-    })),
-  });
-
-  const ctx: HelpContext = {
-    firstName: user.profile?.display_name?.split(" ")[0] ?? null,
-    goal: profile?.goal ?? "maintain",
-    remaining: targets
-      ? {
-          calories: targets.calories - totals.calories,
-          proteinG: targets.protein_g - totals.proteinG,
-          carbsG: targets.carbs_g - totals.carbsG,
-          fatG: targets.fat_g - totals.fatG,
-        }
-      : null,
-    waterOz: waterMl / 29.5735,
-    waterGoalOz: (profile?.water_goal_ml ?? 2500) / 29.5735,
-    habitsDue: habits
-      .filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now))
-      .map((h) => ({ name: h.name, done: (byHabit.get(h.id) ?? new Set<string>()).has(todayStr) })),
-    nextHabit: nextHabit ? { name: nextHabit.name, why: nextHabit.why } : null,
-  };
-
+  const ctx = await buildHelpContext(user.id, user.profile?.display_name ?? null);
   const aiOn = hasAiConfig();
 
   return (
