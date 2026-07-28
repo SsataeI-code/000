@@ -169,7 +169,7 @@ export function IndividualProgress({
         <LineChart
           points={proteinSeries}
           overlay={movingAverage(proteinSeries, maWindow)}
-          overlayColor="#1f8a4c"
+          overlayColor="#34c759"
           targetLine={targets?.protein_g ?? null}
           ariaLabel="Grams of protein logged each day, with a smoothed trend line, against the protein target"
           formatValue={(n) => `${Math.round(n)} g`}
@@ -188,7 +188,7 @@ export function IndividualProgress({
         <LineChart
           points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
           overlay={movingAverage(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })), maWindow)}
-          overlayColor="#1f8a4c"
+          overlayColor="#34c759"
           targetLine={100}
           ariaLabel="Percent of due habits completed each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}%`}

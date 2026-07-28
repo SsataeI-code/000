@@ -12,16 +12,27 @@ export interface HelpContext {
   waterOz: number;
   waterGoalOz: number;
   habitsDue: { name: string; done: boolean }[];
+  /** The adaptive "next right habit" (§5A), or null if it's not time yet. */
+  nextHabit: { name: string; why: string } | null;
 }
 
 const r = (n: number) => Math.max(0, Math.round(n));
 const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
 
+// Real, protein-forward meal ideas (concrete foods — never invented numbers).
+const MEAL_IDEAS = [
+  "Greek yogurt + berries + a handful of nuts",
+  "Chicken, rice & a big pile of veg",
+  "Eggs + wholegrain toast + fruit",
+  "Tuna or turkey wrap with salad",
+  "Cottage cheese + pineapple",
+];
+
 export const HELP_STARTERS = [
   "How much protein do I have left?",
-  "How many calories are left today?",
+  "What should I eat right now?",
+  "What habit should I add next?",
   "How's my water today?",
-  "What habits do I still have to do?",
   "How do I scan a barcode?",
 ];
 
@@ -35,6 +46,21 @@ export function answerQuestion(qRaw: string, ctx: HelpContext): string {
   // --- Greetings ---
   if (has(q, "hi", "hey", "hello", "yo ") || q === "help") {
     return `Hey${name}! I can tell you what's left today — calories, protein, carbs, fat, water — and which habits you still have to do. What do you want to know?`;
+  }
+
+  // --- Recommend a habit (§5A adaptive engine) ---
+  if (has(q, "habit", "routine") && has(q, "recommend", "suggest", "add", "new", "next", "idea", "another")) {
+    if (ctx.nextHabit) {
+      return `A good next one: "${ctx.nextHabit.name}" — ${ctx.nextHabit.why} Add it from your Habits screen whenever you're ready.`;
+    }
+    return "Keep your current habits sticking first — I'll suggest the next right one once they're solid. Slow and steady wins.";
+  }
+
+  // --- Recommend food / a meal ---
+  if (has(q, "eat", "meal", "snack", "hungry", "what should i", "recommend", "suggest", "food idea", "dinner", "lunch", "breakfast")) {
+    const ideas = `A couple of easy ideas: ${MEAL_IDEAS[0]}; or ${MEAL_IDEAS[1]}.`;
+    if (!ctx.remaining) return `${ideas} Lead with a protein source and add veg. Once your targets are set I can tailor it to your numbers.`;
+    return `You've got about ${r(ctx.remaining.calories)} cal and ${r(ctx.remaining.proteinG)}g protein left. ${ideas} Lead with the protein.`;
   }
 
   // --- FAQ (how-to) ---
@@ -88,11 +114,6 @@ export function answerQuestion(qRaw: string, ctx: HelpContext): string {
       ? `Still to check off today: ${pending.join(", ")}. You've got this.`
       : "You've done all your habits for today — perfect day!";
   }
-  if (has(q, "eat", "meal", "snack", "hungry", "what should")) {
-    if (!ctx.remaining) return "Once your targets are set, I can tell you what fits. For now, aim for a protein source plus veg.";
-    return `You've got about ${r(ctx.remaining.calories)} cal and ${r(ctx.remaining.proteinG)}g protein left. Lead with a protein source — chicken, fish, eggs, Greek yogurt — and add veg to stay full.`;
-  }
-
   // --- Fallback: route to the coach ---
   return "I can help with your calories, protein, carbs, fat, water, and today's habits — just ask. For anything else, message your coach from the Coach tab.";
 }

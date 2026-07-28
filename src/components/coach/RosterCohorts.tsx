@@ -31,7 +31,7 @@ export function RosterCohorts({ clients }: { clients: CohortClient[] }) {
               onClick={() => setDim(d.key)}
               className={`min-h-tap border px-3 font-label text-[11px] uppercase tracking-wide transition-colors ${
                 dim === d.key
-                  ? "border-red bg-red text-surface"
+                  ? "border-red bg-red text-white"
                   : "border-hairline bg-surface text-ink/70 hover:border-ink"
               }`}
             >

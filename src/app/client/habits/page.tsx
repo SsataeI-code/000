@@ -123,7 +123,7 @@ export default async function HabitsPage() {
           </p>
           <button
             type="submit"
-            className="mt-3 inline-flex min-h-tap items-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink"
+            className="mt-3 inline-flex min-h-tap items-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
           >
             Add my starter habits
           </button>

@@ -11,6 +11,7 @@ const ctx: HelpContext = {
     { name: "8k steps", done: true },
     { name: "10-min walk", done: false },
   ],
+  nextHabit: { name: "Lights out by 11pm", why: "Sleep drives recovery." },
 };
 
 describe("no-AI answer helper", () => {
@@ -34,6 +35,18 @@ describe("no-AI answer helper", () => {
   it("celebrates when a target is already met", () => {
     const met: HelpContext = { ...ctx, remaining: { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 } };
     expect(answerQuestion("protein left?", met)).toMatch(/hit your protein/i);
+  });
+
+  it("recommends the next habit from the adaptive engine", () => {
+    expect(answerQuestion("what habit should I add next?", ctx)).toContain("Lights out by 11pm");
+    const notReady = answerQuestion("recommend a habit", { ...ctx, nextHabit: null });
+    expect(notReady).toMatch(/sticking first/i);
+  });
+
+  it("recommends food with concrete meal ideas and their remaining numbers", () => {
+    const a = answerQuestion("what should I eat right now?", ctx);
+    expect(a).toContain("600"); // remaining calories
+    expect(a).toMatch(/greek yogurt|chicken/i);
   });
 
   it("routes plan changes to the coach, never changes them", () => {

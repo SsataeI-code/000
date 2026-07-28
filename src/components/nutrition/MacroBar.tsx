@@ -37,7 +37,7 @@ export function MacroBar({
           className="h-full"
           style={{
             width: `${shown * 100}%`,
-            background: over ? "#e10600" : "#1f8a4c",
+            background: over ? "#e10600" : "#34c759",
             transition: "width 700ms cubic-bezier(0.16,1,0.3,1)",
           }}
         />

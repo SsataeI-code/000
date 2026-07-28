@@ -19,17 +19,20 @@ const config: Config = {
     },
     extend: {
       colors: {
-        ink: "#0c0c0d",
+        // Dark theme: near-white "ink" text on black surfaces (§4 inverted).
+        ink: "#f4f4f2",
         red: {
           DEFAULT: "#e10600",
-          ink: "#b30500",
+          ink: "#ff5b4e", // readable red on dark (error text); brightens on hover
         },
-        success: "#1f8a4c",
+        success: "#34c759",
         surface: {
-          DEFAULT: "#ffffff",
-          muted: "#f6f6f4",
+          DEFAULT: "#17171b", // cards
+          muted: "#0c0c0d", // page background
         },
-        hairline: "#ececea",
+        hairline: "#2c2c31",
+        // A slightly-raised dark block for former "bg-ink" accents (banners, bubbles).
+        elevated: "#26262c",
       },
       fontFamily: {
         // Archivo 800/900 UPPERCASE headlines · Oswald labels · Spline Sans body.
@@ -38,7 +41,7 @@ const config: Config = {
         body: ["var(--font-spline)", "system-ui", "sans-serif"],
       },
       borderColor: {
-        DEFAULT: "#ececea",
+        DEFAULT: "#2c2c31",
       },
       minHeight: {
         // 44px minimum tap target (accessibility, §4).

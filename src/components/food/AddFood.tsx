@@ -351,7 +351,7 @@ export function AddFood({ userId }: { userId: string }) {
           accept="image/*"
           capture="environment"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-surface"
+          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-elevated file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-white"
         />
         {photo ? <p className="font-body text-xs text-ink/50">{photo.name} attached</p> : null}
       </div>

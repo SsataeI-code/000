@@ -32,7 +32,7 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-3 font-label text-sm font-600 uppercase tracking-wide text-surface hover:bg-red-ink"
+          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-3 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink"
         >
           Try again
         </button>

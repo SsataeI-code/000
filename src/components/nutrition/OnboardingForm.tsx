@@ -219,7 +219,7 @@ function UnitToggle({
           onClick={() => onChange(val)}
           aria-pressed={value === val}
           className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${
-            value === val ? "bg-ink text-surface" : "bg-surface text-ink/60"
+            value === val ? "bg-elevated text-white" : "bg-surface text-ink/60"
           }`}
         >
           {label}

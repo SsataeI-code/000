@@ -6,7 +6,7 @@ import { adoptSuggestedHabitAction } from "@/lib/habits/actions";
 import type { HabitCategory } from "@/lib/types/db";
 
 const CATEGORY_DOT: Record<HabitCategory, string> = {
-  nutrition: "#e10600", movement: "#0c0c0d", sleep: "#1f8a4c",
+  nutrition: "#e10600", movement: "#f4f4f2", sleep: "#34c759",
   mindfulness: "#8a6d1f", hydration: "#1f6d8a", recovery: "#5a1f8a",
 };
 
@@ -53,7 +53,7 @@ export function SuggestedHabit({ name, category, why }: { name: string; category
               }
             })
           }
-          className="min-h-tap bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {pending ? "Adding…" : "Add this habit"}
         </button>

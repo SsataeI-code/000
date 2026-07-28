@@ -76,7 +76,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
           type="button"
           onClick={logIt}
           disabled={pending || logged}
-          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {logged ? "Logged ✓" : pending ? "Logging…" : "Log this meal"}
         </button>

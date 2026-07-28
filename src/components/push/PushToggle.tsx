@@ -83,7 +83,7 @@ export function PushToggle() {
           <p className="mt-1 font-body text-sm text-ink/70">{message(status)}</p>
         </div>
         {status === "off" ? (
-          <button type="button" onClick={enable} className="min-h-tap shrink-0 bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink">
+          <button type="button" onClick={enable} className="min-h-tap shrink-0 bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink">
             Turn on
           </button>
         ) : status === "on" ? (

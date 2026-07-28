@@ -14,7 +14,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   // Flat, high-contrast, no gradients (§4).
-  primary: "bg-red text-surface hover:bg-red-ink",
+  primary: "bg-red text-white hover:bg-red-ink",
   ghost: "bg-transparent text-ink underline underline-offset-4 hover:text-red",
 };
 

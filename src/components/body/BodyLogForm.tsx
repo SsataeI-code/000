@@ -33,7 +33,7 @@ export function BodyLogForm() {
           <div className="flex border border-hairline" role="group" aria-label="Units">
             {(["lb", "kg"] as const).map((u) => (
               <button key={u} type="button" onClick={() => setUnit(u)} aria-pressed={unit === u}
-                className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${unit === u ? "bg-ink text-surface" : "bg-surface text-ink/60"}`}>
+                className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}>
                 {u}
               </button>
             ))}

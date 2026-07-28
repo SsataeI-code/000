@@ -138,7 +138,7 @@ export function ChatThread({
           <button
             type="submit"
             disabled={pending}
-            className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+            className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
           >
             {pending ? "Sending…" : "Send"}
           </button>
@@ -173,7 +173,7 @@ function Bubble({ m, mine, viewerIsCoach, coachName }: { m: Message; mine: boole
       <div
         className={`max-w-[85%] border px-3 py-2 font-body text-sm ${
           mine
-            ? "border-ink bg-ink text-surface"
+            ? "border-ink bg-elevated text-white"
             : isNudge
               ? "border-hairline bg-surface-muted text-ink/80"
               : "border-hairline bg-surface text-ink"

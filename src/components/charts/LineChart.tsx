@@ -9,7 +9,7 @@ export function LineChart({
   points,
   overlay,
   height = 120,
-  color = "#0c0c0d",
+  color = "#f4f4f2",
   overlayColor = "#e10600",
   targetLine = null,
   ariaLabel,

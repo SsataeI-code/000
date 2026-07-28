@@ -63,7 +63,7 @@ function MicroRow({ row }: { row: MicroGoalRow }) {
   const pct = goal > 0 ? Math.min(consumed / goal, 1) : 0;
   const over = goal > 0 && consumed > goal;
   // Limits: over the cap is bad (red). Goals: over/at is good; under is neutral.
-  const barColor = kind === "limit" ? (over ? "#e10600" : "#0c0c0d") : over ? "#1f8a4c" : "#1f8a4c";
+  const barColor = kind === "limit" ? (over ? "#e10600" : "#f4f4f2") : over ? "#34c759" : "#34c759";
 
   return (
     <div className="flex flex-col gap-1">

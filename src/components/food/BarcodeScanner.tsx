@@ -103,12 +103,12 @@ export function BarcodeScanner({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-[3/4] w-full overflow-hidden border border-ink bg-ink">
+      <div className="relative aspect-[3/4] w-full overflow-hidden border border-ink bg-elevated">
         <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
         {/* Aiming guide */}
         <div className="pointer-events-none absolute inset-x-6 top-1/2 h-24 -translate-y-1/2 border-2 border-red" />
         {status !== "scanning" ? (
-          <p className="absolute inset-0 flex items-center justify-center p-6 text-center font-body text-sm text-surface">
+          <p className="absolute inset-0 flex items-center justify-center p-6 text-center font-body text-sm text-white">
             {status === "starting" ? "Opening camera…" : message}
           </p>
         ) : null}

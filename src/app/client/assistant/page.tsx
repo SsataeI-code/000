@@ -11,7 +11,8 @@ import {
 } from "@/lib/nutrition/data";
 import { getTodayWaterMl } from "@/lib/body/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { isDueToday, isoDate } from "@/lib/habits/streaks";
+import { isDueToday, isoDate, consistency } from "@/lib/habits/streaks";
+import { recommendNextHabit } from "@/lib/habits/recommend";
 import type { HelpContext } from "@/lib/help/answer";
 import { AnswerHelper } from "@/components/help/AnswerHelper";
 import { Assistant } from "@/components/ai/Assistant";
@@ -35,6 +36,17 @@ export default async function AssistantPage() {
   const byHabit = completedDatesByHabit(habitLogs);
   const now = new Date();
   const todayStr = isoDate(now);
+  const DAY = 86_400_000;
+
+  const nextHabit = recommendNextHabit({
+    goal: profile?.goal ?? "maintain",
+    activity: profile?.activity ?? null,
+    existing: habits.map((h) => ({
+      category: h.category,
+      consistency: consistency(h, byHabit.get(h.id) ?? new Set<string>(), now),
+      ageDays: Math.floor((now.getTime() - new Date(h.created_at).getTime()) / DAY),
+    })),
+  });
 
   const ctx: HelpContext = {
     firstName: user.profile?.display_name?.split(" ")[0] ?? null,
@@ -52,6 +64,7 @@ export default async function AssistantPage() {
     habitsDue: habits
       .filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now))
       .map((h) => ({ name: h.name, done: (byHabit.get(h.id) ?? new Set<string>()).has(todayStr) })),
+    nextHabit: nextHabit ? { name: nextHabit.name, why: nextHabit.why } : null,
   };
 
   const aiOn = hasAiConfig();

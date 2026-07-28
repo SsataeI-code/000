@@ -184,7 +184,7 @@ export default async function TodayPage() {
         <h2 className="text-2xl text-ink">{getCopy("client.nav.food")}</h2>
         <Link
           href="/client/food"
-          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink"
+          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
         >
           Add food
         </Link>

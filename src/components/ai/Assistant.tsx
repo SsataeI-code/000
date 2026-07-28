@@ -60,7 +60,7 @@ export function Assistant() {
             <li key={i} className={`flex ${t.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[85%] border px-3 py-2 font-body text-sm ${
-                  t.role === "user" ? "border-ink bg-ink text-surface" : "border-hairline bg-surface text-ink"
+                  t.role === "user" ? "border-ink bg-elevated text-white" : "border-hairline bg-surface text-ink"
                 }`}
               >
                 <p className="whitespace-pre-wrap break-words">{t.content}</p>
@@ -98,7 +98,7 @@ export function Assistant() {
         <button
           type="submit"
           disabled={pending}
-          className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           Ask
         </button>

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   html {
@@ -45,7 +45,7 @@
 @layer components {
   /* Editorial hairline divider — flat, high-contrast, no shadows. */
   .hairline {
-    border-color: #ececea;
+    border-color: #2c2c31;
   }
 }
 

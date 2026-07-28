@@ -33,8 +33,8 @@ export default function GlobalError({
           padding: "3rem 1.5rem",
           maxWidth: "440px",
           marginInline: "auto",
-          background: "#f6f6f4",
-          color: "#0c0c0d",
+          background: "#0c0c0d",
+          color: "#f4f4f2",
           fontFamily: "system-ui, sans-serif",
         }}
       >
@@ -52,7 +52,7 @@ export default function GlobalError({
         <h1 style={{ fontSize: "2rem", fontWeight: 900, textTransform: "uppercase", margin: 0 }}>
           We&apos;ll get you back on track.
         </h1>
-        <p style={{ color: "rgba(12,12,13,0.7)", margin: 0 }}>
+        <p style={{ color: "rgba(244,244,242,0.7)", margin: 0 }}>
           That&apos;s on us, not you. Give it another try — your data is safe.
         </p>
         <button
@@ -73,7 +73,7 @@ export default function GlobalError({
           Try again
         </button>
         {error.digest ? (
-          <p style={{ fontSize: "0.625rem", textTransform: "uppercase", color: "rgba(12,12,13,0.4)", margin: 0 }}>
+          <p style={{ fontSize: "0.625rem", textTransform: "uppercase", color: "rgba(244,244,242,0.4)", margin: 0 }}>
             Ref: {error.digest}
           </p>
         ) : null}

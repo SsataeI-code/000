@@ -6,11 +6,11 @@ import { addDays, isoDate } from "@/lib/habits/streaks";
  * CSS stagger that respects reduced-motion via the global rule.
  */
 function shade(v: number, max: number): string {
-  if (v <= 0) return "#ececea";
+  if (v <= 0) return "#26262c";
   const t = Math.min(1, v / Math.max(1, max));
-  if (t < 0.34) return "#a8d5ba";
-  if (t < 0.67) return "#5cae7f";
-  return "#1f8a4c";
+  if (t < 0.34) return "#1f5a38";
+  if (t < 0.67) return "#2c9a5c";
+  return "#34c759";
 }
 
 export function HabitHeatmap({

@@ -51,7 +51,7 @@ function SavedMealCard({ meal, showDelete }: { meal: Meal; showDelete: boolean }
             })
           }
           disabled={logging || logged}
-          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-surface hover:bg-red-ink disabled:opacity-50"
+          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {logged ? "Logged ✓" : logging ? "Logging…" : "Log meal"}
         </button>

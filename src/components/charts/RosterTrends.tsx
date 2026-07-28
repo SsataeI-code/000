@@ -62,7 +62,7 @@ export function RosterTrends({
             <div className="mt-2 flex h-3 overflow-hidden border border-hairline" role="img"
               aria-label={`${weightSplit.losing} losing, ${weightSplit.holding} holding, ${weightSplit.gaining} gaining`}>
               <span className="bg-success" style={{ width: `${(weightSplit.losing / weightSplit.tracked) * 100}%` }} />
-              <span className="bg-ink/30" style={{ width: `${(weightSplit.holding / weightSplit.tracked) * 100}%` }} />
+              <span className="bg-elevated/30" style={{ width: `${(weightSplit.holding / weightSplit.tracked) * 100}%` }} />
               <span className="bg-red" style={{ width: `${(weightSplit.gaining / weightSplit.tracked) * 100}%` }} />
             </div>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-body text-xs text-ink/60">
@@ -99,7 +99,7 @@ export function RosterTrends({
         <LineChart
           points={series.avgProtein}
           overlay={movingAverage(series.avgProtein, ma)}
-          overlayColor="#1f8a4c"
+          overlayColor="#34c759"
           ariaLabel="Average protein logged across the roster each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)} g`}
         />
@@ -110,7 +110,7 @@ export function RosterTrends({
         <LineChart
           points={consPct}
           overlay={movingAverage(consPct, ma)}
-          overlayColor="#1f8a4c"
+          overlayColor="#34c759"
           ariaLabel="Average share of clients engaging their habits each day, with a smoothed trend line"
           formatValue={(n) => `${Math.round(n)}%`}
         />

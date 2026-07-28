@@ -25,8 +25,8 @@ export interface TodayHabitItem {
 
 const CATEGORY_DOT: Record<HabitCategory, string> = {
   nutrition: "#e10600",
-  movement: "#0c0c0d",
-  sleep: "#1f8a4c",
+  movement: "#f4f4f2",
+  sleep: "#34c759",
   mindfulness: "#8a6d1f",
   hydration: "#1f6d8a",
   recovery: "#5a1f8a",
@@ -110,7 +110,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
           aria-pressed={done}
           aria-label={done ? `Mark ${item.name} not done` : `Mark ${item.name} done`}
           className={`flex h-7 w-7 shrink-0 items-center justify-center border-2 ${celebrate ? "animate-red-pulse" : ""}`}
-          style={{ borderColor: done ? "#1f8a4c" : "#ececea", background: done ? "#1f8a4c" : "transparent" }}
+          style={{ borderColor: done ? "#34c759" : "#2c2c31", background: done ? "#34c759" : "transparent" }}
         >
           {done ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
@@ -147,7 +147,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
               type="button"
               onClick={logValue}
               disabled={pending}
-              className="min-h-tap bg-ink px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-surface disabled:opacity-50"
+              className="min-h-tap bg-elevated px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-white disabled:opacity-50"
             >
               Log
             </button>

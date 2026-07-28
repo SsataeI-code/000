@@ -204,7 +204,7 @@ function ClientCard({ client }: { client: RosterClient }) {
         ) : decision.level === "escalate" ? (
           <Link
             href={`/coach/messages/${client.id}`}
-            className="min-h-tap border border-red px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-red hover:bg-red hover:text-surface"
+            className="min-h-tap border border-red px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-red hover:bg-red hover:text-white"
           >
             Reach out
           </Link>

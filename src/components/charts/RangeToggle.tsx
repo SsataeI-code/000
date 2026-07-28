@@ -36,7 +36,7 @@ export function RangeToggle({ current }: { current: number }) {
             onClick={() => remember(r)}
             aria-current={active ? "true" : undefined}
             className={`min-h-tap border px-2.5 font-label text-[11px] uppercase tracking-wide leading-[2.4] transition-colors ${
-              active ? "border-red bg-red text-surface" : "border-hairline bg-surface text-ink/60 hover:border-ink"
+              active ? "border-red bg-red text-white" : "border-hairline bg-surface text-ink/60 hover:border-ink"
             }`}
           >
             {r}d
