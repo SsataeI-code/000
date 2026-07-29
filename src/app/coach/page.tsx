@@ -173,6 +173,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
               Edit copy
             </Link>
           ) : null}
+          <Link href="/coach/client-screen" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            Client screen
+          </Link>
           <Link href="/coach/dashboard" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Customize
           </Link>

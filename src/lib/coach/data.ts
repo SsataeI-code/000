@@ -4,7 +4,8 @@ import { isoDate, addDays, currentStreak, longestStreak, FREEZE_BUDGET } from "@
 import { computeXp, levelForXp } from "@/lib/habits/game";
 import { lastNDates, type SeriesPoint } from "@/lib/charts/series";
 import { reconcileLayout } from "@/lib/coach/dashboard";
-import type { Goal, Sex, ActivityLevel, DashboardTilePref, Habit } from "@/lib/types/db";
+import { reconcileClientLayout } from "@/lib/coach/client-screen";
+import type { Goal, Sex, ActivityLevel, DashboardTilePref, ClientSectionPref, Habit } from "@/lib/types/db";
 
 export interface RosterClient {
   id: string;
@@ -278,6 +279,28 @@ export async function getDashboardLayout(coachId: string): Promise<DashboardTile
   const supabase = await createClient();
   const { data } = await supabase.from("coach_prefs").select("dashboard").eq("coach_id", coachId).maybeSingle();
   return reconcileLayout(data?.dashboard);
+}
+
+/** A coach's own client-screen layout (for the editor; RLS scopes to them). */
+export async function getClientScreenLayout(coachId: string): Promise<ClientSectionPref[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("coach_prefs").select("client_today").eq("coach_id", coachId).maybeSingle();
+  return reconcileClientLayout(data?.client_today);
+}
+
+/**
+ * The client-screen layout that applies to the signed-in CLIENT — resolved via a
+ * SECURITY DEFINER RPC (a client can't read their coach's prefs row directly).
+ * Defensive: any failure falls back to the default full layout.
+ */
+export async function getMyClientScreenLayout(): Promise<ClientSectionPref[]> {
+  const supabase = await createClient();
+  try {
+    const { data } = await supabase.rpc("client_screen_layout");
+    return reconcileClientLayout(data);
+  } catch {
+    return reconcileClientLayout(null);
+  }
 }
 
 /** Confirm the current coach actually coaches this client (authorization). */

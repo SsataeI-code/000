@@ -30,6 +30,8 @@ import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
 import { getCopyServer } from "@/lib/content/data";
+import { getMyClientScreenLayout } from "@/lib/coach/data";
+import { visibleSections, type ClientSectionId } from "@/lib/coach/client-screen";
 
 export const dynamic = "force-dynamic";
 
@@ -54,13 +56,15 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const [logs, savedMeals, habits, habitLogs, waterMl] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout] = await Promise.all([
     getTodayFoodLogs(user.id),
     getSavedMeals(user.id),
     getHabits(user.id),
     getHabitLogs(user.id),
     getTodayWaterMl(user.id),
+    getMyClientScreenLayout(),
   ]);
+  const sections = visibleSections(screenLayout);
   const totals = totalMacros(logs);
   const photoUrls = await getFoodPhotoUrls(logs);
 
@@ -135,6 +139,100 @@ export default async function TodayPage() {
     shortMicroKeys: shortMicroKeys(microTotals, targets.calories, profile?.sex ?? null),
   });
 
+  // Each configurable Today section (§4 — the coach arranges these). The greeting
+  // and review banners are structural and always render.
+  const renderSection = (id: ClientSectionId) => {
+    switch (id) {
+      case "habits":
+        return (
+          <div key={id} className="flex flex-col gap-6">
+            {habits.length > 0 ? (
+              <HabitGame
+                state={gameState}
+                todayDone={todayDone}
+                todayDue={habitItems.length}
+                bestStreak={gameStats.bestStreak}
+                currentStreak={bestCurrentStreak}
+              />
+            ) : null}
+            <TodayHabits items={habitItems} />
+          </div>
+        );
+      case "rings":
+        return (
+          <DayProgress
+            key={id}
+            totals={totals}
+            targets={{
+              calories: targets.calories,
+              proteinG: targets.protein_g,
+              carbsG: targets.carbs_g,
+              fatG: targets.fat_g,
+            }}
+          />
+        );
+      case "water":
+        return <WaterTracker key={id} consumedMl={waterMl} goalMl={profile?.water_goal_ml ?? 2500} />;
+      case "ask":
+        return (
+          <Link
+            key={id}
+            href="/client/assistant"
+            className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+          >
+            <span className="min-w-0">
+              <span className="block font-body text-base text-ink">Ask</span>
+              <span className="block font-body text-xs text-ink/50">Quick answers from your numbers — calories, protein, water, habits</span>
+            </span>
+            <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Ask →</span>
+          </Link>
+        );
+      case "food":
+        return (
+          <div key={id} className="flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl text-ink">{t("client.nav.food")}</h2>
+              <Link
+                href="/client/food"
+                className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
+              >
+                Add food
+              </Link>
+            </div>
+            <FoodLogList logs={logs} photoUrls={photoUrls} />
+          </div>
+        );
+      case "fill_rings":
+        return <FillYourRings key={id} suggestions={suggestions} />;
+      case "meals":
+        return (
+          <div key={id} className="flex flex-col gap-6">
+            <section aria-label="Your meals" className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl text-ink">Your meals</h2>
+                <Link
+                  href="/client/meals"
+                  className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
+                >
+                  Build a meal
+                </Link>
+              </div>
+              {savedMeals.length > 0 ? (
+                <SavedMealsList meals={savedMeals} showDelete={false} />
+              ) : (
+                <p className="font-body text-sm text-ink/60">
+                  Save your go-to meals to log them in one tap. Tap “Build a meal”.
+                </p>
+              )}
+            </section>
+            <MealSuggestions meals={meals} />
+          </div>
+        );
+      case "micros":
+        return <MicroTracker key={id} logs={logs} calories={targets.calories} sex={profile?.sex ?? null} />;
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -146,77 +244,7 @@ export default async function TodayPage() {
 
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
 
-      {habits.length > 0 ? (
-        <HabitGame
-          state={gameState}
-          todayDone={todayDone}
-          todayDue={habitItems.length}
-          bestStreak={gameStats.bestStreak}
-          currentStreak={bestCurrentStreak}
-        />
-      ) : null}
-
-      <TodayHabits items={habitItems} />
-
-      <DayProgress
-        totals={totals}
-        targets={{
-          calories: targets.calories,
-          proteinG: targets.protein_g,
-          carbsG: targets.carbs_g,
-          fatG: targets.fat_g,
-        }}
-      />
-
-      <WaterTracker consumedMl={waterMl} goalMl={profile?.water_goal_ml ?? 2500} />
-
-      <Link
-        href="/client/assistant"
-        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
-      >
-        <span className="min-w-0">
-          <span className="block font-body text-base text-ink">Ask</span>
-          <span className="block font-body text-xs text-ink/50">Quick answers from your numbers — calories, protein, water, habits</span>
-        </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Ask →</span>
-      </Link>
-
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl text-ink">{t("client.nav.food")}</h2>
-        <Link
-          href="/client/food"
-          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
-        >
-          Add food
-        </Link>
-      </div>
-
-      <FillYourRings suggestions={suggestions} />
-
-      <section aria-label="Your meals" className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl text-ink">Your meals</h2>
-          <Link
-            href="/client/meals"
-            className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
-          >
-            Build a meal
-          </Link>
-        </div>
-        {savedMeals.length > 0 ? (
-          <SavedMealsList meals={savedMeals} showDelete={false} />
-        ) : (
-          <p className="font-body text-sm text-ink/60">
-            Save your go-to meals to log them in one tap. Tap “Build a meal”.
-          </p>
-        )}
-      </section>
-
-      <MealSuggestions meals={meals} />
-
-      <FoodLogList logs={logs} photoUrls={photoUrls} />
-
-      <MicroTracker logs={logs} calories={targets.calories} sex={profile?.sex ?? null} />
+      {sections.map(renderSection)}
     </div>
   );
 }

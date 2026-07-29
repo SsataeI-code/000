@@ -192,10 +192,13 @@ export type HabitLog = {
 // --- Phase 3: coach dashboard preferences ---
 
 export type DashboardTilePref = { id: string; visible: boolean };
+/** A client Today-screen section preference (same shape as a dashboard tile). */
+export type ClientSectionPref = { id: string; visible: boolean };
 
 export type CoachPrefs = {
   coach_id: string;
   dashboard: DashboardTilePref[];
+  client_today: ClientSectionPref[];
   updated_at: string;
 };
 
@@ -408,6 +411,10 @@ export type Database = {
       process_referral: {
         Args: { p_id: string; p_status: ReferralStatus; p_note: string | null };
         Returns: undefined;
+      };
+      client_screen_layout: {
+        Args: Record<string, never>;
+        Returns: ClientSectionPref[];
       };
     };
     Enums: {
