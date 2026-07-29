@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnswerHelper } from "@/components/help/AnswerHelper";
 import { getHelpContextAction } from "@/lib/help/actions";
 import type { HelpContext } from "@/lib/help/answer";
 import { IconMessages } from "@/components/icons";
+
+// Screens where the floating launcher would be redundant (the Ask page already
+// shows the helper) or a distraction (the focused onboarding flow).
+const HIDDEN_ON = ["/client/assistant", "/client/onboarding"];
 
 /**
  * Floating "answer helper" launcher — present on every client screen (a quick,
@@ -13,12 +18,14 @@ import { IconMessages } from "@/components/icons";
  * pays for the fetch, and refetches on each open so the numbers stay live.
  */
 export function HelpLauncher() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [ctx, setCtx] = useState<HelpContext | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -41,16 +48,44 @@ export function HelpLauncher() {
     openerRef.current?.focus();
   }, []);
 
-  // Escape closes; focus the close button when the drawer opens.
+  // Escape closes; focus the close button on open; Tab is trapped inside the
+  // dialog so keyboard/screen-reader users can't wander behind the modal.
   useEffect(() => {
     if (!open) return;
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeDrawer();
+      if (e.key === "Escape") {
+        closeDrawer();
+        return;
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, closeDrawer]);
+
+  // Close the drawer on any navigation (e.g. the in-helper "Message your coach"
+  // link), so it never lingers over the page the user just moved to.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Not shown on screens where it would be redundant or distracting.
+  if (HIDDEN_ON.includes(pathname)) return null;
 
   return (
     <>
@@ -79,6 +114,7 @@ export function HelpLauncher() {
             className="absolute inset-0 h-full w-full cursor-default bg-black/60"
           />
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Quick answers"
