@@ -1,5 +1,26 @@
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isQuietNow } from "@/lib/notifications/quiet";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * True when it's currently quiet hours for the recipient (§10) — we suppress the
+ * push buzz then (the in-app notification is still recorded). Defensive: any
+ * lookup failure means "not quiet" so a real alert is never wrongly swallowed.
+ */
+async function isRecipientQuiet(admin: SupabaseClient, recipientId: string): Promise<boolean> {
+  try {
+    const { data } = await admin
+      .from("client_profiles")
+      .select("quiet_start, quiet_end, timezone")
+      .eq("id", recipientId)
+      .maybeSingle();
+    if (!data) return false;
+    return isQuietNow({ start: data.quiet_start, end: data.quiet_end, timezone: data.timezone });
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Web Push delivery (§10 "PWA push"). SERVER ONLY. Reads a recipient's device
@@ -32,6 +53,9 @@ export async function sendPush(recipientId: string, payload: PushPayload): Promi
   } catch {
     return; // no service-role key yet
   }
+
+  // Honor quiet hours: skip the buzz, but the in-app notification still stands.
+  if (await isRecipientQuiet(admin, recipientId)) return;
 
   try {
     webpush.setVapidDetails(keys.subject, keys.publicKey, keys.privateKey);

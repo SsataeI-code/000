@@ -62,6 +62,9 @@ export type ClientProfile = {
   goal: Goal;
   diet_preference: DietPreference;
   water_goal_ml: number;
+  quiet_start: number | null;
+  quiet_end: number | null;
+  timezone: string | null;
   onboarded_at: string | null;
   created_at: string;
   updated_at: string;
