@@ -202,6 +202,13 @@ export type CoachPrefs = {
   updated_at: string;
 };
 
+/** A per-client override of the Today-screen layout (else the coach default). */
+export type ClientScreenOverride = {
+  client_id: string;
+  layout: ClientSectionPref[];
+  updated_at: string;
+};
+
 // --- Phase 4: messaging ---
 
 export type MessageKind = "coach" | "client" | "nudge";
@@ -355,6 +362,12 @@ export type Database = {
         Row: CoachPrefs;
         Insert: Partial<CoachPrefs> & { coach_id: string };
         Update: Partial<CoachPrefs>;
+        Relationships: [];
+      };
+      client_screen_overrides: {
+        Row: ClientScreenOverride;
+        Insert: Partial<ClientScreenOverride> & { client_id: string };
+        Update: Partial<ClientScreenOverride>;
         Relationships: [];
       };
       messages: {

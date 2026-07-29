@@ -289,6 +289,44 @@ export async function getClientScreenLayout(coachId: string): Promise<ClientSect
 }
 
 /**
+ * Editor state for one client's Today screen: their override if one is set, else
+ * the coach's roster-wide default as the starting point. `overridden` tells the
+ * editor whether this client currently diverges from the roster default.
+ */
+export async function getClientScreenEditState(
+  clientId: string,
+): Promise<{ layout: ClientSectionPref[]; overridden: boolean }> {
+  const supabase = await createClient();
+  const { data: ov } = await supabase
+    .from("client_screen_overrides")
+    .select("layout")
+    .eq("client_id", clientId)
+    .maybeSingle();
+  if (Array.isArray(ov?.layout) && ov.layout.length > 0) {
+    return { layout: reconcileClientLayout(ov.layout), overridden: true };
+  }
+
+  // Fall back to the client's coach's roster-wide default (active coach, else owner).
+  const { data: link } = await supabase
+    .from("coach_clients")
+    .select("coach_id")
+    .eq("client_id", clientId)
+    .eq("status", "active")
+    .maybeSingle();
+  let coachId = link?.coach_id ?? null;
+  if (!coachId) {
+    const { data: owner } = await supabase.from("profiles").select("id").eq("role", "owner").limit(1).maybeSingle();
+    coachId = owner?.id ?? null;
+  }
+  let pref: unknown = null;
+  if (coachId) {
+    const { data } = await supabase.from("coach_prefs").select("client_today").eq("coach_id", coachId).maybeSingle();
+    pref = data?.client_today;
+  }
+  return { layout: reconcileClientLayout(pref), overridden: false };
+}
+
+/**
  * The client-screen layout that applies to the signed-in CLIENT — resolved via a
  * SECURITY DEFINER RPC (a client can't read their coach's prefs row directly).
  * Defensive: any failure falls back to the default full layout.

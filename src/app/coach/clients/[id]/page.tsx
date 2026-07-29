@@ -195,6 +195,17 @@ export default async function ClientDeepDive({
         targets={targets ? { calories: targets.calories, protein_g: targets.protein_g, carbs_g: targets.carbs_g, fat_g: targets.fat_g } : null}
         habits={habits}
       />
+
+      <Link
+        href={`/coach/clients/${id}/screen`}
+        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block font-body text-base text-ink">Customize their Today screen</span>
+          <span className="block font-body text-xs text-ink/50">Reorder or hide sections just for {name}</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Edit →</span>
+      </Link>
     </div>
   );
 }
