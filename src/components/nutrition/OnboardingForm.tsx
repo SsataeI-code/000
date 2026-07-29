@@ -166,7 +166,7 @@ export function OnboardingForm() {
           Make it yours — pick one habit
         </legend>
         <p className="font-body text-sm text-ink/60">
-          We&apos;ll add habits for you, but choose one that&apos;s *yours*. Pick an idea or write your own.
+          We&apos;ll add habits for you, but choose one that&apos;s <span className="font-600 text-ink">yours</span>. Pick an idea or write your own.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {HABIT_IDEAS.map((idea) => (
