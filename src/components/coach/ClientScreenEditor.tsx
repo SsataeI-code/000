@@ -5,6 +5,7 @@ import { moveSection, toggleSection, clientSectionDef } from "@/lib/coach/client
 import { saveClientScreenLayoutAction, type ClientScreenState } from "@/lib/coach/client-screen-actions";
 import type { ClientSectionPref } from "@/lib/types/db";
 import { Button } from "@/components/ui/Button";
+import { ClientScreenPreview } from "@/components/coach/ClientScreenPreview";
 
 const initialState: ClientScreenState = {};
 
@@ -38,6 +39,7 @@ export function ClientScreenEditor({ initial }: { initial: ClientSectionPref[] }
         </p>
       ) : null}
 
+      <div className="grid gap-6 md:grid-cols-[1fr_minmax(0,260px)] md:items-start">
       <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
         {layout.map((s, i) => {
           const def = clientSectionDef(s.id);
@@ -82,6 +84,11 @@ export function ClientScreenEditor({ initial }: { initial: ClientSectionPref[] }
           );
         })}
       </ul>
+
+      <div className="md:sticky md:top-4">
+        <ClientScreenPreview layout={layout} />
+      </div>
+      </div>
 
       {hiddenCount === layout.length ? (
         <p className="font-body text-xs text-red-ink">

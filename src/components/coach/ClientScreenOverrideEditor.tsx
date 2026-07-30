@@ -9,6 +9,7 @@ import {
 } from "@/lib/coach/client-screen-actions";
 import type { ClientSectionPref } from "@/lib/types/db";
 import { Button } from "@/components/ui/Button";
+import { ClientScreenPreview } from "@/components/coach/ClientScreenPreview";
 
 const initialState: ClientScreenState = {};
 
@@ -63,6 +64,7 @@ export function ClientScreenOverrideEditor({
         </p>
       ) : null}
 
+      <div className="grid gap-6 md:grid-cols-[1fr_minmax(0,260px)] md:items-start">
       <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
         {layout.map((s, i) => {
           const def = clientSectionDef(s.id);
@@ -107,6 +109,11 @@ export function ClientScreenOverrideEditor({
           );
         })}
       </ul>
+
+      <div className="md:sticky md:top-4">
+        <ClientScreenPreview layout={layout} />
+      </div>
+      </div>
 
       {allHidden ? (
         <p className="font-body text-xs text-red-ink">
