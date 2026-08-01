@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getRoster, getRosterSeries } from "@/lib/coach/data";
+import { getRoster, getRosterSeries, getArchivedClients } from "@/lib/coach/data";
 import { RosterCohorts } from "@/components/coach/RosterCohorts";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { RangeToggle } from "@/components/charts/RangeToggle";
@@ -24,7 +24,11 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
   const range = await resolveRange((await searchParams).range);
 
   const owner = { owner: user.role === "owner" };
-  const [roster, series] = await Promise.all([getRoster(user.id, owner), getRosterSeries(user.id, range, owner)]);
+  const [roster, series, archived] = await Promise.all([
+    getRoster(user.id, owner),
+    getRosterSeries(user.id, range, owner),
+    getArchivedClients(user.id, owner),
+  ]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
   const flagged = roster.filter((c) => c.flags.length > 0).length;
 
@@ -44,7 +48,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
           href="/coach/archived"
           className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
-          Archived
+          Archived{archived.length > 0 ? ` · ${archived.length}` : ""}
         </Link>
       </div>
 
