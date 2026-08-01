@@ -109,6 +109,40 @@ export async function deleteClientAction(
   redirect("/coach/roster");
 }
 
+/**
+ * Restore an archived client — flip their link back to `active` so they return
+ * to the roster. Guards the one-active-coach rule: if the client has since
+ * picked up another active coach, we surface a clear message instead of a raw
+ * unique-index error. Any coach may restore their own archived client; owner any.
+ */
+export async function restoreClientAction(
+  clientId: string,
+  _prev: PlanState,
+  _formData: FormData,
+): Promise<PlanState> {
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
+  const supabase = await createClient();
+
+  const { data: active } = await supabase
+    .from("coach_clients")
+    .select("id")
+    .eq("client_id", clientId)
+    .eq("status", "active")
+    .maybeSingle();
+  if (active) return { error: "This client already has an active coach — they can't be restored to two." };
+
+  const { error } = await supabase
+    .from("coach_clients")
+    .update({ status: "active" })
+    .eq("client_id", clientId)
+    .eq("status", "archived");
+  if (error) return { error: "Couldn't restore this client — try again." };
+  revalidatePath("/coach");
+  revalidatePath("/coach/roster");
+  revalidatePath("/coach/archived");
+  redirect("/coach/roster");
+}
+
 const CATS: HabitCategory[] = ["nutrition", "movement", "sleep", "mindfulness", "hydration", "recovery"];
 const TYPES: HabitType[] = ["checkbox", "counter", "duration", "quantity"];
 const CADENCES: HabitCadence[] = ["daily", "weekly_count", "specific_days"];

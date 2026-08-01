@@ -38,7 +38,15 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl text-ink">Roster</h1>
+      <div className="flex items-baseline justify-between gap-3">
+        <h1 className="text-4xl text-ink">Roster</h1>
+        <Link
+          href="/coach/archived"
+          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+        >
+          Archived
+        </Link>
+      </div>
 
       {roster.length === 0 ? (
         <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">

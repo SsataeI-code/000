@@ -66,6 +66,30 @@ async function rosterClientIds(
   return (links ?? []).map((l) => l.client_id);
 }
 
+export interface ArchivedClient {
+  clientId: string;
+  name: string;
+}
+
+/**
+ * Archived clients for this coach (owner sees everyone's archived links). Reads
+ * the archived `coach_clients` rows and joins names. RLS scopes to the coach.
+ */
+export async function getArchivedClients(coachId: string, scope: RosterScope = {}): Promise<ArchivedClient[]> {
+  const supabase = await createClient();
+  let q = supabase.from("coach_clients").select("client_id").eq("status", "archived");
+  if (!scope.owner) q = q.eq("coach_id", coachId);
+  const { data: links } = await q;
+  const rows = links ?? [];
+  if (rows.length === 0) return [];
+
+  const ids = Array.from(new Set(rows.map((l) => l.client_id)));
+  const { data: profiles } = await supabase.from("profiles").select("id,display_name").in("id", ids);
+  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name ?? "Client"]));
+
+  return ids.map((id) => ({ clientId: id, name: nameById.get(id) ?? "Client" }));
+}
+
 /**
  * The coach's roster with per-client Needs-Attention scoring + habit level (§9,
  * §5A). Batched queries (RLS scopes rows to the coach's clients; the owner sees
