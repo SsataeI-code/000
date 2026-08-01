@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLogo } from "@/components/BrandLogo";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SetupNotice } from "@/components/SetupNotice";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
@@ -13,7 +13,7 @@ export default async function LoginPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-6 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2">
-        <BrandMark size={24} />
+        <BrandLogo size={24} />
         <span className="font-label text-xs uppercase tracking-wide text-ink/70">
           {getCopy("brand.name", overrides)}
         </span>

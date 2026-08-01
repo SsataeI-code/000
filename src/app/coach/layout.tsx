@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLogo } from "@/components/BrandLogo";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea } from "@/lib/auth/roles";
@@ -31,7 +31,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
     <div className="mx-auto min-h-dvh max-w-[960px] pb-24 md:pb-0">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
-          <BrandMark size={22} />
+          <BrandLogo size={22} />
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">
             {t("coach.dashboard.title")}
           </span>

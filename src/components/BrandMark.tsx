@@ -1,5 +1,22 @@
-/** Flat brand mark — an icon, never a decorative emoji (§4). */
-export function BrandMark({ size = 28 }: { size?: number }) {
+/**
+ * Flat brand mark — an icon, never a decorative emoji (§4). When the owner has
+ * uploaded a custom logo (CMS editable images), `src` renders it; otherwise the
+ * built-in house-style default shows, so it's never blank.
+ */
+export function BrandMark({ size = 28, src = null }: { size?: number; src?: string | null }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt="Total Form Fitness"
+        width={size}
+        height={size}
+        className="inline-block object-contain"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   return (
     <span className="inline-flex items-center gap-2">
       <svg

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLogo } from "@/components/BrandLogo";
 import { HelpLauncher } from "@/components/help/HelpLauncher";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
@@ -34,7 +34,7 @@ export default async function ClientLayout({ children }: { children: React.React
     <div className="mx-auto min-h-dvh max-w-[560px] pb-24">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
-          <BrandMark size={22} />
+          <BrandLogo size={22} />
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">
             {t("brand.name")}
           </span>

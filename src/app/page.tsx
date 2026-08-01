@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { getSessionUser } from "@/lib/auth/session";
 import { homePathForRole } from "@/lib/auth/roles";
@@ -21,7 +21,7 @@ export default async function LandingPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[560px] flex-col justify-between px-6 py-12">
       <header className="flex items-center gap-3">
-        <BrandMark />
+        <BrandLogo />
         <span className="font-label text-sm uppercase tracking-wide text-ink">
           {t("brand.name")}
         </span>

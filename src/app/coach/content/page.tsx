@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getContentOverrides } from "@/lib/content/data";
+import { getContentOverrides, getImageOverrides } from "@/lib/content/data";
 import { copyKeys, copySection, defaultCopy } from "@/lib/content/copy";
 import { ContentEditor, type ContentField } from "@/components/content/ContentEditor";
+import { ImageEditor } from "@/components/content/ImageEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function CoachContentPage() {
   // The CMS is owner-scoped in v1 (§4 "the coach" = the owner here).
   if (user.role !== "owner") redirect("/coach");
 
-  const overrides = await getContentOverrides();
+  const [overrides, imageOverrides] = await Promise.all([getContentOverrides(), getImageOverrides()]);
 
   const fields: ContentField[] = copyKeys.map((key) => ({
     key,
@@ -52,6 +53,14 @@ export default async function CoachContentPage() {
         Every word in the app, yours to change. Type over any line to make it your own; clear a field to
         return it to the default. Nothing is ever hard-coded.
       </p>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-2xl text-ink">Images</h2>
+        <p className="font-body text-sm text-ink/60">
+          Swap the app&apos;s branding for your own. Upload to replace; reset to return to the default.
+        </p>
+        <ImageEditor overrides={imageOverrides} />
+      </section>
 
       <ContentEditor fields={fields} />
     </div>
