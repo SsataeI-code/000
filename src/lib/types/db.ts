@@ -99,6 +99,22 @@ export type BodyPhoto = {
   created_at: string;
 };
 
+export type WearableProviderId = "oura" | "fitbit" | "garmin" | "whoop";
+export type WearableConnection = {
+  id: string;
+  client_id: string;
+  provider: WearableProviderId;
+  status: string;
+  access_token: string | null;
+  refresh_token: string | null;
+  scope: string | null;
+  external_user_id: string | null;
+  expires_at: string | null;
+  last_synced_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type NutritionTargetRow = {
   id: string;
   client_id: string;
@@ -365,6 +381,12 @@ export type Database = {
         Row: BodyPhoto;
         Insert: Partial<BodyPhoto> & { client_id: string; storage_path: string };
         Update: Partial<BodyPhoto>;
+        Relationships: [];
+      };
+      wearable_connections: {
+        Row: WearableConnection;
+        Insert: Partial<WearableConnection> & { client_id: string; provider: WearableProviderId };
+        Update: Partial<WearableConnection>;
         Relationships: [];
       };
       body_measurements: {

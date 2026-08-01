@@ -59,6 +59,17 @@ export default async function ClientYouPage() {
         <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">View →</span>
       </Link>
 
+      <Link
+        href="/client/connect"
+        className="flex items-center justify-between border border-hairline bg-surface p-5 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block text-2xl text-ink">Connect a tracker</span>
+          <span className="block font-body text-sm text-ink/60">Auto-sync steps &amp; sleep from Oura, Fitbit, Whoop</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Connect →</span>
+      </Link>
+
       <section className="border border-hairline bg-surface p-5">
         <h2 className="text-2xl text-ink">Your data</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
