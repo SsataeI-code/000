@@ -3,6 +3,7 @@ import { isoDate, addDays } from "@/lib/habits/streaks";
 import { computeAttention } from "@/lib/coach/attention";
 import { classifySlip, draftNudge } from "@/lib/coach/slip";
 import { decideEngagement, type EngagementState } from "@/lib/engagement/decide";
+import { shouldSendWeeklyReport } from "@/lib/engagement/report";
 import { sendReengagementEmail } from "@/lib/email/send";
 import { sendPush } from "@/lib/push/send";
 import type { Goal } from "@/lib/types/db";
@@ -13,6 +14,8 @@ export interface SweepReport {
   coachAlerts: number;
   emailsSent: number;
   emailsSkipped: number;
+  weeklyRecaps: number;
+  coachDigests: number;
 }
 
 const DAY = 86_400_000;
@@ -39,7 +42,7 @@ function maxDate(...ds: (string | undefined)[]): string | null {
 export async function runEngagementSweep(): Promise<SweepReport> {
   const supabase = createAdminClient();
   const today = isoDate(new Date());
-  const report: SweepReport = { clients: 0, nudged: 0, coachAlerts: 0, emailsSent: 0, emailsSkipped: 0 };
+  const report: SweepReport = { clients: 0, nudged: 0, coachAlerts: 0, emailsSent: 0, emailsSkipped: 0, weeklyRecaps: 0, coachDigests: 0 };
 
   const { data: clients } = await supabase.from("profiles").select("id,display_name").eq("role", "client");
   const ids = (clients ?? []).map((c) => c.id);
@@ -155,6 +158,21 @@ export async function runEngagementSweep(): Promise<SweepReport> {
         }
       }
 
+      // Weekly recap (§12) — fired on the report day, at most once per week.
+      let reportOn = prior?.last_report_on ?? null;
+      if (shouldSendWeeklyReport(today, reportOn)) {
+        await supabase.from("notifications").insert({
+          recipient_id: id,
+          kind: "report",
+          title: "Your weekly recap is ready",
+          body: "Your wins this week, plus a couple of things to work on.",
+          link: "/client/report",
+        });
+        await sendPush(id, { title: "Your weekly recap is ready", body: "See your week at a glance.", link: "/client/report" });
+        reportOn = today;
+        report.weeklyRecaps++;
+      }
+
       // Persist the next state so nothing double-fires.
       await supabase.from("engagement_state").upsert(
         {
@@ -163,11 +181,45 @@ export async function runEngagementSweep(): Promise<SweepReport> {
           coach_alerted: decision.nextState.coachAlerted,
           emailed_threshold: decision.nextState.emailedThreshold,
           last_nudge_on: decision.nextState.lastNudgeOn,
+          last_report_on: reportOn,
         },
         { onConflict: "client_id" },
       );
     } catch {
       // Never let one client's failure abort the sweep.
+    }
+  }
+
+  // Coach weekly digest (§12) — once per coach, on the report day. Deduped by a
+  // recent report-notification lookup (coaches aren't in engagement_state).
+  if (shouldSendWeeklyReport(today, null)) {
+    const coachIds = new Set<string>();
+    for (const c of coachByClient.values()) if (c) coachIds.add(c);
+    if (ownerId) coachIds.add(ownerId);
+    const sinceReport = isoDate(addDays(new Date(), -6));
+    for (const coachId of coachIds) {
+      try {
+        const { data: recent } = await supabase
+          .from("notifications")
+          .select("id")
+          .eq("recipient_id", coachId)
+          .eq("kind", "report")
+          .eq("link", "/coach/report")
+          .gte("created_at", sinceReport)
+          .limit(1);
+        if (recent && recent.length > 0) continue;
+        await supabase.from("notifications").insert({
+          recipient_id: coachId,
+          kind: "report",
+          title: "Your weekly digest is ready",
+          body: "Who moved, who slipped, and who needs you this week.",
+          link: "/coach/report",
+        });
+        await sendPush(coachId, { title: "Your weekly digest is ready", body: "See your roster at a glance.", link: "/coach/report" });
+        report.coachDigests++;
+      } catch {
+        // One coach's failure never aborts the sweep.
+      }
     }
   }
 

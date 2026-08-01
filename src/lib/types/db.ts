@@ -264,6 +264,7 @@ export type EngagementStateRow = {
   coach_alerted: boolean;
   emailed_threshold: number;
   last_nudge_on: string | null;
+  last_report_on: string | null;
   updated_at: string;
 };
 
