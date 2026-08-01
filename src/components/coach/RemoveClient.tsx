@@ -34,6 +34,14 @@ export function RemoveClient({
         </p>
       </div>
 
+      {/* Export first — §13, so no history is lost before removing */}
+      <a
+        href={`/api/export/${clientId}`}
+        className="min-h-tap self-start border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+      >
+        Export their data (JSON)
+      </a>
+
       {/* Archive — reversible */}
       <div className="flex flex-col gap-3">
         {aState.error ? (

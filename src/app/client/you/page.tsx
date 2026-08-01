@@ -48,6 +48,19 @@ export default async function ClientYouPage() {
       />
 
       <section className="border border-hairline bg-surface p-5">
+        <h2 className="text-2xl text-ink">Your data</h2>
+        <p className="mt-1 font-body text-sm text-ink/60">
+          Download everything you&apos;ve logged — habits, food, water, weight, and your targets — as a file you keep.
+        </p>
+        <a
+          href={`/api/export/${user.id}`}
+          className="mt-3 inline-flex min-h-tap items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+        >
+          Export my data (JSON)
+        </a>
+      </section>
+
+      <section className="border border-hairline bg-surface p-5">
         <p className="font-body text-sm text-ink/70">{user.email}</p>
         <div className="mt-3">
           <SignOutButton />
