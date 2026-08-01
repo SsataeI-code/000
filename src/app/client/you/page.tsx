@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
@@ -46,6 +47,17 @@ export default async function ClientYouPage() {
         initialEnd={profile?.quiet_end ?? null}
         initialTimezone={profile?.timezone ?? null}
       />
+
+      <Link
+        href="/client/report"
+        className="flex items-center justify-between border border-hairline bg-surface p-5 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block text-2xl text-ink">Weekly recap</span>
+          <span className="block font-body text-sm text-ink/60">Your wins this week + a couple things to work on</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">View →</span>
+      </Link>
 
       <section className="border border-hairline bg-surface p-5">
         <h2 className="text-2xl text-ink">Your data</h2>
