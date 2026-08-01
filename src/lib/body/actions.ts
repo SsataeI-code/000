@@ -22,6 +22,41 @@ export interface MeasurementState {
   ok?: boolean;
 }
 
+/**
+ * Record a progress photo (§C). The image was uploaded client-side to the
+ * client's own private folder; here we just save its path + date. Path must live
+ * under the caller's own folder ("<uid>/…") — defense in depth beside RLS.
+ */
+export async function addBodyPhotoAction(storagePath: string, takenOn?: string): Promise<MeasurementState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Not signed in." };
+  const path = String(storagePath ?? "").trim();
+  if (!path || !path.startsWith(`${user.id}/`)) return { error: "Couldn't save that photo — try again." };
+
+  const supabase = await createClient();
+  const taken_on = takenOn && /^\d{4}-\d{2}-\d{2}$/.test(takenOn) ? takenOn : todayIso();
+  const { error } = await supabase.from("body_photos").insert({ client_id: user.id, storage_path: path, taken_on });
+  if (error) return { error: "Couldn't save that photo — try again." };
+  revalidatePath("/client/body");
+  return { ok: true };
+}
+
+/** Delete one of the caller's own progress photos (row + stored object). */
+export async function deleteBodyPhotoAction(id: string): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  const supabase = await createClient();
+  const { data: row } = await supabase
+    .from("body_photos")
+    .select("storage_path,client_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!row || row.client_id !== user.id) return;
+  await supabase.from("body_photos").delete().eq("id", id).eq("client_id", user.id);
+  await supabase.storage.from("body-photos").remove([row.storage_path]);
+  revalidatePath("/client/body");
+}
+
 function num(v: FormDataEntryValue | null): number | null {
   const s = typeof v === "string" ? v.trim() : "";
   if (s === "") return null;

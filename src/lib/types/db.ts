@@ -90,6 +90,15 @@ export type BodyMeasurement = {
   created_at: string;
 };
 
+export type BodyPhoto = {
+  id: string;
+  client_id: string;
+  storage_path: string;
+  taken_on: string;
+  note: string | null;
+  created_at: string;
+};
+
 export type NutritionTargetRow = {
   id: string;
   client_id: string;
@@ -350,6 +359,12 @@ export type Database = {
         Row: WaterLog;
         Insert: Partial<WaterLog> & { client_id: string; ml: number };
         Update: Partial<WaterLog>;
+        Relationships: [];
+      };
+      body_photos: {
+        Row: BodyPhoto;
+        Insert: Partial<BodyPhoto> & { client_id: string; storage_path: string };
+        Update: Partial<BodyPhoto>;
         Relationships: [];
       };
       body_measurements: {

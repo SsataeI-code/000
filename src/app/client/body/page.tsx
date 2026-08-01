@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getBodyMeasurements } from "@/lib/body/data";
+import { getBodyMeasurements, getBodyPhotos } from "@/lib/body/data";
+import { BodyPhotos } from "@/components/body/BodyPhotos";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { getFoodLogsSince, getLatestTargets } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs } from "@/lib/habits/data";
@@ -19,12 +20,13 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
   if (!user) redirect("/login");
   const range = await resolveRange((await searchParams).range);
 
-  const [measurements, foodLogs, habits, habitLogs, targets] = await Promise.all([
+  const [measurements, foodLogs, habits, habitLogs, targets, photos] = await Promise.all([
     getBodyMeasurements(user.id),
     getFoodLogsSince(user.id, range),
     getHabits(user.id),
     getHabitLogs(user.id),
     getLatestTargets(user.id),
+    getBodyPhotos(user.id),
   ]);
   const trend = weightTrend(measurements);
   const latest = trend[trend.length - 1];
@@ -70,6 +72,8 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
         <h2 className="mb-3 text-2xl text-ink">Log</h2>
         <BodyLogForm />
       </div>
+
+      <BodyPhotos photos={photos} canEdit userId={user.id} />
     </div>
   );
 }

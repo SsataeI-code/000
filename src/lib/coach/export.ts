@@ -32,6 +32,25 @@ export async function gatherClientExport(clientId: string) {
     supabase.from("meals").select("*").eq("owner_id", clientId).order("created_at", { ascending: true }),
   ]);
 
+  // Progress photos: include the row plus a short-lived signed URL (private
+  // bucket — the raw bytes aren't in the export, but the link lets them save each).
+  const { data: photoRows } = await supabase
+    .from("body_photos")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("taken_on", { ascending: true });
+  const bodyPhotos: Array<Record<string, unknown>> = [];
+  for (const row of photoRows ?? []) {
+    let signedUrl: string | null = null;
+    try {
+      const signed = await supabase.storage.from("body-photos").createSignedUrl(row.storage_path, 3600);
+      signedUrl = signed.data?.signedUrl ?? null;
+    } catch {
+      signedUrl = null;
+    }
+    bodyPhotos.push({ ...row, signedUrl });
+  }
+
   return {
     exportedAt: new Date().toISOString(),
     schema: "total-form-fitness/client-export@1",
@@ -45,5 +64,6 @@ export async function gatherClientExport(clientId: string) {
     waterLogs: waterLogs.data ?? [],
     bodyMeasurements: bodyMeasurements.data ?? [],
     meals: meals.data ?? [],
+    bodyPhotos,
   };
 }

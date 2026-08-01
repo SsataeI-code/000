@@ -14,7 +14,8 @@ import {
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { consistency, currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
-import { getBodyMeasurements, getTodayWaterMl } from "@/lib/body/data";
+import { getBodyMeasurements, getTodayWaterMl, getBodyPhotos } from "@/lib/body/data";
+import { BodyPhotos } from "@/components/body/BodyPhotos";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
@@ -52,7 +53,7 @@ export default async function ClientDeepDive({
   const { data: nameRow } = await supabase.from("profiles").select("display_name").eq("id", id).maybeSingle();
   const name = nameRow?.display_name ?? "Client";
 
-  const [profile, targets, logs, foodHistory, habits, habitLogs, body, waterMl] = await Promise.all([
+  const [profile, targets, logs, foodHistory, habits, habitLogs, body, waterMl, photos] = await Promise.all([
     getClientProfile(id),
     getLatestTargets(id),
     getTodayFoodLogs(id),
@@ -61,6 +62,7 @@ export default async function ClientDeepDive({
     getHabitLogs(id),
     getBodyMeasurements(id),
     getTodayWaterMl(id),
+    getBodyPhotos(id),
   ]);
 
   const totals = totalMacros(logs);
@@ -189,6 +191,8 @@ export default async function ClientDeepDive({
         days={range}
         toggle={<RangeToggle current={range} />}
       />
+
+      {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
 
       {/* Coach plan tools — adjust targets, assign / veto habits */}
       <ClientPlanTools
