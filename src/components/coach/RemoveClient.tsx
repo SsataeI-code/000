@@ -35,12 +35,31 @@ export function RemoveClient({
       </div>
 
       {/* Export first — §13, so no history is lost before removing */}
-      <a
-        href={`/api/export/${clientId}`}
-        className="min-h-tap self-start border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
-      >
-        Export their data (JSON)
-      </a>
+      <div className="flex flex-col gap-2">
+        <a
+          href={`/api/export/${clientId}`}
+          className="min-h-tap self-start border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+        >
+          Export all data (JSON)
+        </a>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">Or CSV:</span>
+          {[
+            { table: "food_logs", label: "Food" },
+            { table: "habit_logs", label: "Habits" },
+            { table: "body_measurements", label: "Body" },
+            { table: "water_logs", label: "Water" },
+          ].map((t) => (
+            <a
+              key={t.table}
+              href={`/api/export/${clientId}?format=csv&table=${t.table}`}
+              className="min-h-tap inline-flex items-center font-label text-xs uppercase tracking-wide text-ink/70 underline underline-offset-4 hover:text-red"
+            >
+              {t.label}
+            </a>
+          ))}
+        </div>
+      </div>
 
       {/* Archive — reversible */}
       <div className="flex flex-col gap-3">
