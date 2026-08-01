@@ -21,6 +21,7 @@ import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { HabitGame } from "@/components/habits/HabitGame";
 import { Achievements } from "@/components/habits/Achievements";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
+import { RemoveClient } from "@/components/coach/RemoveClient";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
 import { resolveRange } from "@/lib/charts/range";
@@ -206,6 +207,8 @@ export default async function ClientDeepDive({
         </span>
         <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Edit →</span>
       </Link>
+
+      <RemoveClient clientId={id} clientName={name} isOwner={user.role === "owner"} />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { coachHasClient } from "@/lib/coach/data";
 import type { HabitCategory, HabitType, HabitCadence } from "@/lib/types/db";
@@ -50,6 +52,61 @@ export async function coachSetTargetsAction(
   revalidatePath(`/coach/clients/${clientId}`);
   revalidatePath("/client");
   return { ok: true };
+}
+
+/**
+ * Archive a client — remove them from the roster (§13 "departed client"): their
+ * active coach link flips to `archived`, so they drop off every roster / queue /
+ * stat immediately, but their data is retained (exportable, purged later per the
+ * retention rule). Reversible. Any coach may archive their own client; owner any.
+ */
+export async function archiveClientAction(
+  clientId: string,
+  _prev: PlanState,
+  _formData: FormData,
+): Promise<PlanState> {
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("coach_clients")
+    .update({ status: "archived" })
+    .eq("client_id", clientId)
+    .eq("status", "active");
+  if (error) return { error: "Couldn't archive this client — try again." };
+  revalidatePath("/coach");
+  revalidatePath("/coach/roster");
+  redirect("/coach/roster");
+}
+
+/**
+ * Permanently delete a client and ALL their data (§13 — this overrides the
+ * 1-year retention rule, so it's owner-only and irreversible). Deletes the
+ * auth user via the service role; every table cascades from auth.users →
+ * profiles → the client's logs/habits/etc. Requires typing DELETE to confirm.
+ */
+export async function deleteClientAction(
+  clientId: string,
+  _prev: PlanState,
+  formData: FormData,
+): Promise<PlanState> {
+  const user = await getSessionUser();
+  if (!user || user.role !== "owner") return { error: "Only the owner can permanently delete a client." };
+  if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "DELETE") {
+    return { error: "Type DELETE to confirm permanent deletion." };
+  }
+
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return { error: "Permanent delete needs the service-role key configured on the server." };
+  }
+  const { error } = await admin.auth.admin.deleteUser(clientId);
+  if (error) return { error: "Couldn't delete this client — try again." };
+
+  revalidatePath("/coach");
+  revalidatePath("/coach/roster");
+  redirect("/coach/roster");
 }
 
 const CATS: HabitCategory[] = ["nutrition", "movement", "sleep", "mindfulness", "hydration", "recovery"];
