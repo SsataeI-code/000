@@ -848,7 +848,27 @@ export function allGenericFoodNames(): string[] {
   return FOODS.map((r) => r[0]);
 }
 
-/** The whole catalog as normalized foods (with micros) — for the recommender. */
+/** The whole catalog as normalized foods (with micros) — for search/logging. */
 export function allGenericFoods(): NormalizedFood[] {
   return FOODS.map(toNormalized);
+}
+
+/**
+ * Foods we keep fully searchable and loggable but never *auto-suggest* — game,
+ * organ meats, and other items most clients won't realistically want the app to
+ * recommend (e.g. rabbit, venison, liver). Matched on the food name; "kidney
+ * beans" and similar everyday foods are explicitly kept.
+ */
+const NOT_RECOMMENDED =
+  /\b(rabbit|venison|deer|bison|buffalo|elk|goose|quail|pheasant|duck|liver|liverwurst|braunschweiger|tongue|kidney|tripe|gizzard|snail|escargot|frog|game hen|game)\b/i;
+
+export function isRecommendableFood(name: string): boolean {
+  if (!NOT_RECOMMENDED.test(name)) return true;
+  // Keep everyday foods that only match on an organ word (e.g. "Kidney beans").
+  return /kidney beans?/i.test(name);
+}
+
+/** The catalog with unrealistic-to-suggest foods removed — for the recommenders. */
+export function recommendableFoods(): NormalizedFood[] {
+  return FOODS.map(toNormalized).filter((f) => isRecommendableFood(f.name ?? ""));
 }

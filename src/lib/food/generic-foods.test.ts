@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   allGenericFoodNames,
+  allGenericFoods,
+  recommendableFoods,
+  isRecommendableFood,
   editDistance,
   GENERIC_FOOD_COUNT,
   searchGenericFoods,
@@ -9,6 +12,23 @@ import {
 describe("generic foods fallback", () => {
   it("ships a substantial reference table", () => {
     expect(GENERIC_FOOD_COUNT).toBeGreaterThan(500);
+  });
+
+  it("never recommends game/organ meats but keeps them searchable", () => {
+    // Excluded from suggestions.
+    for (const odd of ["Rabbit, cooked", "Venison, cooked", "Beef liver, cooked", "Beef tongue, cooked", "Goose, cooked"]) {
+      expect(isRecommendableFood(odd)).toBe(false);
+    }
+    // Everyday foods stay recommendable — including the "kidney beans" false match.
+    for (const ok of ["Chicken breast, cooked", "Kidney beans, cooked", "Greek yogurt, nonfat", "Salmon, cooked"]) {
+      expect(isRecommendableFood(ok)).toBe(true);
+    }
+    // Still fully searchable/loggable via the complete catalog.
+    const allNames = allGenericFoods().map((f) => f.name);
+    expect(allNames).toContain("Rabbit, cooked");
+    const recNames = recommendableFoods().map((f) => f.name);
+    expect(recNames).not.toContain("Rabbit, cooked");
+    expect(recommendableFoods().length).toBeLessThan(allGenericFoods().length);
   });
 
   it("contains NO duplicate food names (case-insensitive)", () => {

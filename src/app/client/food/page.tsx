@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
+import { getLatestTargets } from "@/lib/nutrition/data";
 import { AddFood } from "@/components/food/AddFood";
+import { HandPortions } from "@/components/nutrition/HandPortions";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,8 @@ export default async function AddFoodPage() {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
+
+  const targets = await getLatestTargets(user.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,6 +28,9 @@ export default async function AddFoodPage() {
         </Link>
       </div>
       <AddFood userId={user.id} />
+      {targets ? (
+        <HandPortions targets={{ proteinG: targets.protein_g, carbsG: targets.carbs_g, fatG: targets.fat_g }} />
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { NormalizedFood } from "@/lib/food/off";
-import { allGenericFoods } from "@/lib/food/generic-foods";
+import { recommendableFoods } from "@/lib/food/generic-foods";
 import { buildMicroGoals, ESSENTIAL_MICROS } from "@/lib/nutrition/micros";
 import type { Sex } from "@/lib/types/db";
 
@@ -67,7 +67,7 @@ export interface RingInput {
  * essential micros furthest below goal that we have candidate foods for.
  */
 export function suggestFills(input: RingInput, max = 3): RingSuggestion[] {
-  const foods = allGenericFoods();
+  const foods = recommendableFoods();
   const suggestions: RingSuggestion[] = [];
 
   // 1. Protein.

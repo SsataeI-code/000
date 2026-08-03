@@ -1,5 +1,5 @@
 import type { NormalizedFood } from "@/lib/food/off";
-import { allGenericFoods } from "@/lib/food/generic-foods";
+import { recommendableFoods } from "@/lib/food/generic-foods";
 import { ESSENTIAL_MICROS } from "@/lib/nutrition/micros";
 import type { Sex } from "@/lib/types/db";
 
@@ -132,7 +132,7 @@ export interface MealSuggestion {
 
 function catalogMap(): Map<string, NormalizedFood> {
   const m = new Map<string, NormalizedFood>();
-  for (const f of allGenericFoods()) if (f.name) m.set(f.name, f);
+  for (const f of recommendableFoods()) if (f.name) m.set(f.name, f);
   return m;
 }
 
