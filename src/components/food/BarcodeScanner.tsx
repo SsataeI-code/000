@@ -36,8 +36,21 @@ export function BarcodeScanner({
         return;
       }
       try {
-        // Lazy-load the WASM decoder (browser only).
+        // Lazy-load the WASM decoder (browser only). Point it at the wasm we
+        // serve from /public — the package-relative path 404s under Next's
+        // bundling, which would make every decode fail silently.
         const zbar = await import("@undecaf/zbar-wasm");
+        zbar.setModuleArgs({ locateFile: () => "/zbar.wasm" });
+        try {
+          // Force the WASM to load now so a load failure is caught loudly here,
+          // not swallowed frame-by-frame in the scan loop.
+          await zbar.getInstance();
+        } catch {
+          if (cancelled) return;
+          setStatus("error");
+          setMessage("The scanner couldn't load. Enter the barcode number instead.");
+          return;
+        }
         scanImageData = zbar.scanImageData as typeof scanImageData;
 
         stream = await navigator.mediaDevices.getUserMedia({
