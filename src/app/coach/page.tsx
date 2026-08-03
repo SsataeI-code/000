@@ -182,6 +182,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
           <Link href="/coach/dashboard" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Customize
           </Link>
+          <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            Use the app
+          </Link>
         </div>
       </div>
 

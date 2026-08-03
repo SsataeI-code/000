@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { plateTotals, EMPTY_PLATE, type PlateCounts } from "@/lib/nutrition/plate";
+import { logFoodAction } from "@/lib/food/actions";
 
 type Cat = { key: keyof PlateCounts; label: string; hand: string; color: string; note: string };
 
@@ -31,11 +33,28 @@ function slice(cx: number, cy: number, r: number, a: number, b: number): string 
  */
 export function PlateBuilder({ targets }: { targets: { calories: number; proteinG: number } | null }) {
   const [counts, setCounts] = useState<PlateCounts>(EMPTY_PLATE);
-  const bump = (k: keyof PlateCounts, d: number) =>
+  const [logState, setLogState] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const bump = (k: keyof PlateCounts, d: number) => {
+    setLogState("idle");
     setCounts((c) => ({ ...c, [k]: Math.max(0, Math.min(12, c[k] + d)) }));
+  };
 
   const totals = plateTotals(counts);
   const totalPortions = counts.palms + counts.cupped + counts.thumbs + counts.fists;
+
+  async function logPlate() {
+    if (totalPortions === 0) return;
+    setLogState("saving");
+    const res = await logFoodAction({
+      name: "Plate — hand portions",
+      calories: totals.calories,
+      proteinG: totals.proteinG,
+      carbsG: totals.carbsG,
+      fatG: totals.fatG,
+      source: "manual",
+    });
+    setLogState(res.ok ? "done" : "error");
+  }
 
   // Wedge sizes by portion count (volume) so the plate teaches proportions.
   let acc = 0;
@@ -127,17 +146,44 @@ export function PlateBuilder({ targets }: { targets: { calories: number; protein
         </p>
       ) : null}
 
-      <div className="flex items-center justify-between">
-        <p className="font-body text-xs text-ink/40">A learning estimate — not a food log.</p>
+      {logState === "done" ? (
+        <p role="status" className="flex items-center justify-between gap-3 border border-success bg-surface px-3 py-2 text-sm text-success">
+          Added to today&apos;s food log.
+          <Link href="/client" className="font-label text-[10px] uppercase tracking-wide underline underline-offset-4">
+            View today →
+          </Link>
+        </p>
+      ) : null}
+      {logState === "error" ? (
+        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+          Couldn&apos;t log that — try again.
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => setCounts(EMPTY_PLATE)}
+          onClick={logPlate}
+          disabled={totalPortions === 0 || logState === "saving"}
+          className="min-h-tap bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-40"
+        >
+          {logState === "saving" ? "Logging…" : "Log this plate"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setCounts(EMPTY_PLATE);
+            setLogState("idle");
+          }}
           disabled={totalPortions === 0}
           className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-40"
         >
           Clear
         </button>
       </div>
+      <p className="font-body text-xs text-ink/40">
+        Portions are an estimate — logging saves these approximate macros to today.
+      </p>
     </section>
   );
 }

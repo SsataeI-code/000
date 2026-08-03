@@ -40,8 +40,10 @@ describe("role model (multi-coach-ready)", () => {
     expect(canAccessArea("coach", "coach")).toBe(true);
     expect(canAccessArea("owner", "coach")).toBe(true);
 
+    // The client app is open to everyone signed in — clients live here, and
+    // coaches/owner may use it to track their own habits/food.
     expect(canAccessArea("client", "client")).toBe(true);
-    expect(canAccessArea("coach", "client")).toBe(false);
-    expect(canAccessArea("owner", "client")).toBe(false);
+    expect(canAccessArea("coach", "client")).toBe(true);
+    expect(canAccessArea("owner", "client")).toBe(true);
   });
 });

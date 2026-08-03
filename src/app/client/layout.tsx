@@ -3,8 +3,9 @@ import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
 import { BrandLogo } from "@/components/BrandLogo";
 import { HelpLauncher } from "@/components/help/HelpLauncher";
 import { SignOutButton } from "@/components/SignOutButton";
+import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
-import { canAccessArea } from "@/lib/auth/roles";
+import { canAccessArea, hasCoachPowers } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer } from "@/lib/content/data";
 import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
@@ -39,7 +40,17 @@ export default async function ClientLayout({ children }: { children: React.React
             {t("brand.name")}
           </span>
         </span>
-        <SignOutButton />
+        <span className="flex items-center gap-4">
+          {hasCoachPowers(user.role) ? (
+            <Link
+              href="/coach"
+              className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+            >
+              Coach view
+            </Link>
+          ) : null}
+          <SignOutButton />
+        </span>
       </header>
 
       <div className="px-5 py-6">{children}</div>

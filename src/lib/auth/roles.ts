@@ -32,6 +32,7 @@ export function homePathForRole(role: AppRole): "/coach" | "/client" {
  */
 export function canAccessArea(role: AppRole, area: "coach" | "client"): boolean {
   if (area === "coach") return hasCoachPowers(role);
-  // The client "Today" app is for clients. Coaches manage from /coach, not here.
-  return role === "client";
+  // The client "Today" app is home for clients, but coaches and the owner can
+  // use it too — to track their own habits/food and dogfood the experience.
+  return true;
 }
