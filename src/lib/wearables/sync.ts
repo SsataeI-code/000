@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isoDate, addDays } from "@/lib/habits/streaks";
 import { providerDef, type ProviderDef } from "@/lib/wearables/providers";
 import { parseOuraActivity, parseOuraSleep, parseFitbitSteps, parseFitbitSleep, mergeMetrics, type DailyMetric } from "@/lib/wearables/parse";
-import type { WearableConnection } from "@/lib/types/db";
+import { pickStepHabit, stepCheckoffs } from "@/lib/wearables/steps";
+import type { WearableConnection, Habit } from "@/lib/types/db";
 
 /**
  * Wearable data-pull (§7). Defensive throughout — any network/parse failure is
@@ -94,8 +95,48 @@ export async function syncConnection(admin: SupabaseClient, conn: WearableConnec
     resting_hr: m.restingHr ?? null,
   }));
   await admin.from("wearable_daily").upsert(rows, { onConflict: "client_id,provider,day" });
+  await autoCheckSteps(admin, conn.client_id, metrics);
   await admin.from("wearable_connections").update({ last_synced_at: new Date().toISOString() }).eq("id", conn.id);
   return rows.length;
+}
+
+/**
+ * Auto-tick the client's steps habit for any synced day that met its target (§7).
+ * Best-effort: reads the client's active habits + already-completed days, then
+ * upserts habit_logs for the newly-met days. Never un-ticks and never overwrites
+ * an existing completion (upsert on the met days only, keyed habit_id+log_date).
+ */
+async function autoCheckSteps(admin: SupabaseClient, clientId: string, metrics: DailyMetric[]): Promise<void> {
+  try {
+    const days = metrics.filter((m) => m.steps != null).map((m) => m.day);
+    if (days.length === 0) return;
+
+    const { data: habitRows } = await admin.from("habits").select("*").eq("client_id", clientId).eq("active", true);
+    const stepHabit = pickStepHabit((habitRows ?? []) as Habit[]);
+    if (!stepHabit) return;
+
+    const { data: existing } = await admin
+      .from("habit_logs")
+      .select("log_date")
+      .eq("habit_id", stepHabit.id)
+      .eq("completed", true)
+      .in("log_date", days);
+    const done = new Set((existing ?? []).map((r) => r.log_date));
+
+    const checks = stepCheckoffs(stepHabit, metrics, done);
+    if (checks.length === 0) return;
+
+    const rows = checks.map((c) => ({
+      habit_id: c.habitId,
+      client_id: clientId,
+      log_date: c.day,
+      value: c.value,
+      completed: true,
+    }));
+    await admin.from("habit_logs").upsert(rows, { onConflict: "habit_id,log_date" });
+  } catch {
+    // Auto-check is a convenience — its failure never breaks the sync.
+  }
 }
 
 /** Sync every connected wearable (called from the daily cron). Safe no-op with none. */
