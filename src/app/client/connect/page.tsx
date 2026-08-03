@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getWearableStatuses } from "@/lib/wearables/data";
+import { getWearableStatuses, getLatestWearableMetric } from "@/lib/wearables/data";
 import { WEARABLE_PROVIDERS, providerConfigured, providerDef } from "@/lib/wearables/providers";
 import { disconnectWearableAction } from "@/lib/wearables/actions";
 
@@ -15,8 +15,9 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
   if (!user) redirect("/login");
   const sp = await searchParams;
 
-  const statuses = await getWearableStatuses(user.id);
+  const [statuses, latest] = await Promise.all([getWearableStatuses(user.id), getLatestWearableMetric(user.id)]);
   const statusByProvider = new Map(statuses.map((s) => [s.provider, s]));
+  const anyConnected = statuses.some((s) => s.status === "connected");
 
   const connectedLabel = sp.connected ? providerDef(sp.connected)?.label ?? null : null;
   const errorMsg = sp.error
@@ -46,6 +47,21 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
       ) : null}
       {errorMsg ? (
         <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{errorMsg}</p>
+      ) : null}
+
+      {anyConnected ? (
+        <section className="border border-hairline bg-surface p-4">
+          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Latest sync</p>
+          {latest ? (
+            <p className="mt-1 font-body text-base text-ink">
+              {latest.steps != null ? `${latest.steps.toLocaleString()} steps` : "No steps"}
+              {latest.sleepMinutes != null ? ` · ${Math.floor(latest.sleepMinutes / 60)}h ${latest.sleepMinutes % 60}m sleep` : ""}
+              <span className="font-body text-xs text-ink/50"> · {latest.day}</span>
+            </p>
+          ) : (
+            <p className="mt-1 font-body text-sm text-ink/60">Nothing synced yet — data lands after the next daily sync.</p>
+          )}
+        </section>
       ) : null}
 
       <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">

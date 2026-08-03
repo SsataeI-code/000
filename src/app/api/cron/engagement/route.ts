@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { runEngagementSweep } from "@/lib/engagement/sweep";
+import { syncAllWearables } from "@/lib/wearables/sync";
 import { sanitizeHeaderSafe } from "@/lib/supabase/env";
 
 // Server-only, never cached. Runs the daily engagement sweep (§9/§10).
@@ -24,7 +25,15 @@ async function handle(req: NextRequest) {
 
   try {
     const report = await runEngagementSweep();
-    return NextResponse.json({ ok: true, ...report, configuredSecret: Boolean(secret) });
+    // Best-effort wearable data-pull — a no-op until a tracker is connected, and
+    // its failure never fails the engagement sweep.
+    let wearables = { connections: 0, daysWritten: 0 };
+    try {
+      wearables = await syncAllWearables();
+    } catch {
+      // swallow — wearable sync is non-critical
+    }
+    return NextResponse.json({ ok: true, ...report, wearables, configuredSecret: Boolean(secret) });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err instanceof Error ? err.message : "sweep failed" }, { status: 500 });
   }

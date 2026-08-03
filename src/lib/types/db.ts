@@ -100,6 +100,16 @@ export type BodyPhoto = {
 };
 
 export type WearableProviderId = "oura" | "fitbit" | "garmin" | "whoop";
+export type WearableDaily = {
+  id: string;
+  client_id: string;
+  provider: WearableProviderId;
+  day: string;
+  steps: number | null;
+  sleep_minutes: number | null;
+  resting_hr: number | null;
+  updated_at: string;
+};
 export type WearableConnection = {
   id: string;
   client_id: string;
@@ -388,6 +398,12 @@ export type Database = {
         Row: WearableConnection;
         Insert: Partial<WearableConnection> & { client_id: string; provider: WearableProviderId };
         Update: Partial<WearableConnection>;
+        Relationships: [];
+      };
+      wearable_daily: {
+        Row: WearableDaily;
+        Insert: Partial<WearableDaily> & { client_id: string; provider: WearableProviderId; day: string };
+        Update: Partial<WearableDaily>;
         Relationships: [];
       };
       body_measurements: {
