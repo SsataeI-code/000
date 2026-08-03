@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { addBodyPhotoAction, deleteBodyPhotoAction } from "@/lib/body/actions";
 import type { BodyPhotoView } from "@/lib/body/data";
+import { BodyPhotoCamera } from "@/components/body/BodyPhotoCamera";
 
 function fmt(iso: string): string {
   const d = new Date(iso);
@@ -30,20 +31,19 @@ export function BodyPhotos({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [camera, setCamera] = useState(false);
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (inputRef.current) inputRef.current.value = "";
-    if (!file) return;
+  /** Shared upload path for both a picked file and a camera capture. */
+  async function uploadBlob(file: Blob, ext: string) {
     setError(null);
     setBusy(true);
     try {
       const supabase = createClient();
-      const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
       const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+      const contentType = (file as File).type || "image/jpeg";
       const { error: upErr } = await supabase.storage
         .from("body-photos")
-        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+        .upload(path, file, { contentType, upsert: false });
       if (upErr) {
         setError("Upload failed — try again.");
         return;
@@ -59,6 +59,19 @@ export function BodyPhotos({
     } finally {
       setBusy(false);
     }
+  }
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (inputRef.current) inputRef.current.value = "";
+    if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    await uploadBlob(file, ext);
+  }
+
+  function onCaptured(blob: Blob) {
+    setCamera(false);
+    void uploadBlob(blob, "jpg");
   }
 
   async function onDelete(id: string) {
@@ -124,23 +137,38 @@ export function BodyPhotos({
       )}
 
       {canEdit ? (
-        <div>
-          <input
-            ref={inputRef}
-            id="body-photo-input"
-            type="file"
-            accept="image/*"
-            onChange={onPick}
-            disabled={busy}
-            className="sr-only"
-          />
-          <label
-            htmlFor="body-photo-input"
-            className={`inline-flex min-h-tap cursor-pointer items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
-          >
-            {busy ? "Uploading…" : "Add a photo"}
-          </label>
-        </div>
+        camera ? (
+          <BodyPhotoCamera onCapture={onCaptured} onClose={() => setCamera(false)} />
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              ref={inputRef}
+              id="body-photo-input"
+              type="file"
+              accept="image/*"
+              onChange={onPick}
+              disabled={busy}
+              className="sr-only"
+            />
+            <label
+              htmlFor="body-photo-input"
+              className={`inline-flex min-h-tap cursor-pointer items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
+            >
+              {busy ? "Uploading…" : "Add a photo"}
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setCamera(true);
+              }}
+              disabled={busy}
+              className="inline-flex min-h-tap items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+            >
+              Take with timer
+            </button>
+          </div>
+        )
       ) : null}
     </section>
   );
