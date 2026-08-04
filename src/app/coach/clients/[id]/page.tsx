@@ -15,7 +15,9 @@ import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/dat
 import { consistency, currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { getBodyMeasurements, getTodayWaterMl, getBodyPhotos } from "@/lib/body/data";
+import { getWearableDaily } from "@/lib/wearables/data";
 import { BodyPhotos } from "@/components/body/BodyPhotos";
+import { WearableSummary } from "@/components/coach/WearableSummary";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
@@ -64,6 +66,7 @@ export default async function ClientDeepDive({
     getTodayWaterMl(id),
     getBodyPhotos(id),
   ]);
+  const wearableDays = await getWearableDaily(id, 7);
 
   const totals = totalMacros(logs);
   const byHabit = completedDatesByHabit(habitLogs);
@@ -191,6 +194,8 @@ export default async function ClientDeepDive({
         days={range}
         toggle={<RangeToggle current={range} />}
       />
+
+      {wearableDays.length > 0 ? <WearableSummary days={wearableDays} /> : null}
 
       {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
 

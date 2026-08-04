@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isoDate, addDays } from "@/lib/habits/streaks";
 import type { WearableProviderId } from "@/lib/types/db";
 
 export interface WearableStatus {
@@ -11,6 +12,35 @@ export interface LatestMetric {
   day: string;
   steps: number | null;
   sleepMinutes: number | null;
+}
+
+export interface WearableDay {
+  day: string;
+  steps: number | null;
+  sleepMinutes: number | null;
+  provider: WearableProviderId;
+}
+
+/**
+ * Recent synced daily metrics for a client (§7). Readable by the client, their
+ * coach (is_coach_of), and the owner — so the coach deep-dive can show it. Empty
+ * until a tracker is connected and synced.
+ */
+export async function getWearableDaily(clientId: string, sinceDays = 7): Promise<WearableDay[]> {
+  const supabase = await createClient();
+  const since = isoDate(addDays(new Date(), -sinceDays));
+  const { data } = await supabase
+    .from("wearable_daily")
+    .select("day,steps,sleep_minutes,provider")
+    .eq("client_id", clientId)
+    .gte("day", since)
+    .order("day", { ascending: false });
+  return (data ?? []).map((r) => ({
+    day: r.day,
+    steps: r.steps ?? null,
+    sleepMinutes: r.sleep_minutes ?? null,
+    provider: r.provider,
+  }));
 }
 
 /** The most recent synced day of metrics for a client (across providers), for the UI. */
