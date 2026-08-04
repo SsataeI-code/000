@@ -111,8 +111,8 @@ export async function deleteClientAction(
   _prev: PlanState,
   formData: FormData,
 ): Promise<PlanState> {
-  const user = await getSessionUser();
-  if (!user || user.role !== "owner") return { error: "Only the owner can permanently delete a client." };
+  // The client's own coach (or the owner) may permanently delete them.
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
   if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "DELETE") {
     return { error: "Type DELETE to confirm permanent deletion." };
   }
