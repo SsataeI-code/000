@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { coachHasClient } from "@/lib/coach/data";
+import { isStrictness } from "@/lib/nutrition/strictness";
 import type { HabitCategory, HabitType, HabitCadence } from "@/lib/types/db";
 
 /** A coach may act on a client they coach; the owner on anyone. */
@@ -48,6 +49,27 @@ export async function coachSetTargetsAction(
     fat_g: nnInt(formData.get("fat_g")),
     method: "coach",
   });
+  if (error) return { error: "Couldn't save — try again." };
+  revalidatePath(`/coach/clients/${clientId}`);
+  revalidatePath("/client");
+  return { ok: true };
+}
+
+/**
+ * Set a client's nutrition strictness (§B — coach-controlled). Written to the
+ * client profile (coach-authorized via client_profiles_write / is_coach_of).
+ */
+export async function coachSetStrictnessAction(
+  clientId: string,
+  _prev: PlanState,
+  formData: FormData,
+): Promise<PlanState> {
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
+  const value = String(formData.get("strictness") ?? "");
+  if (!isStrictness(value)) return { error: "Pick a strictness." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("client_profiles").update({ strictness: value }).eq("id", clientId);
   if (error) return { error: "Couldn't save — try again." };
   revalidatePath(`/coach/clients/${clientId}`);
   revalidatePath("/client");

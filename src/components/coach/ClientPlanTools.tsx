@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { STRICTNESS_OPTIONS } from "@/lib/nutrition/strictness";
 import {
   coachSetTargetsAction,
   coachAddHabitAction,
+  coachSetStrictnessAction,
   coachArchiveHabitAction,
   type PlanState,
 } from "@/lib/coach/actions";
@@ -33,15 +35,19 @@ export function ClientPlanTools({
   clientId,
   targets,
   habits,
+  strictness,
 }: {
   clientId: string;
   targets: Targets | null;
   habits: Habit[];
+  strictness: string;
 }) {
   const setTargets = coachSetTargetsAction.bind(null, clientId);
   const addHabit = coachAddHabitAction.bind(null, clientId);
+  const setStrictness = coachSetStrictnessAction.bind(null, clientId);
   const [tState, tAction, tPending] = useActionState(setTargets, initial);
   const [hState, hAction, hPending] = useActionState(addHabit, initial);
+  const [sState, sAction, sPending] = useActionState(setStrictness, initial);
   const [type, setType] = useState<HabitType>("checkbox");
   const [cadence, setCadence] = useState<HabitCadence>("daily");
 
@@ -75,6 +81,33 @@ export function ClientPlanTools({
         </div>
         <Button type="submit" disabled={tPending}>
           {tPending ? "Saving…" : "Save targets"}
+        </Button>
+      </form>
+
+      <hr className="border-hairline" />
+
+      {/* Nutrition strictness (§B) */}
+      <form action={sAction} className="flex flex-col gap-3" noValidate>
+        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Nutrition strictness</p>
+        {sState.error ? (
+          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{sState.error}</p>
+        ) : null}
+        {sState.ok ? (
+          <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">Strictness saved.</p>
+        ) : null}
+        <select
+          name="strictness"
+          defaultValue={strictness}
+          className="min-h-tap border border-hairline bg-surface-muted px-3 py-2 font-body text-base text-ink focus:border-red focus:outline-none"
+        >
+          {STRICTNESS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label} — {o.help}
+            </option>
+          ))}
+        </select>
+        <Button type="submit" disabled={sPending}>
+          {sPending ? "Saving…" : "Save strictness"}
         </Button>
       </form>
 

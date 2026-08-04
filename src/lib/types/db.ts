@@ -66,6 +66,7 @@ export type ClientProfile = {
   quiet_end: number | null;
   timezone: string | null;
   onboarded_at: string | null;
+  strictness: string;
   created_at: string;
   updated_at: string;
 };

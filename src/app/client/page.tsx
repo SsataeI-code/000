@@ -65,6 +65,7 @@ export default async function TodayPage() {
     getMyClientScreenLayout(),
   ]);
   const sections = visibleSections(screenLayout);
+  const strictness = profile?.strictness ?? "precise";
   const totals = totalMacros(logs);
   const photoUrls = await getFoodPhotoUrls(logs);
 
@@ -159,17 +160,33 @@ export default async function TodayPage() {
           </div>
         );
       case "rings":
+        if (strictness === "habits_only") {
+          return (
+            <div key={id} className="border border-hairline bg-surface p-4">
+              <p className="font-body text-sm text-ink/70">
+                Habits-focused plan — no macro targets today. Keep your habits and water on track.
+              </p>
+            </div>
+          );
+        }
         return (
-          <DayProgress
-            key={id}
-            totals={totals}
-            targets={{
-              calories: targets.calories,
-              proteinG: targets.protein_g,
-              carbsG: targets.carbs_g,
-              fatG: targets.fat_g,
-            }}
-          />
+          <div key={id} className="flex flex-col gap-2">
+            <DayProgress
+              totals={totals}
+              targets={{
+                calories: targets.calories,
+                proteinG: targets.protein_g,
+                carbsG: targets.carbs_g,
+                fatG: targets.fat_g,
+              }}
+            />
+            {strictness === "flexible" ? (
+              <p className="font-body text-xs text-ink/50">Ranges are fine — aim within about ±10% of each target.</p>
+            ) : null}
+            {strictness === "protein_cals" ? (
+              <p className="font-body text-xs text-ink/50">Focus on hitting protein and calories — carbs &amp; fat stay flexible.</p>
+            ) : null}
+          </div>
         );
       case "water":
         return <WaterTracker key={id} consumedMl={waterMl} goalMl={profile?.water_goal_ml ?? 2500} />;
@@ -203,6 +220,7 @@ export default async function TodayPage() {
           </div>
         );
       case "fill_rings":
+        if (strictness === "habits_only") return null;
         return <FillYourRings key={id} suggestions={suggestions} />;
       case "meals":
         return (
@@ -229,6 +247,7 @@ export default async function TodayPage() {
           </div>
         );
       case "micros":
+        if (strictness === "habits_only") return null;
         return <MicroTracker key={id} logs={logs} calories={targets.calories} sex={profile?.sex ?? null} />;
     }
   };
