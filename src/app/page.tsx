@@ -69,8 +69,8 @@ export default async function LandingPage() {
           <span className="text-red">The health follows.</span>
         </h1>
         <p className="mt-6 max-w-[46ch] font-body text-lg text-ink/70">
-          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — for people ready to put in
-          the reps, with a coach steering right beside you.
+          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — for people ready to show up
+          consistently, with a coach steering right beside you.
         </p>
 
         {configured ? (
@@ -88,6 +88,26 @@ export default async function LandingPage() {
             <SetupNotice />
           </div>
         )}
+      </section>
+
+      {/* What you get — this is coaching, not a free app */}
+      <section className="flex flex-col gap-4 border-t border-hairline pt-12">
+        <h2 className="text-3xl text-ink">This is coaching, not just an app</h2>
+        <p className="max-w-[48ch] font-body text-ink/70">
+          When you join, you&apos;re working with a real coach — the app is where it happens every day.
+        </p>
+        <ul className="mt-2 flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+          {[
+            { title: "A plan built for you", body: "Calories, macros, and starter habits set for your goal — and adjusted as you go." },
+            { title: "A coach who sees it all", body: "Your logs, streaks, and trends are right in front of them, so they can steer you between check-ins." },
+            { title: "Accountability that adapts", body: "A nudge when you slip, wins worth celebrating, and never any shame." },
+          ].map((f) => (
+            <li key={f.title} className="p-5">
+              <p className="font-display text-lg text-ink">{f.title}</p>
+              <p className="mt-1 font-body text-sm text-ink/60">{f.body}</p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Pillars */}
@@ -125,7 +145,7 @@ export default async function LandingPage() {
         <section className="mt-12 flex flex-col items-start gap-4 border border-red bg-surface p-8">
           <h2 className="text-3xl text-ink">Ready to do the work?</h2>
           <p className="max-w-[42ch] font-body text-ink/70">
-            One minute to set up, then it&apos;s daily reps and real progress. Your coach takes it from there.
+            One minute to set up, then it&apos;s small daily habits and real progress. Your coach takes it from there.
           </p>
           <Link href="/signup">
             <Button>Get started</Button>
