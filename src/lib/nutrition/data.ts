@@ -81,3 +81,24 @@ export async function getFoodLogsSince(clientId: string, days = 30): Promise<Foo
     .order("log_date", { ascending: true });
   return (data as FoodLog[] | null) ?? [];
 }
+
+/** Distinct food names the client has logged recently — for familiar-first suggestions. */
+export async function getRecentFoodNames(clientId: string, days = 30, limit = 60): Promise<string[]> {
+  const supabase = await createClient();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (days - 1));
+  const { data } = await supabase
+    .from("food_logs")
+    .select("name,log_date")
+    .eq("client_id", clientId)
+    .gte("log_date", since.toISOString().slice(0, 10))
+    .order("log_date", { ascending: false })
+    .limit(200);
+  const seen = new Set<string>();
+  for (const row of (data as { name: string | null }[] | null) ?? []) {
+    const n = row.name?.trim();
+    if (n) seen.add(n);
+    if (seen.size >= limit) break;
+  }
+  return [...seen];
+}

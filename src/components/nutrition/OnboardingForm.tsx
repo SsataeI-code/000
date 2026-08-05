@@ -5,6 +5,7 @@ import { saveOnboardingAction, type OnboardingState } from "@/lib/nutrition/acti
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { HABIT_IDEAS, categoryForIdea } from "@/lib/habits/ideas";
+import { DIET_OPTIONS } from "@/lib/food/diet";
 
 const initial: OnboardingState = {};
 
@@ -151,13 +152,39 @@ export function OnboardingForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="diet_preference" className={labelClass}>
-          Eating style
+          Macro style
         </label>
         <select id="diet_preference" name="diet_preference" defaultValue="balanced" className={selectClass}>
           <option value="balanced">Balanced</option>
           <option value="low_carb">Lower carb</option>
           <option value="low_fat">Lower fat</option>
         </select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="diet_pattern" className={labelClass}>
+          Diet (we&apos;ll tailor food suggestions to it)
+        </label>
+        <select id="diet_pattern" name="diet_pattern" defaultValue="anything" className={selectClass}>
+          {DIET_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label} — {o.help}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="food_avoid" className={labelClass}>
+          Anything to avoid? (optional)
+        </label>
+        <input
+          id="food_avoid"
+          name="food_avoid"
+          placeholder="e.g. shellfish, peanuts, cilantro"
+          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+        />
+        <p className="font-body text-xs text-ink/50">Comma-separated. We&apos;ll keep these out of your suggestions.</p>
       </div>
 
       {/* Your first habit — the heart of the app (§5A). Required, and taught. */}

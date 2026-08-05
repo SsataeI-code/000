@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getLatestTargets } from "@/lib/nutrition/data";
+import { getLatestTargets, getClientProfile } from "@/lib/nutrition/data";
 import { AddFood } from "@/components/food/AddFood";
 import { HandPortions } from "@/components/nutrition/HandPortions";
+import { FoodPreferences } from "@/components/nutrition/FoodPreferences";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export default async function AddFoodPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const targets = await getLatestTargets(user.id);
+  const [targets, profile] = await Promise.all([getLatestTargets(user.id), getClientProfile(user.id)]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,6 +40,8 @@ export default async function AddFoodPage() {
         </span>
         <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
       </Link>
+
+      <FoodPreferences pattern={profile?.diet_pattern ?? "anything"} avoid={profile?.food_avoid ?? ""} />
 
       {targets ? (
         <HandPortions targets={{ proteinG: targets.protein_g, carbsG: targets.carbs_g, fatG: targets.fat_g }} />

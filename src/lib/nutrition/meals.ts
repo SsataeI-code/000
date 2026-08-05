@@ -1,5 +1,6 @@
 import type { NormalizedFood } from "@/lib/food/off";
 import { recommendableFoods } from "@/lib/food/generic-foods";
+import { allowedByDiet, type DietFilter } from "@/lib/food/diet";
 import { ESSENTIAL_MICROS } from "@/lib/nutrition/micros";
 import type { Sex } from "@/lib/types/db";
 
@@ -196,15 +197,19 @@ export interface MealInput {
   remainingFiberG: number;
   remainingCalories: number;
   shortMicroKeys: string[];
+  /** Optional diet pattern + avoid list — only meals whose every item fits are suggested. */
+  diet?: DietFilter;
 }
 
 /** Rank meals by how well they close today's biggest gaps. */
 export function suggestMeals(input: MealInput, max = 2): MealSuggestion[] {
   const map = catalogMap();
   const short = new Set(input.shortMicroKeys);
+  const diet = input.diet;
 
   const scored = MEAL_TEMPLATES.map((t) => computeMeal(t, map))
     .filter((m): m is ComputedMeal => m !== null)
+    .filter((m) => !diet || m.items.every((it) => allowedByDiet(it.name, diet)))
     .map((m) => {
       const proteinFill = Math.min(m.proteinG, Math.max(0, input.remainingProteinG));
       const fiberFill = Math.min(m.fiberG, Math.max(0, input.remainingFiberG));

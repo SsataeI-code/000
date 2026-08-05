@@ -6,11 +6,13 @@ import {
   getClientProfile,
   getFoodPhotoUrls,
   getLatestTargets,
+  getRecentFoodNames,
   getSavedMeals,
   getTodayFoodLogs,
   isOnboarded,
   totalMacros,
 } from "@/lib/nutrition/data";
+import { isDietPattern, parseAvoid, type DietFilter } from "@/lib/food/diet";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
@@ -57,13 +59,14 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames] = await Promise.all([
     getTodayFoodLogs(user.id),
     getSavedMeals(user.id),
     getHabits(user.id),
     getHabitLogs(user.id),
     getTodayWaterMl(user.id),
     getMyClientScreenLayout(),
+    getRecentFoodNames(user.id),
   ]);
   const sections = visibleSections(screenLayout);
   const strictness = profile?.strictness ?? "precise";
@@ -122,23 +125,31 @@ export default async function TodayPage() {
   });
   const gameState = computeGameState(gameStats);
 
-  // "Fill your rings" suggestions from what's still short today.
+  // "Fill your rings" suggestions from what's still short today — filtered to the
+  // client's diet + preferences, and leaning on foods they've logged before.
   const microTotals = sumMicros(logs);
   const fiberGoal = Math.round((14 * targets.calories) / 1000);
   const remainingProteinG = targets.protein_g - totals.proteinG;
   const remainingFiberG = fiberGoal - (microTotals.fiber ?? 0);
+  const diet: DietFilter = {
+    pattern: isDietPattern(profile?.diet_pattern) ? profile.diet_pattern : "anything",
+    avoid: parseAvoid(profile?.food_avoid),
+  };
   const suggestions = suggestFills({
     remainingProteinG,
     remainingFiberG,
     microTotalsGrams: microTotals,
     calories: targets.calories,
     sex: profile?.sex ?? null,
+    diet,
+    recentNames,
   });
   const meals = suggestMeals({
     remainingProteinG,
     remainingFiberG,
     remainingCalories: targets.calories - totals.calories,
     shortMicroKeys: shortMicroKeys(microTotals, targets.calories, profile?.sex ?? null),
+    diet,
   });
 
   // Each configurable Today section (§4 — the coach arranges these). The greeting

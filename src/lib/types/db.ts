@@ -67,6 +67,8 @@ export type ClientProfile = {
   timezone: string | null;
   onboarded_at: string | null;
   strictness: string;
+  diet_pattern: string;
+  food_avoid: string;
   created_at: string;
   updated_at: string;
 };

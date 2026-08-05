@@ -8,6 +8,7 @@ import { getClientProfile } from "@/lib/nutrition/data";
 import { computeTargets } from "@/lib/nutrition/targets";
 import { starterHabits } from "@/lib/habits/starter";
 import { isHabitCategory } from "@/lib/habits/ideas";
+import { isDietPattern } from "@/lib/food/diet";
 import type {
   ActivityLevel,
   DietPreference,
@@ -77,6 +78,9 @@ export async function saveOnboardingAction(
   const activity = oneOf(formData.get("activity"), ACTIVITIES);
   const goal = oneOf(formData.get("goal"), GOALS) ?? "maintain";
   const dietPreference = oneOf(formData.get("diet_preference"), DIETS) ?? "balanced";
+  const dietPatternRaw = String(formData.get("diet_pattern") ?? "");
+  const dietPattern = isDietPattern(dietPatternRaw) ? dietPatternRaw : "anything";
+  const foodAvoid = String(formData.get("food_avoid") ?? "").slice(0, 300).trim();
 
   if (!sex || !activity || age === null || heightCm === null || weightKg === null) {
     return { error: "Fill in a little more and we'll set your targets." };
@@ -108,6 +112,8 @@ export async function saveOnboardingAction(
     activity,
     goal,
     diet_preference: dietPreference,
+    diet_pattern: dietPattern,
+    food_avoid: foodAvoid,
     onboarded_at: new Date().toISOString(),
   });
   if (profileError) return { error: "Couldn't save that — give it another try." };
@@ -216,4 +222,28 @@ export async function recalcTargetsAction(): Promise<void> {
     await supabase.from("client_profiles").update({ weight_kg: weightKg }).eq("id", user.id);
   }
   revalidatePath("/client");
+}
+
+export interface FoodPrefsState {
+  ok?: boolean;
+  error?: string;
+}
+
+/** Client (or coach) updates diet pattern + avoid list — filters food suggestions. */
+export async function saveFoodPrefsAction(_prev: FoodPrefsState, formData: FormData): Promise<FoodPrefsState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Please sign in again." };
+  const patternRaw = String(formData.get("diet_pattern") ?? "");
+  const pattern = isDietPattern(patternRaw) ? patternRaw : "anything";
+  const avoid = String(formData.get("food_avoid") ?? "").slice(0, 300).trim();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("client_profiles")
+    .update({ diet_pattern: pattern, food_avoid: avoid })
+    .eq("id", user.id);
+  if (error) return { error: "Couldn't save your preferences — try again." };
+  revalidatePath("/client");
+  revalidatePath("/client/food");
+  return { ok: true };
 }
