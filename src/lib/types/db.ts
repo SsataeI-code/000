@@ -484,6 +484,10 @@ export type Database = {
         Args: Record<string, never>;
         Returns: ClientSectionPref[];
       };
+      delete_client: {
+        Args: { p_client: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       app_role: AppRole;

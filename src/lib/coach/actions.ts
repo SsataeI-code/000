@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { coachHasClient } from "@/lib/coach/data";
 import { isStrictness } from "@/lib/nutrition/strictness";
@@ -112,16 +111,12 @@ export async function deleteClientAction(
   _formData: FormData,
 ): Promise<PlanState> {
   // The client's own coach (or the owner) may permanently delete them. The UI
-  // gates this behind a two-step confirm, so no typed keyword is required here.
+  // gates this behind a two-step confirm. Deletion runs through a SECURITY
+  // DEFINER RPC (no service-role key needed) that cascades from auth.users.
   if (!(await authorize(clientId))) return { error: "Not allowed." };
 
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch {
-    return { error: "Permanent delete needs SUPABASE_SERVICE_ROLE_KEY set on the server." };
-  }
-  const { error } = await admin.auth.admin.deleteUser(clientId);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_client", { p_client: clientId });
   if (error) return { error: `Couldn't delete: ${error.message}` };
 
   revalidatePath("/coach");
