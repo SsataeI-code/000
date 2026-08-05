@@ -82,6 +82,48 @@ export async function getFoodLogsSince(clientId: string, days = 30): Promise<Foo
   return (data as FoodLog[] | null) ?? [];
 }
 
+export interface RelogFood {
+  name: string;
+  grams: number | null;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  nutriments: Record<string, number> | null;
+}
+
+/** The client's recent foods (most-recent log per distinct name) — for one-tap re-logging. */
+export async function getRecentFoodsToRelog(clientId: string, days = 30, limit = 8): Promise<RelogFood[]> {
+  const supabase = await createClient();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (days - 1));
+  const { data } = await supabase
+    .from("food_logs")
+    .select("name,grams,calories,protein_g,carbs_g,fat_g,nutriments,logged_at")
+    .eq("client_id", clientId)
+    .gte("log_date", since.toISOString().slice(0, 10))
+    .order("logged_at", { ascending: false })
+    .limit(200);
+  const seen = new Set<string>();
+  const out: RelogFood[] = [];
+  for (const r of (data ?? []) as FoodLog[]) {
+    const key = r.name?.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      name: r.name,
+      grams: r.grams,
+      calories: r.calories,
+      proteinG: r.protein_g,
+      carbsG: r.carbs_g,
+      fatG: r.fat_g,
+      nutriments: r.nutriments,
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 /** Distinct food names the client has logged recently — for familiar-first suggestions. */
 export async function getRecentFoodNames(clientId: string, days = 30, limit = 60): Promise<string[]> {
   const supabase = await createClient();

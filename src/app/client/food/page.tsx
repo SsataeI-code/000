@@ -2,10 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getLatestTargets, getClientProfile } from "@/lib/nutrition/data";
+import { getLatestTargets, getClientProfile, getRecentFoodsToRelog } from "@/lib/nutrition/data";
 import { AddFood } from "@/components/food/AddFood";
 import { HandPortions } from "@/components/nutrition/HandPortions";
 import { FoodPreferences } from "@/components/nutrition/FoodPreferences";
+import { RecentFoods } from "@/components/nutrition/RecentFoods";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,11 @@ export default async function AddFoodPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [targets, profile] = await Promise.all([getLatestTargets(user.id), getClientProfile(user.id)]);
+  const [targets, profile, recentFoods] = await Promise.all([
+    getLatestTargets(user.id),
+    getClientProfile(user.id),
+    getRecentFoodsToRelog(user.id),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,6 +34,8 @@ export default async function AddFoodPage() {
         </Link>
       </div>
       <AddFood userId={user.id} />
+
+      <RecentFoods foods={recentFoods} />
 
       <Link
         href="/client/plate"

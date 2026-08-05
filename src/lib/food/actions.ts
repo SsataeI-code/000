@@ -177,6 +177,44 @@ function nonNeg(v: unknown): number {
 }
 
 /** Save a food log for the signed-in client. Macros are validated defensively. */
+export interface RelogInput {
+  name: string;
+  grams: number | null;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  nutriments: Record<string, number> | null;
+}
+
+/**
+ * Re-log a food the client already ate before (one tap from "Log again"). Inserts
+ * the stored macros + already-scaled micros directly — no re-scaling — so a quick
+ * repeat matches the original entry.
+ */
+export async function relogFoodAction(input: RelogInput): Promise<LogFoodState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Please sign in again." };
+  const name = (input.name ?? "").trim();
+  if (!name) return { error: "Missing food." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("food_logs").insert({
+    client_id: user.id,
+    name,
+    grams: input.grams,
+    calories: nonNegInt(input.calories),
+    protein_g: nonNeg(input.proteinG),
+    carbs_g: nonNeg(input.carbsG),
+    fat_g: nonNeg(input.fatG),
+    nutriments: input.nutriments ?? null,
+    source: "manual",
+  });
+  if (error) return { error: "Couldn't log that — try again." };
+  revalidatePath("/client");
+  return { ok: true };
+}
+
 export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> {
   const user = await getSessionUser();
   if (!user) return { error: "Please sign in again." };
