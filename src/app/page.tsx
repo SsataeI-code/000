@@ -69,8 +69,8 @@ export default async function LandingPage() {
           <span className="text-red">The health follows.</span>
         </h1>
         <p className="mt-6 max-w-[46ch] font-body text-lg text-ink/70">
-          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — for people ready to show up
-          consistently, with a coach steering right beside you.
+          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — with a coach steering right
+          beside you.
         </p>
 
         {configured ? (
