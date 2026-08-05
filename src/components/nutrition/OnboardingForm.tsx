@@ -163,10 +163,11 @@ export function OnboardingForm() {
       {/* Make it yours — one habit the client chooses (required). */}
       <fieldset className="flex flex-col gap-2 border-t border-hairline pt-5">
         <legend className="mb-1 font-label text-sm uppercase tracking-wide text-red">
-          Make it yours — pick one habit
+          Make it yours — optional
         </legend>
         <p className="font-body text-sm text-ink/60">
-          We&apos;ll add a few habits for you — but pick one that&apos;s truly <span className="font-600 text-ink">yours</span>. That&apos;s the one that makes this stick. Choose an idea or write your own.
+          We&apos;ll set you up with a few habits automatically. Want to add one that&apos;s truly{" "}
+          <span className="font-600 text-ink">yours</span>? Tap an idea or write your own — or skip it and add habits anytime.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {HABIT_IDEAS.map((idea) => (

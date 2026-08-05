@@ -27,8 +27,9 @@ export const defaultCopy = {
   "auth.login.submit": "Sign in",
   "auth.login.toSignup": "New here? Create your account",
 
-  "auth.signup.title": "Start today",
-  "auth.signup.subtitle": "One small habit is all it takes to begin.",
+  "auth.signup.title": "Let's get you started",
+  "auth.signup.subtitle": "Create your account and your plan's ready in about a minute — with your coach right beside you.",
+  "auth.signup.reassure": "Quick to set up · everything's adjustable · your coach fine-tunes it with you.",
   "auth.signup.nameLabel": "Your name",
   "auth.signup.emailLabel": "Email",
   "auth.signup.passwordLabel": "Password",
@@ -36,7 +37,7 @@ export const defaultCopy = {
   "auth.signup.coachCodeHint": "Got a code from your coach? Enter it. No code? You're still welcome.",
   "auth.signup.consentLabel":
     "I agree to let my coach view my health data to guide my progress.",
-  "auth.signup.submit": "Create account",
+  "auth.signup.submit": "Create my account",
   "auth.signup.toLogin": "Already have an account? Sign in",
   "auth.signup.checkEmail": "Check your email to confirm your account, then sign in.",
   "auth.signup.invited": "A friend invited you — welcome. Let's get you started.",

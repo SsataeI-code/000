@@ -36,6 +36,9 @@ export default async function SignupPage({
 
       <h1 className="text-4xl text-ink">{getCopy("auth.signup.title", overrides)}</h1>
       <p className="mt-2 font-body text-ink/70">{getCopy("auth.signup.subtitle", overrides)}</p>
+      <p className="mt-3 font-label text-[11px] uppercase tracking-wide text-ink/45">
+        {getCopy("auth.signup.reassure", overrides)}
+      </p>
 
       {referralCode ? (
         <p className="mt-4 border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">

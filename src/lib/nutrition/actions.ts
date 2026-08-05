@@ -85,11 +85,10 @@ export async function saveOnboardingAction(
     return { error: "Those numbers look off — double-check age, height, and weight." };
   }
 
-  // The client must choose or write one habit of their own (§5A ownership).
+  // Optional: the client may choose or write one habit of their own (§5A
+  // ownership). We don't block on it — starter habits are seeded either way, and
+  // they can add their own anytime. Keeps day-one friction low.
   const ownHabit = String(formData.get("own_habit") ?? "").trim();
-  if (!ownHabit) {
-    return { error: "Pick or write one habit to make your own — that's the whole point." };
-  }
   const ownCategoryRaw = String(formData.get("own_habit_category") ?? "");
   const ownCategory = isHabitCategory(ownCategoryRaw) ? ownCategoryRaw : "movement";
 
@@ -129,20 +128,25 @@ export async function saveOnboardingAction(
     .eq("client_id", user.id);
   if (!count) {
     const seeds = starterHabits(goal, activity);
+    // Their own habit (if they picked one) goes first — it's the one that's theirs.
+    const ownRows = ownHabit
+      ? [
+          {
+            client_id: user.id,
+            created_by: user.id,
+            name: ownHabit,
+            category: ownCategory,
+            type: "checkbox" as const,
+            target: null,
+            unit: null,
+            cadence: "daily" as const,
+            why: "You chose this one — make it stick.",
+            position: 0,
+          },
+        ]
+      : [];
     const rows = [
-      // Their own habit first (position 0) — it's the one that's theirs.
-      {
-        client_id: user.id,
-        created_by: user.id,
-        name: ownHabit,
-        category: ownCategory,
-        type: "checkbox" as const,
-        target: null,
-        unit: null,
-        cadence: "daily" as const,
-        why: "You chose this one — make it stick.",
-        position: 0,
-      },
+      ...ownRows,
       ...seeds.map((s, i) => ({
         client_id: user.id,
         created_by: user.id,
@@ -153,7 +157,7 @@ export async function saveOnboardingAction(
         unit: s.unit,
         cadence: s.cadence,
         why: s.why,
-        position: i + 1,
+        position: i + ownRows.length,
       })),
     ];
     await supabase.from("habits").insert(rows);
