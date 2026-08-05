@@ -218,7 +218,7 @@ export default async function ClientDeepDive({
         <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Edit →</span>
       </Link>
 
-      <RemoveClient clientId={id} clientName={name} isOwner={user.role === "owner"} />
+      <RemoveClient clientId={id} clientName={name} canDelete />
     </div>
   );
 }

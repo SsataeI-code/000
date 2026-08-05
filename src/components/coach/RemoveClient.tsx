@@ -7,18 +7,19 @@ import { Button } from "@/components/ui/Button";
 const initial: PlanState = {};
 
 /**
- * Remove a client from the roster. Archive (any coach, reversible, data kept per
- * §13) uses a two-step confirm; permanent delete (owner-only, irreversible)
- * requires typing DELETE. Both redirect to the roster on success.
+ * Remove a client from the roster. Archive (reversible, data kept per §13) uses a
+ * two-step confirm; permanent delete (irreversible) requires typing DELETE and is
+ * shown to whoever can manage this client (their coach or the owner). Both
+ * redirect to the roster on success.
  */
 export function RemoveClient({
   clientId,
   clientName,
-  isOwner,
+  canDelete,
 }: {
   clientId: string;
   clientName: string;
-  isOwner: boolean;
+  canDelete: boolean;
 }) {
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -31,7 +32,7 @@ export function RemoveClient({
         <h2 className="text-2xl text-ink">Remove {clientName}</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
           Archiving takes them off your roster, stats, and queues but keeps their history — you can bring them back later.
-          {isOwner ? " Deleting erases their account and all their data for good." : ""}
+          {canDelete ? " Deleting erases their account and all their data for good." : ""}
         </p>
       </div>
 
@@ -90,8 +91,8 @@ export function RemoveClient({
         )}
       </div>
 
-      {/* Permanent delete — owner only, irreversible */}
-      {isOwner ? (
+      {/* Permanent delete — irreversible */}
+      {canDelete ? (
         <div className="mt-1 flex flex-col gap-2 border-t border-hairline pt-4">
           <p className="font-label text-xs uppercase tracking-wide text-red-ink">Danger zone — permanent</p>
           <p className="font-body text-sm text-ink/60">

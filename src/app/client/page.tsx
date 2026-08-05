@@ -29,6 +29,7 @@ import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
+import { macroRange } from "@/lib/nutrition/strictness";
 import { getCopyServer } from "@/lib/content/data";
 import { getMyClientScreenLayout } from "@/lib/coach/data";
 import { visibleSections, type ClientSectionId } from "@/lib/coach/client-screen";
@@ -180,9 +181,17 @@ export default async function TodayPage() {
                 fatG: targets.fat_g,
               }}
             />
-            {strictness === "flexible" ? (
-              <p className="font-body text-xs text-ink/50">Ranges are fine — aim within about ±10% of each target.</p>
-            ) : null}
+            {strictness === "flexible"
+              ? (() => {
+                  const cal = macroRange(targets.calories);
+                  const pro = macroRange(targets.protein_g);
+                  return (
+                    <p className="font-body text-xs text-ink/50">
+                      Ranges are fine — around {cal.low.toLocaleString()}–{cal.high.toLocaleString()} cal and {pro.low}–{pro.high}g protein.
+                    </p>
+                  );
+                })()
+              : null}
             {strictness === "protein_cals" ? (
               <p className="font-body text-xs text-ink/50">Focus on hitting protein and calories — carbs &amp; fat stay flexible.</p>
             ) : null}
