@@ -23,3 +23,6 @@ $$;
 
 revoke all on function public.delete_client(uuid) from public, anon;
 grant execute on function public.delete_client(uuid) to authenticated;
+
+-- Tell Supabase's API to pick up the new function right away.
+notify pgrst, 'reload schema';
