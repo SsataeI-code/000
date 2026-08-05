@@ -21,6 +21,7 @@ export function RemoveClient({
   isOwner: boolean;
 }) {
   const [confirmArchive, setConfirmArchive] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [aState, aAction, aPending] = useActionState(archiveClientAction.bind(null, clientId), initial);
   const [dState, dAction, dPending] = useActionState(deleteClientAction.bind(null, clientId), initial);
 
@@ -94,29 +95,38 @@ export function RemoveClient({
         <div className="mt-1 flex flex-col gap-2 border-t border-hairline pt-4">
           <p className="font-label text-xs uppercase tracking-wide text-red-ink">Danger zone — permanent</p>
           <p className="font-body text-sm text-ink/60">
-            Permanently delete {clientName} and all their logs, habits, and messages. This cannot be undone. Type{" "}
-            <span className="font-600 text-ink">DELETE</span> to confirm.
+            Permanently delete {clientName} and all their logs, habits, and messages. This cannot be undone.
           </p>
           {dState.error ? (
             <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{dState.error}</p>
           ) : null}
-          <form action={dAction} className="mt-1 flex flex-wrap items-center gap-3">
-            <label htmlFor="confirm-delete" className="sr-only">Type DELETE to confirm</label>
-            <input
-              id="confirm-delete"
-              name="confirm"
-              autoComplete="off"
-              placeholder="Type DELETE"
-              className="min-h-tap border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink placeholder:text-ink/30 focus:border-red focus:outline-none"
-            />
+          {!confirmDelete ? (
             <button
-              type="submit"
-              disabled={dPending}
-              className="min-h-tap bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="min-h-tap self-start border border-red bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-red-ink hover:bg-red hover:text-white"
             >
-              {dPending ? "Deleting…" : "Delete permanently"}
+              Delete permanently
             </button>
-          </form>
+          ) : (
+            <form action={dAction} className="flex flex-wrap items-center gap-3">
+              <span className="font-body text-sm text-ink">Delete {clientName} and all their data forever?</span>
+              <button
+                type="submit"
+                disabled={dPending}
+                className="min-h-tap bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+              >
+                {dPending ? "Deleting…" : "Yes, delete forever"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-ink"
+              >
+                Cancel
+              </button>
+            </form>
+          )}
         </div>
       ) : null}
     </section>

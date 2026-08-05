@@ -109,22 +109,20 @@ export async function archiveClientAction(
 export async function deleteClientAction(
   clientId: string,
   _prev: PlanState,
-  formData: FormData,
+  _formData: FormData,
 ): Promise<PlanState> {
-  const user = await getSessionUser();
-  if (!user || user.role !== "owner") return { error: "Only the owner can permanently delete a client." };
-  if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "DELETE") {
-    return { error: "Type DELETE to confirm permanent deletion." };
-  }
+  // The client's own coach (or the owner) may permanently delete them. The UI
+  // gates this behind a two-step confirm, so no typed keyword is required here.
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
 
   let admin;
   try {
     admin = createAdminClient();
   } catch {
-    return { error: "Permanent delete needs the service-role key configured on the server." };
+    return { error: "Permanent delete needs SUPABASE_SERVICE_ROLE_KEY set on the server." };
   }
   const { error } = await admin.auth.admin.deleteUser(clientId);
-  if (error) return { error: "Couldn't delete this client — try again." };
+  if (error) return { error: `Couldn't delete: ${error.message}` };
 
   revalidatePath("/coach");
   revalidatePath("/coach/roster");
