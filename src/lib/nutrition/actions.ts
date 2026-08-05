@@ -85,10 +85,12 @@ export async function saveOnboardingAction(
     return { error: "Those numbers look off — double-check age, height, and weight." };
   }
 
-  // Optional: the client may choose or write one habit of their own (§5A
-  // ownership). We don't block on it — starter habits are seeded either way, and
-  // they can add their own anytime. Keeps day-one friction low.
+  // The client chooses or writes one habit of their own (§5A ownership) — habits
+  // are the heart of the app, so this is a real, required step.
   const ownHabit = String(formData.get("own_habit") ?? "").trim();
+  if (!ownHabit) {
+    return { error: "Pick or write one habit to start with — it's the heart of your plan." };
+  }
   const ownCategoryRaw = String(formData.get("own_habit_category") ?? "");
   const ownCategory = isHabitCategory(ownCategoryRaw) ? ownCategoryRaw : "movement";
 

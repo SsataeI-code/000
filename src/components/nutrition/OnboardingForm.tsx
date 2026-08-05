@@ -160,16 +160,25 @@ export function OnboardingForm() {
         </select>
       </div>
 
-      {/* Make it yours — one habit the client chooses (required). */}
+      {/* Your first habit — the heart of the app (§5A). Required, and taught. */}
       <fieldset className="flex flex-col gap-2 border-t border-hairline pt-5">
         <legend className="mb-1 font-label text-sm uppercase tracking-wide text-red">
-          Make it yours — optional
+          Your first habit — the heart of it
         </legend>
-        <p className="font-body text-sm text-ink/60">
-          We&apos;ll set you up with a few habits automatically. Want to add one that&apos;s truly{" "}
-          <span className="font-600 text-ink">yours</span>? Tap an idea or write your own — or skip it and add habits anytime.
+        <p className="font-body text-sm text-ink/70">
+          Habits are what actually move the needle — small daily wins that add up. We&apos;ll add a few that fit
+          your goal, and you&apos;ll pick one that&apos;s truly <span className="font-600 text-ink">yours</span> to
+          anchor it.
         </p>
-        <div className="mt-2 flex flex-wrap gap-2">
+
+        <div className="mt-1 flex flex-col gap-1 border border-hairline bg-surface p-3 font-body text-xs text-ink/60">
+          <p><span className="font-600 text-ink">How to pick:</span> choose one small enough to do almost every day — “drink water,” not “run a marathon.”</p>
+          <p><span className="font-600 text-ink">How it helps:</span> repeating it builds the routine your goal is made of.</p>
+          <p><span className="font-600 text-ink">How you track it:</span> tap it done each day on your Today screen — watch your streak grow and your calendar fill in.</p>
+        </div>
+
+        <p className="mt-2 font-body text-sm text-ink/70">Tap one to start, or write your own:</p>
+        <div className="flex flex-wrap gap-2">
           {HABIT_IDEAS.map((idea) => (
             <button
               key={idea.name}
