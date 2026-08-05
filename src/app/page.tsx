@@ -62,26 +62,26 @@ export default async function LandingPage() {
 
       {/* Hero */}
       <section className="py-16 md:py-20">
-        <p className="font-label text-xs uppercase tracking-wide text-red">Coaching that shows up every day</p>
+        <p className="font-label text-xs uppercase tracking-wide text-red">For people who want to see results</p>
         <h1 className="mt-4 text-5xl leading-[0.95] text-ink md:text-6xl">
           Build the habits.
           <br />
           <span className="text-red">The health follows.</span>
         </h1>
         <p className="mt-6 max-w-[46ch] font-body text-lg text-ink/70">
-          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — with your coach steering
-          right beside you.
+          {t("brand.tagline")} A daily home for your habits, nutrition, and progress — for people ready to put in
+          the reps, with a coach steering right beside you.
         </p>
 
         {configured ? (
           <div className="mt-10 flex flex-col gap-3 sm:max-w-xs">
             <Link href="/signup">
-              <Button>Start free</Button>
+              <Button>Get started</Button>
             </Link>
             <Link href="/login">
               <Button variant="ghost">{t("auth.login.submit")}</Button>
             </Link>
-            <p className="font-body text-xs text-ink/40">No app store, no cost to start. Works right in your browser.</p>
+            <p className="font-body text-xs text-ink/40">No app to download — it runs right in your browser.</p>
           </div>
         ) : (
           <div className="mt-10">
@@ -123,12 +123,12 @@ export default async function LandingPage() {
       {/* Closing CTA */}
       {configured ? (
         <section className="mt-12 flex flex-col items-start gap-4 border border-red bg-surface p-8">
-          <h2 className="text-3xl text-ink">Ready when you are.</h2>
+          <h2 className="text-3xl text-ink">Ready to do the work?</h2>
           <p className="max-w-[42ch] font-body text-ink/70">
-            One minute to set up, and you&apos;re logging on day one. Your coach takes it from there.
+            One minute to set up, then it&apos;s daily reps and real progress. Your coach takes it from there.
           </p>
           <Link href="/signup">
-            <Button>Start free</Button>
+            <Button>Get started</Button>
           </Link>
         </section>
       ) : null}
