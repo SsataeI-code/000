@@ -33,6 +33,6 @@ describe("CMS-ready copy", () => {
     expect(copySection("auth.signup.title")).toBe("auth");
     expect(copySection("brand.name")).toBe("brand");
     // Every key resolves to a known section prefix.
-    for (const k of copyKeys) expect(copySection(k)).toMatch(/^(brand|auth|client|coach|common)$/);
+    for (const k of copyKeys) expect(copySection(k)).toMatch(/^(brand|landing|auth|client|coach|common)$/);
   });
 });

@@ -6,7 +6,7 @@
  * content_overrides key/value table as copy, under an "image:<key>" row.
  */
 
-export type ImageKey = "brand.logo";
+export type ImageKey = "brand.logo" | "coach.photo";
 
 export interface ImageDef {
   key: ImageKey;
@@ -19,6 +19,11 @@ export const CONTENT_IMAGES: ImageDef[] = [
     key: "brand.logo",
     label: "Logo",
     description: "Shown in the top bar and on the sign-in screen. A square image works best.",
+  },
+  {
+    key: "coach.photo",
+    label: "Coach photo",
+    description: "Your photo on the landing page's “Meet your coach” section. A square headshot works best.",
   },
 ];
 

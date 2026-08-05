@@ -352,6 +352,7 @@ See `README.md` for the full runbook.
 ### Landing & onboarding polish
 
 - **Marketing landing** (`src/app/page.tsx`): replaced the Phase-0 stub with a real public-signup page — hero + primary "Start free" CTA, the three pillars (Habits / Nutrition / Body, reusing the nav icons), a 3-step "How it works", and a closing CTA. House style throughout (flat, dark, red accent, no gradients/emoji); brand name/tagline still come from the CMS copy layer; CTAs gate on `hasSupabaseConfig()` (SetupNotice before config).
+- **"Meet your coach" landing section** (paid-coaching trust): a CMS-editable block on `src/app/page.tsx` — heading/name/bio via new `landing.coach.*` copy keys (grouped under a new "Landing page" section in the CMS editor), and a **coach photo** via a new `coach.photo` image override (uploaded from the Images panel; a "Photo" placeholder until set). Resolved with `getCopyServer`/`getImageServer`.
 - **Warmer onboarding copy** (§4 voice): intro reframed to "Let's set up your day one" with a reassuring, forgiving subhead; the one-habit picker helper is warmer ("the one that makes this stick"); submit button "Set my targets" → **"Build my plan"**.
 
 ### Design — dark theme (§4 house style, inverted)

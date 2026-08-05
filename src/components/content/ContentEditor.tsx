@@ -14,6 +14,7 @@ export interface ContentField {
 
 const SECTION_TITLES: Record<string, string> = {
   brand: "Brand",
+  landing: "Landing page",
   auth: "Sign in & sign up",
   client: "Client app",
   coach: "Coach app",

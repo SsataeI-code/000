@@ -15,6 +15,11 @@ export const defaultCopy = {
   "brand.name": "Total Form Fitness",
   "brand.tagline": "Habits first. Health follows.",
 
+  "landing.coach.heading": "Meet your coach",
+  "landing.coach.name": "Your coach",
+  "landing.coach.bio":
+    "I help everyday people build habits that actually last — and I'm in the app with you every day, steering as you go.",
+
   "auth.login.title": "Welcome back",
   "auth.login.subtitle": "Let's pick up where you left off.",
   "auth.login.emailLabel": "Email",
