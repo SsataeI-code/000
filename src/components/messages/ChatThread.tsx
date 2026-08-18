@@ -67,6 +67,18 @@ export function ChatThread({
     }
   }, [state, router]);
 
+  // Re-sync when the server sends fresh data (after router.refresh()), merging it
+  // with anything Realtime already appended — deduped by id, ordered by time. This
+  // is what makes a sent message appear even when Realtime isn't delivering: the
+  // refresh brings it back through initialMessages instead of vanishing (§2/§10).
+  useEffect(() => {
+    setMessages((prev) => {
+      const byId = new Map(prev.map((m) => [m.id, m]));
+      for (const m of initialMessages) byId.set(m.id, m);
+      return [...byId.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
+    });
+  }, [initialMessages]);
+
   function draft() {
     setDraftError(null);
     startDraft(async () => {
