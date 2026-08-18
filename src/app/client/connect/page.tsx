@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
+import { hasCoachPowers } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getWearableStatuses, getLatestWearableMetric } from "@/lib/wearables/data";
 import { WEARABLE_PROVIDERS, providerConfigured, providerDef } from "@/lib/wearables/providers";
@@ -18,6 +19,9 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
   const [statuses, latest] = await Promise.all([getWearableStatuses(user.id), getLatestWearableMetric(user.id)]);
   const statusByProvider = new Map(statuses.map((s) => [s.provider, s]));
   const anyConnected = statuses.some((s) => s.status === "connected");
+  // Coach/owner see a concrete setup hint under any tracker that isn't wired up
+  // yet; clients only ever see the clean "not available yet" (§7 honest UI).
+  const isStaff = hasCoachPowers(user.role);
 
   const connectedLabel = sp.connected ? providerDef(sp.connected)?.label ?? null : null;
   const errorMsg = sp.error
@@ -69,11 +73,22 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
           const configured = providerConfigured(p, process.env);
           const st = statusByProvider.get(p.id);
           const connected = st?.status === "connected";
+          // Owner/coach-only setup cue so a "not available yet" tracker isn't a
+          // mystery: OAuth2 providers just need their keys; Garmin isn't wired.
+          const staffHint =
+            isStaff && !connected && !configured
+              ? p.oauth === "oauth2"
+                ? `Set ${p.envPrefix}_CLIENT_ID and ${p.envPrefix}_CLIENT_SECRET in Vercel to enable`
+                : "Web OAuth not supported yet — Garmin needs the OAuth1 flow built"
+              : null;
           return (
             <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-4">
               <div className="min-w-0 flex-1">
                 <p className="font-body text-base text-ink">{p.label}</p>
                 <p className="font-body text-xs text-ink/50">{p.pulls}</p>
+                {staffHint ? (
+                  <p className="mt-1 font-body text-[11px] text-ink/40">{staffHint}</p>
+                ) : null}
               </div>
               {connected ? (
                 <form action={disconnectWearableAction.bind(null, p.id)} className="flex items-center gap-3">
