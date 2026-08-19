@@ -29,11 +29,11 @@ const MEAL_IDEAS = [
 ];
 
 export const HELP_STARTERS = [
+  "Log 2 eggs and toast",
   "How much protein do I have left?",
   "What should I eat right now?",
   "What habit should I add next?",
   "How's my water today?",
-  "How do I scan a barcode?",
 ];
 
 /** Answer a question from the client's real data + a small FAQ, or route to coach. */

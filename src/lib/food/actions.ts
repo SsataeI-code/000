@@ -11,6 +11,7 @@ import {
   type NormalizedFood,
 } from "@/lib/food/off";
 import { searchGenericFoods } from "@/lib/food/generic-foods";
+import { parseMealItems } from "@/lib/food/parse-meal";
 import { scaleNutriments } from "@/lib/nutrition/micros";
 
 export type LookupResult =
@@ -215,6 +216,94 @@ export async function relogFoodAction(input: RelogInput): Promise<LogFoodState> 
   if (error) return { error: "Couldn't log that — try again." };
   revalidatePath("/client");
   return { ok: true };
+}
+
+export interface MealLogResult {
+  ok: boolean;
+  message: string;
+}
+
+/**
+ * Log a meal from a plain description ("2 eggs and toast") — the no-AI path from
+ * the Ask box. Each item is matched to the built-in food catalog (which carries
+ * serving sizes), scaled by count, and logged. Never invents numbers: an item we
+ * can't match is reported back, not guessed. Amounts are honest estimates.
+ */
+export async function logMealFromTextAction(text: string): Promise<MealLogResult> {
+  const user = await getSessionUser();
+  if (!user) return { ok: false, message: "Please sign in again." };
+
+  const items = parseMealItems(text);
+  if (items.length === 0) {
+    return { ok: false, message: "Tell me what you ate, like “log 2 eggs and toast.”" };
+  }
+
+  const supabase = await createClient();
+  const day = await getClientDay(user.id);
+
+  const rows: Array<{
+    client_id: string;
+    name: string;
+    grams: number;
+    calories: number;
+    protein_g: number;
+    carbs_g: number;
+    fat_g: number;
+    nutriments: Record<string, number> | null;
+    source: "manual";
+    log_date: string;
+  }> = [];
+  const logged: string[] = [];
+  const missed: string[] = [];
+  let totalCal = 0;
+  let totalP = 0;
+
+  for (const it of items) {
+    const match = searchGenericFoods(it.name, 1)[0];
+    if (!match || !match.name || match.per100g.calories == null) {
+      missed.push(it.name);
+      continue;
+    }
+    const matchName = match.name;
+    const servingG = match.servingSizeG && match.servingSizeG > 0 ? match.servingSizeG : 100;
+    const grams = Math.round(servingG * it.qty);
+    const f = grams / 100;
+    const cal = nonNegInt((match.per100g.calories ?? 0) * f);
+    const protein = nonNeg((match.per100g.proteinG ?? 0) * f);
+    const micros = scaleNutriments(match.nutrimentsPer100g ?? null, grams);
+    rows.push({
+      client_id: user.id,
+      name: it.qty > 1 ? `${it.qty}× ${matchName}` : matchName,
+      grams,
+      calories: cal,
+      protein_g: protein,
+      carbs_g: nonNeg((match.per100g.carbsG ?? 0) * f),
+      fat_g: nonNeg((match.per100g.fatG ?? 0) * f),
+      nutriments: Object.keys(micros).length ? micros : null,
+      source: "manual",
+      log_date: day,
+    });
+    logged.push(`${it.qty > 1 ? `${it.qty}× ` : ""}${matchName} (${cal} cal)`);
+    totalCal += cal;
+    totalP += protein;
+  }
+
+  if (rows.length === 0) {
+    return {
+      ok: false,
+      message: `I couldn't match ${missed.join(", ")}. Add ${missed.length > 1 ? "them" : "it"} from the Food tab and I'll have them next time.`,
+    };
+  }
+
+  const { error } = await supabase.from("food_logs").insert(rows);
+  if (error) return { ok: false, message: "Couldn't log that — please try again." };
+
+  revalidatePath("/client");
+  let message = `Logged: ${logged.join(", ")}. That's about ${totalCal} cal and ${Math.round(totalP)}g protein added to today.`;
+  if (missed.length) {
+    message += ` I couldn't find ${missed.join(", ")} — add ${missed.length > 1 ? "those" : "that"} from the Food tab.`;
+  }
+  return { ok: true, message };
 }
 
 export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> {
