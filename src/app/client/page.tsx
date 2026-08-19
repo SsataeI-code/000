@@ -24,8 +24,9 @@ import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabit
 import { HabitGame } from "@/components/habits/HabitGame";
 import { Greeting } from "@/components/client/Greeting";
 import { WaterTracker } from "@/components/body/WaterTracker";
+import { WeeklyWeighIn } from "@/components/body/WeeklyWeighIn";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
-import { getTodayWaterMl } from "@/lib/body/data";
+import { getTodayWaterMl, getBodyMeasurements } from "@/lib/body/data";
 import { currentStreak, isStreakFrozen, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
@@ -59,7 +60,7 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
-  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames, measurements] = await Promise.all([
     getTodayFoodLogs(user.id),
     getSavedMeals(user.id),
     getHabits(user.id),
@@ -67,7 +68,26 @@ export default async function TodayPage() {
     getTodayWaterMl(user.id),
     getMyClientScreenLayout(),
     getRecentFoodNames(user.id),
+    getBodyMeasurements(user.id, 60),
   ]);
+
+  // Weekly weigh-in state (surfaced on Today so weight is never hard to find).
+  const weightRows = measurements.filter((m) => m.weight_kg != null);
+  const latestWeight = weightRows[weightRows.length - 1] ?? null;
+  const latestKg = latestWeight ? Number(latestWeight.weight_kg) : null;
+  const daysSinceWeigh = latestWeight
+    ? Math.floor((Date.now() - new Date(`${latestWeight.log_date}T00:00:00`).getTime()) / 86_400_000)
+    : null;
+  let weightChangeKg: number | null = null;
+  if (latestWeight) {
+    const latestTime = new Date(latestWeight.log_date).getTime();
+    for (let i = weightRows.length - 2; i >= 0; i--) {
+      if (latestTime - new Date(weightRows[i].log_date).getTime() >= 6.5 * 86_400_000) {
+        weightChangeKg = Math.round((latestKg! - Number(weightRows[i].weight_kg)) * 10) / 10;
+        break;
+      }
+    }
+  }
   const sections = visibleSections(screenLayout);
   const strictness = profile?.strictness ?? "precise";
   const totals = totalMacros(logs);
@@ -282,6 +302,8 @@ export default async function TodayPage() {
       </div>
 
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
+
+      <WeeklyWeighIn latestKg={latestKg} daysSince={daysSinceWeigh} changeKg={weightChangeKg} />
 
       {sections.map(renderSection)}
     </div>
