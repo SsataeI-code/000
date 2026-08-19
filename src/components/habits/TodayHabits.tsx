@@ -135,7 +135,16 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
   const [done, setDone] = useState(item.doneToday);
   const [celebrate, setCelebrate] = useState(false);
   const [value, setValue] = useState(item.todayValue ? String(item.todayValue) : "");
+  // The value shown as "X / target" — optimistic, so a log reflects instantly and
+  // never reads 0 after saving; re-synced from the server on refresh / day rollover.
+  const [loggedValue, setLoggedValue] = useState(item.todayValue);
   const isCounter = item.type !== "checkbox";
+
+  useEffect(() => {
+    setDone(item.doneToday);
+    setLoggedValue(item.todayValue);
+    setValue(item.todayValue ? String(item.todayValue) : "");
+  }, [item.doneToday, item.todayValue]);
 
   // Optimistic streak so the flame ticks up the instant they tap.
   const shownStreak = done ? (item.doneToday ? item.streak : item.streak + 1) : item.streak;
@@ -143,6 +152,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
 
   function markDone(next: boolean) {
     setDone(next);
+    if (isCounter) setLoggedValue(next ? (item.target ?? (loggedValue || 1)) : 0);
     if (next) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 900);
@@ -154,6 +164,12 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
   }
   function logValue(v: number) {
     setValue(String(v));
+    setLoggedValue(v);
+    setDone(item.target ? v >= Number(item.target) : v > 0);
+    if (v > 0) {
+      setCelebrate(true);
+      setTimeout(() => setCelebrate(false), 900);
+    }
     start(async () => {
       await setHabitValueAction(item.id, v);
       router.refresh();
@@ -165,7 +181,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
       <span className={`block font-body text-base ${done ? "text-ink/50 line-through" : "text-ink"}`}>{item.name}</span>
       {isCounter && item.target ? (
         <span className="block font-body text-xs text-ink/50">
-          {item.todayValue || 0} / {item.target} {item.unit ?? ""}
+          {loggedValue || 0} / {item.target} {item.unit ?? ""}
         </span>
       ) : item.why && !done ? (
         <span className="block font-body text-xs text-ink/50">{item.why}</span>
