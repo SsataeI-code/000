@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getLatestTargets } from "@/lib/nutrition/data";
+import { getLatestTargets, getClientProfile } from "@/lib/nutrition/data";
+import { isDietPattern, parseAvoid, type DietFilter } from "@/lib/food/diet";
 import { PlateBuilder } from "@/components/nutrition/PlateBuilder";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,12 @@ export default async function PlatePage() {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const targets = await getLatestTargets(user.id);
+  const [targets, profile] = await Promise.all([getLatestTargets(user.id), getClientProfile(user.id)]);
+
+  const diet: DietFilter = {
+    pattern: isDietPattern(profile?.diet_pattern) ? profile.diet_pattern : "anything",
+    avoid: parseAvoid(profile?.food_avoid),
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -26,7 +32,7 @@ export default async function PlatePage() {
         </Link>
       </div>
 
-      <PlateBuilder targets={targets ? { calories: targets.calories, proteinG: targets.protein_g } : null} />
+      <PlateBuilder targets={targets ? { calories: targets.calories, proteinG: targets.protein_g } : null} diet={diet} />
     </div>
   );
 }
