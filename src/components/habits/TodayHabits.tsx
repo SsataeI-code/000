@@ -208,6 +208,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
             onClick={() => markDone(!done)}
             aria-pressed={done}
             aria-label={done ? `Mark ${item.name} not done` : `Mark ${item.name} done`}
+            className="flex min-h-tap min-w-tap items-center justify-center rounded-sm hover:bg-surface-muted"
           >
             <CheckCircle done={done} celebrate={celebrate} />
           </button>
