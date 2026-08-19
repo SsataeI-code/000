@@ -81,15 +81,13 @@ export function foodsByZone(zone: PlateZone, foods: PlateFood[] = PLATE_FOODS): 
   return foods.filter((f) => f.zone === zone);
 }
 
-/** Sum a selection of foods (by id, repeats allowed) into total macros/calories. */
-export function selectedTotals(ids: string[]): PlateTotals {
+/** Sum a selection of foods (repeats allowed) into total macros/calories. */
+export function selectedTotals(foods: PlateFood[]): PlateTotals {
   let proteinG = 0;
   let carbsG = 0;
   let fatG = 0;
   let calories = 0;
-  for (const id of ids) {
-    const f = plateFoodById(id);
-    if (!f) continue;
+  for (const f of foods) {
     proteinG += f.proteinG;
     carbsG += f.carbsG;
     fatG += f.fatG;
@@ -104,12 +102,9 @@ export function selectedTotals(ids: string[]): PlateTotals {
 }
 
 /** How many portions the client has placed in each zone — for the plate visual. */
-export function zoneCounts(ids: string[]): Record<PlateZone, number> {
+export function zoneCounts(foods: PlateFood[]): Record<PlateZone, number> {
   const counts: Record<PlateZone, number> = { veggie: 0, protein: 0, carb: 0, fat: 0 };
-  for (const id of ids) {
-    const f = plateFoodById(id);
-    if (f) counts[f.zone] += 1;
-  }
+  for (const f of foods) counts[f.zone] += 1;
   return counts;
 }
 
@@ -118,9 +113,9 @@ export function zoneCounts(ids: string[]): Record<PlateZone, number> {
  * palm of protein, a cupped hand of carbs). Never shaming — it nudges the next
  * add, and celebrates a balanced plate (§4 voice). Returns null when balanced.
  */
-export function plateBalanceHint(ids: string[]): string | null {
-  if (ids.length === 0) return "Tap foods below to build your plate.";
-  const c = zoneCounts(ids);
+export function plateBalanceHint(foods: PlateFood[]): string | null {
+  if (foods.length === 0) return "Tap or search foods to build your plate.";
+  const c = zoneCounts(foods);
   if (c.protein === 0) return "Add a protein — a palm-sized portion.";
   if (c.veggie === 0) return "Add some veggies — aim to fill half your plate.";
   const total = c.veggie + c.protein + c.carb + c.fat;
@@ -129,22 +124,48 @@ export function plateBalanceHint(ids: string[]): string | null {
 }
 
 /** A readable name for the food log, e.g. "Plate: chicken, rice, broccoli". */
-export function plateLogName(ids: string[]): string {
-  const names = ids
-    .map((id) => plateFoodById(id)?.name)
-    .filter((n): n is string => Boolean(n));
-  if (names.length === 0) return "Plate";
+export function plateLogName(foods: PlateFood[]): string {
+  if (foods.length === 0) return "Plate";
   // De-dupe while keeping order, cap the label length.
   const seen = new Set<string>();
   const unique: string[] = [];
-  for (const n of names) {
-    const key = n.toLowerCase();
+  for (const f of foods) {
+    const key = f.name.toLowerCase();
     if (!seen.has(key)) {
       seen.add(key);
-      unique.push(n.toLowerCase());
+      unique.push(f.name.toLowerCase());
     }
   }
   const shown = unique.slice(0, 4).join(", ");
   const more = unique.length > 4 ? ` +${unique.length - 4}` : "";
   return `Plate: ${shown}${more}`;
+}
+
+// Keyword hints for spotting non-starchy veggies (low-cal, mostly water/fiber).
+const VEGGIE_RE =
+  /\b(veg|veggie|vegetable|broccoli|spinach|kale|lettuce|salad|greens|cabbage|cauliflower|pepper|tomato|cucumber|zucchini|courgette|carrot|celery|onion|mushroom|asparagus|bean sprout|green bean|pea|brussels|beet|radish|squash|eggplant|aubergine|okra)\b/;
+
+/**
+ * Classify an arbitrary food into a plate zone from its name + macros — so any
+ * searched food can join the plate. Non-starchy veggies are caught by name (they
+ * read as "carbs" by macros otherwise); everything else goes by its dominant
+ * calorie source. Pure.
+ */
+export function zoneForFood(name: string, proteinG: number, carbsG: number, fatG: number): PlateZone {
+  const n = (name || "").toLowerCase();
+  const pCal = proteinG * 4;
+  const cCal = carbsG * 4;
+  const fCal = fatG * 9;
+  const total = pCal + cCal + fCal;
+  // Low-calorie, carb-leaning, and reads like a vegetable → veggie half.
+  if (VEGGIE_RE.test(n) && fCal <= cCal) return "veggie";
+  if (total <= 0) return "carb";
+  if (pCal >= cCal && pCal >= fCal) return "protein";
+  if (fCal > cCal && fCal >= pCal) return "fat";
+  return "carb";
+}
+
+/** A flat icon key for a zone (used for custom/searched foods without their own icon). */
+export function iconForZone(zone: PlateZone): string {
+  return zone === "protein" ? "steak" : zone === "carb" ? "bowl" : zone === "veggie" ? "leaf" : "drop";
 }

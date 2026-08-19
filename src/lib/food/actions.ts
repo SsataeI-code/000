@@ -12,6 +12,7 @@ import {
 } from "@/lib/food/off";
 import { searchGenericFoods } from "@/lib/food/generic-foods";
 import { parseMealItems } from "@/lib/food/parse-meal";
+import { zoneForFood, iconForZone, type PlateFood } from "@/lib/nutrition/plate-foods";
 import { scaleNutriments } from "@/lib/nutrition/micros";
 
 export type LookupResult =
@@ -221,6 +222,42 @@ export async function relogFoodAction(input: RelogInput): Promise<LogFoodState> 
 export interface MealLogResult {
   ok: boolean;
   message: string;
+}
+
+/**
+ * Search the food catalog for the plate builder — returns any food as a
+ * plate-ready portion (real serving size + macros from the catalog), classified
+ * into a plate zone so the client can build a plate from anything they eat.
+ */
+export async function searchPlateFoodsAction(query: string): Promise<PlateFood[]> {
+  const user = await getSessionUser();
+  if (!user) return [];
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const out: PlateFood[] = [];
+  for (const m of searchGenericFoods(q, 8)) {
+    if (!m.name || m.per100g.calories == null) continue;
+    const servingG = m.servingSizeG && m.servingSizeG > 0 ? m.servingSizeG : 100;
+    const f = servingG / 100;
+    const proteinG = Math.round((m.per100g.proteinG ?? 0) * f);
+    const carbsG = Math.round((m.per100g.carbsG ?? 0) * f);
+    const fatG = Math.round((m.per100g.fatG ?? 0) * f);
+    const calories = Math.round((m.per100g.calories ?? 0) * f);
+    const zone = zoneForFood(m.name, proteinG, carbsG, fatG);
+    out.push({
+      id: `custom:${m.name.toLowerCase()}`,
+      name: m.name,
+      zone,
+      portion: `${Math.round(servingG)} g`,
+      icon: iconForZone(zone),
+      calories,
+      proteinG,
+      carbsG,
+      fatG,
+    });
+  }
+  return out;
 }
 
 /**
