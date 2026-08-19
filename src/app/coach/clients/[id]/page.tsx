@@ -16,6 +16,8 @@ import { consistency, currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { getBodyMeasurements, getTodayWaterMl, getBodyPhotos } from "@/lib/body/data";
 import { getWearableDaily } from "@/lib/wearables/data";
+import { getLifts } from "@/lib/lifts/data";
+import { LiftTracker } from "@/components/lifts/LiftTracker";
 import { BodyPhotos } from "@/components/body/BodyPhotos";
 import { WearableSummary } from "@/components/coach/WearableSummary";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
@@ -55,7 +57,7 @@ export default async function ClientDeepDive({
   const { data: nameRow } = await supabase.from("profiles").select("display_name").eq("id", id).maybeSingle();
   const name = nameRow?.display_name ?? "Client";
 
-  const [profile, targets, logs, foodHistory, habits, habitLogs, body, waterMl, photos] = await Promise.all([
+  const [profile, targets, logs, foodHistory, habits, habitLogs, body, waterMl, photos, lifts] = await Promise.all([
     getClientProfile(id),
     getLatestTargets(id),
     getTodayFoodLogs(id),
@@ -65,6 +67,7 @@ export default async function ClientDeepDive({
     getBodyMeasurements(id),
     getTodayWaterMl(id),
     getBodyPhotos(id),
+    getLifts(id, 180),
   ]);
   const wearableDays = await getWearableDaily(id, 7);
 
@@ -218,6 +221,13 @@ export default async function ClientDeepDive({
       />
 
       {wearableDays.length > 0 ? <WearableSummary days={wearableDays} /> : null}
+
+      {lifts.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-2xl text-ink">Lifts</h2>
+          <LiftTracker entries={lifts} readOnly />
+        </section>
+      ) : null}
 
       {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
 

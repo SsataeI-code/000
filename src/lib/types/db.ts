@@ -93,6 +93,19 @@ export type BodyMeasurement = {
   created_at: string;
 };
 
+export type LiftLog = {
+  id: string;
+  client_id: string;
+  log_date: string;
+  exercise: string;
+  weight: number;
+  unit: "lb" | "kg";
+  reps: number;
+  sets: number;
+  note: string | null;
+  created_at: string;
+};
+
 export type BodyPhoto = {
   id: string;
   client_id: string;
@@ -413,6 +426,12 @@ export type Database = {
         Row: BodyMeasurement;
         Insert: Partial<BodyMeasurement> & { client_id: string; log_date: string };
         Update: Partial<BodyMeasurement>;
+        Relationships: [];
+      };
+      lift_logs: {
+        Row: LiftLog;
+        Insert: Partial<LiftLog> & { client_id: string; exercise: string };
+        Update: Partial<LiftLog>;
         Relationships: [];
       };
       coach_prefs: {

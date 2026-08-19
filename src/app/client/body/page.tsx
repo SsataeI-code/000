@@ -57,6 +57,17 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
         </p>
       )}
 
+      <Link
+        href="/client/lifts"
+        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block font-body text-base text-ink">Lifts</span>
+          <span className="block font-body text-xs text-ink/50">Track your strength — log sets and watch your numbers climb</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
+      </Link>
+
       {/* Your graphs — weight, food logging, protein, consistency */}
       <IndividualProgress
         measurements={measurements}
