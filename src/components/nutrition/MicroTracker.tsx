@@ -19,7 +19,11 @@ export function MicroTracker({
 }) {
   const totals = sumMicros(logs);
   const rows = buildMicroGoals(totals, calories, sex);
-  const groups: MicroGroup[] = ["Vitamins", "Minerals", "Limits"];
+  const groups: MicroGroup[] = ["Vitamins", "Minerals", "Limits", "Also tracked"];
+  // "Also tracked" nutrients (no Daily Value) only appear once there's data —
+  // no clutter of empty rows for things most foods don't report.
+  const hasRows = (g: MicroGroup) =>
+    rows.some((r) => r.def.group === g && (g !== "Also tracked" || r.consumed > 0));
 
   return (
     <details className="border border-hairline bg-surface">
@@ -33,13 +37,15 @@ export function MicroTracker({
       </summary>
 
       <div className="flex flex-col gap-5 px-5 pb-5">
-        {groups.map((g) => (
+        {groups.filter(hasRows).map((g) => (
           <div key={g}>
             <p className="mb-2 font-label text-[10px] uppercase tracking-wide text-ink/50">{g}</p>
             <div className="flex flex-col gap-2.5">
-              {rows.filter((r) => r.def.group === g).map((r) => (
-                <MicroRow key={r.def.key} row={r} />
-              ))}
+              {rows
+                .filter((r) => r.def.group === g && (g !== "Also tracked" || r.consumed > 0))
+                .map((r) => (
+                  <MicroRow key={r.def.key} row={r} />
+                ))}
             </div>
           </div>
         ))}
@@ -60,6 +66,17 @@ function fmt(value: number, unit: string): string {
 
 function MicroRow({ row }: { row: MicroGoalRow }) {
   const { def, goal, consumed, kind } = row;
+
+  // Tracked-only (no Daily Value): show the amount, no goal bar.
+  if (kind === "info") {
+    return (
+      <div className="flex items-baseline justify-between">
+        <span className="font-body text-sm text-ink/80">{def.label}</span>
+        <span className="font-body text-xs text-ink/60">{fmt(consumed, def.unit)} {def.unit}</span>
+      </div>
+    );
+  }
+
   const pct = goal > 0 ? Math.min(consumed / goal, 1) : 0;
   const over = goal > 0 && consumed > goal;
   // Limits: over the cap is bad (red). Goals: over/at is good; under is neutral.

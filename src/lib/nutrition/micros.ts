@@ -80,7 +80,7 @@ export function presentMicros(totals: Record<string, number>): Array<{ def: Micr
 // Essential micronutrient GOALS (§5B) — the full vitamin + mineral panel.
 // ---------------------------------------------------------------------------
 
-export type MicroGroup = "Vitamins" | "Minerals" | "Limits";
+export type MicroGroup = "Vitamins" | "Minerals" | "Limits" | "Also tracked";
 
 export interface EssentialMicro {
   key: string; // normalized OFF key
@@ -95,10 +95,12 @@ export interface EssentialMicro {
    *  - "fiberFromCal" : 14 g per 1000 kcal (scales with the calorie target)
    *  - "satFatCap"    : <10% of calories (a cap)
    *  - "sugarCap"     : <10% of calories, as added-sugar proxy (a cap)
+   *  - "none"         : no established Daily Value — tracked, but shown without a
+   *                     target (we never invent a number, §11)
    */
-  dv: number | { female: number; male: number } | "fiberFromCal" | "satFatCap" | "sugarCap";
-  /** A limit is a ceiling to stay under; a goal is a floor to reach. */
-  kind: "goal" | "limit";
+  dv: number | { female: number; male: number } | "fiberFromCal" | "satFatCap" | "sugarCap" | "none";
+  /** goal = floor to reach · limit = ceiling to stay under · info = tracked, no target. */
+  kind: "goal" | "limit" | "info";
 }
 
 /**
@@ -129,27 +131,34 @@ export const ESSENTIAL_MICROS: EssentialMicro[] = [
   { key: "potassium", label: "Potassium", unit: "mg", factor: 1000, group: "Minerals", dv: 4700, kind: "goal" },
   { key: "phosphorus", label: "Phosphorus", unit: "mg", factor: 1000, group: "Minerals", dv: 1250, kind: "goal" },
   { key: "copper", label: "Copper", unit: "mg", factor: 1000, group: "Minerals", dv: 0.9, kind: "goal" },
+  { key: "manganese", label: "Manganese", unit: "mg", factor: 1000, group: "Minerals", dv: 2.3, kind: "goal" },
   { key: "selenium", label: "Selenium", unit: "mcg", factor: 1_000_000, group: "Minerals", dv: 55, kind: "goal" },
+  { key: "chloride", label: "Chloride", unit: "mg", factor: 1000, group: "Minerals", dv: 2300, kind: "goal" },
+  { key: "choline", label: "Choline", unit: "mg", factor: 1000, group: "Minerals", dv: 550, kind: "goal" },
   { key: "fiber", label: "Fiber", unit: "g", factor: 1, group: "Minerals", dv: "fiberFromCal", kind: "goal" },
   // Limits (stay under)
   { key: "sodium", label: "Sodium", unit: "mg", factor: 1000, group: "Limits", dv: 2300, kind: "limit" },
   { key: "saturated-fat", label: "Saturated fat", unit: "g", factor: 1, group: "Limits", dv: "satFatCap", kind: "limit" },
   { key: "sugars", label: "Sugars", unit: "g", factor: 1, group: "Limits", dv: "sugarCap", kind: "limit" },
   { key: "cholesterol", label: "Cholesterol", unit: "mg", factor: 1000, group: "Limits", dv: 300, kind: "limit" },
+  // Also tracked — no official Daily Value, so shown as an amount (only when present).
+  { key: "boron", label: "Boron", unit: "mg", factor: 1000, group: "Also tracked", dv: "none", kind: "info" },
+  { key: "sulfate", label: "Sulfate", unit: "mg", factor: 1000, group: "Also tracked", dv: "none", kind: "info" },
 ];
 
 export interface MicroGoalRow {
   def: EssentialMicro;
-  /** Goal/limit in the display unit. */
+  /** Goal/limit in the display unit (0 for tracked-only nutrients). */
   goal: number;
   /** Consumed so far in the display unit. */
   consumed: number;
-  kind: "goal" | "limit";
+  kind: "goal" | "limit" | "info";
 }
 
 /** Resolve one entry's numeric goal (in display unit) for this client. */
 function resolveGoal(dv: EssentialMicro["dv"], calories: number, sex: Sex | null): number {
   if (typeof dv === "number") return dv;
+  if (dv === "none") return 0; // tracked without a target
   if (dv === "fiberFromCal") return Math.round((14 * calories) / 1000);
   if (dv === "satFatCap") return Math.round((0.1 * calories) / 9); // 10% of cals, g
   if (dv === "sugarCap") return Math.round((0.1 * calories) / 4); // 10% of cals, g
