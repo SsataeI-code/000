@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { GameState } from "@/lib/habits/game";
 import { IconFlame, IconBolt } from "@/components/icons";
 
@@ -18,6 +19,7 @@ export function HabitGame({
   currentStreak,
   coachView = false,
   name,
+  badgesHref,
 }: {
   state: GameState;
   todayDone: number;
@@ -27,6 +29,8 @@ export function HabitGame({
   /** When a coach/owner is looking at a client, copy reads observationally. */
   coachView?: boolean;
   name?: string;
+  /** When set, the badges chip links here (the client's own view → their wall). */
+  badgesHref?: string;
 }) {
   const [fill, setFill] = useState(0);
   const [dayFill, setDayFill] = useState(0);
@@ -94,7 +98,16 @@ export function HabitGame({
         />
         <Chip label={`Best ${bestStreak}d`} />
         {state.todayPoints > 0 ? <Chip label={`+${state.todayPoints} today`} accent /> : null}
-        <Chip label={`${state.earnedCount} badges`} />
+        {badgesHref ? (
+          <Link
+            href={badgesHref}
+            className="inline-flex min-h-tap items-center gap-1.5 border border-white/25 px-2.5 py-1 font-label text-[11px] uppercase tracking-wide text-white/80 hover:border-red hover:text-white"
+          >
+            {state.earnedCount} badges →
+          </Link>
+        ) : (
+          <Chip label={`${state.earnedCount} badges`} />
+        )}
       </div>
 
       {/* Today's completion */}

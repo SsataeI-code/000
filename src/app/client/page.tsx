@@ -193,6 +193,7 @@ export default async function TodayPage() {
                 todayDue={habitItems.length}
                 bestStreak={gameStats.bestStreak}
                 currentStreak={bestCurrentStreak}
+                badgesHref="/client/achievements"
               />
             ) : null}
             <TodayHabits items={habitItems} />
