@@ -27,7 +27,8 @@ import { WaterTracker } from "@/components/body/WaterTracker";
 import { WeeklyWeighIn } from "@/components/body/WeeklyWeighIn";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { getTodayWaterMl, getBodyMeasurements } from "@/lib/body/data";
-import { currentStreak, isStreakFrozen, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
+import { currentStreak, isStreakFrozen, isDueToday, FREEZE_BUDGET } from "@/lib/habits/streaks";
+import { dayInTimeZone } from "@/lib/time/day";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
@@ -60,12 +61,16 @@ export default async function TodayPage() {
     redirect("/client/onboarding");
   }
 
+  // The client's own calendar day — daily stats reset at their local midnight
+  // (not the server's UTC midnight), so evening logs land on the right day (§2).
+  const today = dayInTimeZone(profile?.timezone);
+
   const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames, measurements] = await Promise.all([
-    getTodayFoodLogs(user.id),
+    getTodayFoodLogs(user.id, today),
     getSavedMeals(user.id),
     getHabits(user.id),
     getHabitLogs(user.id),
-    getTodayWaterMl(user.id),
+    getTodayWaterMl(user.id, today),
     getMyClientScreenLayout(),
     getRecentFoodNames(user.id),
     getBodyMeasurements(user.id, 60),
@@ -102,8 +107,10 @@ export default async function TodayPage() {
 
   // Today's habits (the star) — those due today, with streaks.
   const byHabit = completedDatesByHabit(habitLogs);
-  const now = new Date();
-  const todayStr = isoDate(now);
+  // Anchor all habit day-math to the client's local day (noon UTC on that date
+  // is DST-safe), so streaks / due-today / freezes agree with the reset above.
+  const now = new Date(`${today}T12:00:00Z`);
+  const todayStr = today;
   const todayValueByHabit = new Map<string, number>();
   for (const log of habitLogs) {
     if (log.log_date === todayStr) todayValueByHabit.set(log.habit_id, Number(log.value) || 0);

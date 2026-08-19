@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { todayIso } from "@/lib/nutrition/summary";
+import { getClientDay } from "@/lib/time/server";
 import { lbToKg } from "@/lib/body/trend";
 
 /** Quick-add water (ml). Negative undoes. One-tap on Today (§5 hydration). */
@@ -13,7 +13,7 @@ export async function addWaterAction(ml: number): Promise<void> {
   const amount = Math.round(Number(ml));
   if (!Number.isFinite(amount) || amount === 0) return;
   const supabase = await createClient();
-  await supabase.from("water_logs").insert({ client_id: user.id, ml: amount, log_date: todayIso() });
+  await supabase.from("water_logs").insert({ client_id: user.id, ml: amount, log_date: await getClientDay(user.id) });
   revalidatePath("/client");
 }
 
@@ -34,7 +34,7 @@ export async function addBodyPhotoAction(storagePath: string, takenOn?: string):
   if (!path || !path.startsWith(`${user.id}/`)) return { error: "Couldn't save that photo — try again." };
 
   const supabase = await createClient();
-  const taken_on = takenOn && /^\d{4}-\d{2}-\d{2}$/.test(takenOn) ? takenOn : todayIso();
+  const taken_on = takenOn && /^\d{4}-\d{2}-\d{2}$/.test(takenOn) ? takenOn : await getClientDay(user.id);
   const { error } = await supabase.from("body_photos").insert({ client_id: user.id, storage_path: path, taken_on });
   if (error) return { error: "Couldn't save that photo — try again." };
   revalidatePath("/client/body");
@@ -86,7 +86,7 @@ export async function logMeasurementAction(
     return { error: "That weight looks off — double-check it." };
   }
 
-  const date = String(formData.get("log_date") ?? "").trim() || todayIso();
+  const date = String(formData.get("log_date") ?? "").trim() || (await getClientDay(user.id));
   const supabase = await createClient();
   const { error } = await supabase.from("body_measurements").upsert(
     {

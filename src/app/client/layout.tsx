@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
 import { BrandLogo } from "@/components/BrandLogo";
 import { HelpLauncher } from "@/components/help/HelpLauncher";
+import { TimezoneSync } from "@/components/client/TimezoneSync";
 import { SignOutButton } from "@/components/SignOutButton";
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
@@ -54,6 +55,9 @@ export default async function ClientLayout({ children }: { children: React.React
       </header>
 
       <div className="px-5 py-6">{children}</div>
+
+      {/* Report the browser timezone so daily stats reset at the client's midnight. */}
+      <TimezoneSync />
 
       {/* Instant answer helper, reachable from every client screen. */}
       <HelpLauncher />

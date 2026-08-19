@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { BodyMeasurement, BodyPhoto } from "@/lib/types/db";
-import { todayIso } from "@/lib/nutrition/summary";
+import { getClientDay } from "@/lib/time/server";
 
 export interface BodyPhotoView extends BodyPhoto {
   url: string | null;
@@ -34,14 +34,15 @@ export async function getBodyPhotos(clientId: string, limit = 60): Promise<BodyP
   return out;
 }
 
-/** Total water (ml) logged today. */
-export async function getTodayWaterMl(clientId: string): Promise<number> {
+/** Total water (ml) logged today (the client's local day). */
+export async function getTodayWaterMl(clientId: string, day?: string): Promise<number> {
   const supabase = await createClient();
+  const d = day ?? (await getClientDay(clientId));
   const { data } = await supabase
     .from("water_logs")
     .select("ml")
     .eq("client_id", clientId)
-    .eq("log_date", todayIso());
+    .eq("log_date", d);
   return (data ?? []).reduce((sum, r) => sum + (Number(r.ml) || 0), 0);
 }
 

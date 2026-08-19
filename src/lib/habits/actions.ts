@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { isoDate } from "@/lib/habits/streaks";
+import { getClientDay } from "@/lib/time/server";
 import { starterHabits } from "@/lib/habits/starter";
 import { getClientProfile } from "@/lib/nutrition/data";
 import { getClientCoachId } from "@/lib/messages/data";
@@ -160,7 +160,7 @@ export async function adoptSuggestedHabitAction(
 export async function toggleHabitAction(habitId: string, date?: string): Promise<void> {
   const user = await getSessionUser();
   if (!user) return;
-  const day = date ?? isoDate(new Date());
+  const day = date ?? (await getClientDay(user.id));
   const supabase = await createClient();
 
   // Fetch the habit (RLS-scoped) to compute the "completed" value for its type.
@@ -201,7 +201,7 @@ export async function toggleHabitAction(habitId: string, date?: string): Promise
 export async function setHabitValueAction(habitId: string, value: number, date?: string): Promise<void> {
   const user = await getSessionUser();
   if (!user) return;
-  const day = date ?? isoDate(new Date());
+  const day = date ?? (await getClientDay(user.id));
   const supabase = await createClient();
 
   const { data: habit } = await supabase

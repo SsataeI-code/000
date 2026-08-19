@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { getClientDay } from "@/lib/time/server";
 import {
   fetchProductByBarcode,
   isValidBarcode,
@@ -209,6 +210,7 @@ export async function relogFoodAction(input: RelogInput): Promise<LogFoodState> 
     fat_g: nonNeg(input.fatG),
     nutriments: input.nutriments ?? null,
     source: "manual",
+    log_date: await getClientDay(user.id),
   });
   if (error) return { error: "Couldn't log that — try again." };
   revalidatePath("/client");
@@ -244,6 +246,7 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
     nutriments: microsToStore,
     photo_path: input.photoPath?.trim() || null,
     source: input.source,
+    log_date: await getClientDay(user.id),
   });
 
   if (error) return { error: "Couldn't save that log — give it another try." };
@@ -321,7 +324,8 @@ export async function logMealAction(items: MealLogItemInput[]): Promise<LogFoodS
   if (rows.length === 0) return { error: "Nothing to log." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("food_logs").insert(rows);
+  const day = await getClientDay(user.id);
+  const { error } = await supabase.from("food_logs").insert(rows.map((r) => ({ ...r, log_date: day })));
   if (error) return { error: "Couldn't log the meal — give it another try." };
   revalidatePath("/client");
   return { ok: true };

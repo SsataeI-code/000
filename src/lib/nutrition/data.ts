@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { ClientProfile, FoodLog, NutritionTargetRow } from "@/lib/types/db";
-import { todayIso } from "@/lib/nutrition/summary";
+import { getClientDay } from "@/lib/time/server";
 
 // Re-export the pure summarizers so callers have one import site.
 export { todayIso, totalMacros, isOnboarded } from "@/lib/nutrition/summary";
@@ -57,13 +57,14 @@ export async function getSavedMeals(clientId: string): Promise<import("@/lib/typ
   return (data as import("@/lib/types/db").Meal[] | null) ?? [];
 }
 
-export async function getTodayFoodLogs(clientId: string): Promise<FoodLog[]> {
+export async function getTodayFoodLogs(clientId: string, day?: string): Promise<FoodLog[]> {
   const supabase = await createClient();
+  const d = day ?? (await getClientDay(clientId));
   const { data } = await supabase
     .from("food_logs")
     .select("*")
     .eq("client_id", clientId)
-    .eq("log_date", todayIso())
+    .eq("log_date", d)
     .order("logged_at", { ascending: false });
   return (data as FoodLog[] | null) ?? [];
 }
