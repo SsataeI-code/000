@@ -76,6 +76,11 @@ export default async function ClientDeepDive({
   const trend = weightTrend(body);
   const latestWeight = trend[trend.length - 1];
 
+  // Vitals at a glance — height, current vs. starting weight, net progress.
+  const startKg = profile?.weight_kg ?? null;
+  const currentKg = latestWeight?.avgKg ?? startKg;
+  const netChangeKg = startKg != null && currentKg != null ? currentKg - startKg : null;
+
   // The same habit game the client sees — so the owner/coach sees all of it too.
   const todayStr = isoDate(today);
   const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), today));
@@ -105,7 +110,24 @@ export default async function ClientDeepDive({
       <p className="font-body text-sm text-ink/60">
         Goal: {GOAL_LABEL[profile?.goal ?? "maintain"]}
         {profile?.diet_preference ? ` · ${profile.diet_preference.replace("_", " ")}` : ""}
+        {profile?.sex ? ` · ${profile.sex}` : ""}
+        {profile?.age ? ` · ${profile.age}y` : ""}
       </p>
+
+      {/* Vitals — height, weight, and progress at a glance */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Vital label="Height" value={profile?.height_cm ? formatHeight(profile.height_cm) : "—"} />
+        <Vital label="Current" value={currentKg != null ? `${kgToLb(currentKg)} lb` : "—"} />
+        <Vital label="Start" value={startKg != null ? `${kgToLb(startKg)} lb` : "—"} />
+        <Vital
+          label="Net change"
+          value={
+            netChangeKg == null || Math.abs(netChangeKg) < 0.05
+              ? "—"
+              : `${netChangeKg < 0 ? "↓" : "↑"} ${Math.abs(kgToLb(Math.abs(netChangeKg)))} lb`
+          }
+        />
+      </section>
 
       {/* Nutrition today */}
       {targets ? (
@@ -219,6 +241,23 @@ export default async function ClientDeepDive({
       </Link>
 
       <RemoveClient clientId={id} clientName={name} canDelete />
+    </div>
+  );
+}
+
+/** cm → a friendly ft'in" for the coach's US-facing view. */
+function formatHeight(cm: number): string {
+  const totalIn = cm / 2.54;
+  const ft = Math.floor(totalIn / 12);
+  const inch = Math.round(totalIn - ft * 12);
+  return inch === 12 ? `${ft + 1}'0"` : `${ft}'${inch}"`;
+}
+
+function Vital({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-hairline bg-surface p-3 text-center">
+      <p className="font-display text-2xl text-ink">{value}</p>
+      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>
   );
 }
