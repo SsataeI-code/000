@@ -263,6 +263,83 @@ const FOODS: Row[] = [
   ["Focaccia", 291, 8, 47, 8, 50, ""],
   ["Texas toast", 300, 8, 44, 10, 40, "thick slice"],
   ["Gluten-free bread", 246, 4, 45, 5, 30, "gf slice"],
+  ["Potato bread", 266, 8, 48, 3.5, 34, "potato slice"],
+  ["Oatmeal bread", 269, 9, 48, 4, 34, "oat bread"],
+  ["Raisin bread", 274, 7.9, 52, 4.4, 30, "cinnamon raisin bread"],
+  ["Challah", 305, 9, 51, 7, 40, "egg bread"],
+  ["Flatbread", 285, 9, 50, 6, 55, "flat bread"],
+  ["Biscuit", 353, 7, 45, 16, 60, "buttermilk biscuit"],
+  ["Garlic bread", 350, 8, 40, 17, 40, ""],
+  ["Banana bread", 326, 4.3, 54, 10.5, 60, ""],
+  ["Whole grain bread", 254, 12, 43, 3.5, 32, "whole grain slice"],
+  ["Everything bagel", 260, 10, 50, 2.5, 100, ""],
+  ["Whole wheat bagel", 250, 10, 48, 1.5, 90, "wheat bagel"],
+  ["Cinnamon raisin bagel", 273, 9.5, 55, 1.6, 90, ""],
+  ["Soft pretzel", 338, 8, 69, 3, 115, "pretzel"],
+
+  // --- Wraps & tortillas ---
+  ["Whole wheat tortilla", 297, 9, 49, 7, 49, "whole wheat wrap wheat wrap"],
+  ["Spinach wrap", 310, 8, 50, 8, 64, "spinach tortilla green wrap"],
+  ["Tomato wrap", 300, 8, 50, 7, 64, "sundried tomato tortilla tomato basil wrap"],
+  ["Low-carb tortilla", 190, 13, 43, 6, 42, "low carb wrap high fiber wrap carb balance"],
+  ["Burrito tortilla", 306, 8, 52, 7, 72, "large flour tortilla burrito wrap"],
+  ["Lavash", 280, 9, 56, 2, 55, "lavash wrap"],
+  ["Gluten-free wrap", 265, 3, 50, 6, 50, "gluten free tortilla gf wrap"],
+
+  // --- Restaurant & chains (built from official per-serving nutrition) ---
+  // Chipotle (build-your-own components)
+  ["Chipotle chicken", 159, 28, 0, 6.2, 113, "chipotle chicken"],
+  ["Chipotle steak", 133, 18.6, 0.9, 5.3, 113, "chipotle steak"],
+  ["Chipotle barbacoa", 150, 21.2, 1.8, 6.2, 113, "chipotle barbacoa"],
+  ["Chipotle carnitas", 186, 20.4, 0, 10.6, 113, "chipotle carnitas pork"],
+  ["Chipotle sofritas", 133, 7.1, 8, 8.8, 113, "chipotle sofritas tofu"],
+  ["Chipotle white rice", 175, 3.3, 33.3, 3.3, 120, "chipotle rice"],
+  ["Chipotle brown rice", 175, 3.3, 30, 5, 120, "chipotle brown rice"],
+  ["Chipotle black beans", 100, 6.2, 16.9, 1.2, 130, "chipotle black beans"],
+  ["Chipotle pinto beans", 100, 6.2, 16.2, 1.2, 130, "chipotle pinto"],
+  ["Chipotle fajita veggies", 29, 1.4, 7.1, 0, 70, "chipotle veggies fajita"],
+  ["Chipotle fresh tomato salsa", 25, 1, 5, 0, 100, "chipotle mild salsa pico"],
+  ["Chipotle corn salsa", 80, 3, 16, 1.5, 100, "chipotle corn salsa"],
+  ["Chipotle green salsa", 25, 1.7, 5, 0, 60, "chipotle tomatillo green"],
+  ["Chipotle red salsa", 50, 1.7, 8.3, 0, 60, "chipotle tomatillo red hot"],
+  ["Chipotle guacamole", 204, 1.8, 7.1, 19.5, 113, "chipotle guac"],
+  ["Chipotle cheese", 393, 21.4, 3.6, 30.4, 28, "chipotle cheese"],
+  ["Chipotle sour cream", 193, 3.5, 3.5, 17.5, 57, "chipotle sour cream"],
+  ["Chipotle queso blanco", 211, 8.8, 7, 15.8, 57, "chipotle queso"],
+  ["Chipotle chips", 478, 6.2, 64.6, 22.1, 113, "chipotle chips"],
+  ["Chipotle flour tortilla", 320, 8, 50, 9, 100, "chipotle burrito tortilla"],
+  // Moe's Southwest Grill
+  ["Moe's chicken", 115, 22.1, 0.9, 2.7, 113, "moes chicken adobo"],
+  ["Moe's steak", 133, 19.5, 1.8, 5.3, 113, "moes steak"],
+  ["Moe's ground beef", 177, 16.8, 2.7, 11.5, 113, "moes ground beef"],
+  ["Moe's pork", 168, 19.5, 0.9, 9.7, 113, "moes carnitas pork"],
+  ["Moe's tofu", 80, 8.8, 3.5, 3.5, 113, "moes tofu"],
+  ["Moe's cilantro lime rice", 150, 2.5, 30, 2.5, 120, "moes rice"],
+  ["Moe's pinto beans", 92, 5.4, 16.2, 0.8, 130, "moes pinto beans"],
+  ["Moe's black beans", 100, 6.2, 16.9, 0.8, 130, "moes black beans"],
+  ["Moe's guacamole", 212, 1.8, 11.5, 19.5, 113, "moes guac"],
+  ["Moe's queso", 228, 8.8, 7, 17.5, 57, "moes queso"],
+  ["Moe's tortilla", 290, 8, 49, 7, 100, "moes wrap burrito"],
+  ["Moe's chips", 490, 6, 62, 24, 100, "moes chips"],
+  // Chick-fil-A
+  ["Chick-fil-A chicken sandwich", 247, 17, 24, 9.4, 170, "chickfila sandwich"],
+  ["Chick-fil-A grilled chicken sandwich", 195, 16, 22, 6, 200, "chickfila grilled sandwich"],
+  ["Chick-fil-A nuggets", 208, 22.5, 9.2, 9.2, 120, "chickfila nuggets"],
+  ["Chick-fil-A waffle fries", 336, 4, 36, 19.2, 125, "chickfila fries waffle"],
+  // McDonald's
+  ["McDonald's Big Mac", 256, 11.6, 20.9, 14, 215, "big mac mcdonalds"],
+  ["McDonald's Quarter Pounder", 260, 15, 21, 13, 200, "quarter pounder mcdonalds"],
+  ["McDonald's McChicken", 280, 9.8, 27.3, 14.7, 143, "mcchicken mcdonalds"],
+  ["McDonald's fries", 274, 4.3, 36.8, 12.8, 117, "mcdonalds french fries"],
+  ["McDonald's Egg McMuffin", 230, 12.6, 22.2, 9.6, 135, "egg mcmuffin mcdonalds"],
+  // Subway (6-inch subs)
+  ["Subway turkey breast sub", 128, 8.2, 21, 1.8, 219, "subway turkey"],
+  ["Subway Italian BMT sub", 178, 8.7, 20, 7.3, 219, "subway bmt italian"],
+  ["Subway meatball marinara sub", 219, 9.6, 26.5, 8.2, 219, "subway meatball"],
+  // Starbucks (grande, whole milk)
+  ["Starbucks caffe latte", 40, 2.7, 3.8, 1.5, 473, "starbucks latte grande"],
+  ["Starbucks cappuccino", 30, 1.9, 3, 1.1, 473, "starbucks cappuccino grande"],
+  ["Starbucks caramel macchiato", 53, 2.7, 7.4, 2.5, 473, "starbucks macchiato grande"],
 
   // --- More proteins ---
   ["Ground pork, cooked", 297, 26, 0, 21, 100, "mince"],
@@ -860,7 +937,7 @@ export function allGenericFoods(): NormalizedFood[] {
  * beans" and similar everyday foods are explicitly kept.
  */
 const NOT_RECOMMENDED =
-  /\b(rabbit|venison|deer|bison|buffalo|elk|goose|quail|pheasant|duck|liver|liverwurst|braunschweiger|tongue|kidney|tripe|gizzard|snail|escargot|frog|game hen|game)\b/i;
+  /\b(rabbit|venison|deer|bison|buffalo|elk|goose|quail|pheasant|duck|liver|liverwurst|braunschweiger|tongue|kidney|tripe|gizzard|snail|escargot|frog|game hen|game|chipotle|moe|chick-fil|mcdonald|subway|starbucks)\b/i;
 
 export function isRecommendableFood(name: string): boolean {
   if (!NOT_RECOMMENDED.test(name)) return true;
