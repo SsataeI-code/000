@@ -50,6 +50,49 @@ describe("OFF defensive parsing (§6)", () => {
     expect(res.product.nutrimentsPer100g.sodium).toBe(0.04);
   });
 
+  it("captures per-serving electrolytes when a product has no per-100g values", () => {
+    // An electrolyte supplement: OFF lists per-serving only. Serving is 5 g, so
+    // per-100g = per-serving × 20 (100/5).
+    const res = parseOffResponse("999", {
+      status: 1,
+      product: {
+        product_name: "Electrolyte Mix",
+        serving_quantity: 5,
+        nutriments: {
+          "energy-kcal_serving": 10,
+          proteins_serving: 0,
+          carbohydrates_serving: 2,
+          fat_serving: 0,
+          sodium_serving: 0.5, // 500 mg / serving
+          potassium_serving: 0.2, // 200 mg / serving
+          magnesium_serving: 0.06, // 60 mg / serving
+          chloride_serving: 0.75,
+        },
+      },
+    });
+    expect(res.found).toBe(true);
+    if (!res.found) return;
+    expect(res.product.per100g.calories).toBe(200); // 10 * 20
+    expect(res.product.nutrimentsPer100g.sodium).toBeCloseTo(10, 3); // 0.5 * 20
+    expect(res.product.nutrimentsPer100g.potassium).toBeCloseTo(4, 3);
+    expect(res.product.nutrimentsPer100g.magnesium).toBeCloseTo(1.2, 3);
+    expect(res.product.nutrimentsPer100g.chloride).toBeCloseTo(15, 3);
+  });
+
+  it("prefers per-100g over per-serving when both are present", () => {
+    const res = parseOffResponse("998", {
+      status: 1,
+      product: {
+        product_name: "Both",
+        serving_quantity: 50,
+        nutriments: { "energy-kcal_100g": 120, sodium_100g: 0.4, sodium_serving: 0.9 },
+      },
+    });
+    expect(res.found).toBe(true);
+    if (!res.found) return;
+    expect(res.product.nutrimentsPer100g.sodium).toBe(0.4); // the _100g value, not the serving-derived one
+  });
+
   it("reports missing macros instead of guessing (trust-but-verify)", () => {
     const res = parseOffResponse("123", {
       status: 1,

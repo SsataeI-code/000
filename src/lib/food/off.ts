@@ -91,18 +91,51 @@ export function normalizeOffProduct(barcode: string, p: Record<string, unknown>)
     if (n !== null) nutrimentsPer100g[key.replace(/_100g$/, "")] = n;
   }
 
-  // Energy: prefer kcal; fall back to converting kJ if only that exists.
+  // Fallback for products (supplements, electrolyte drinks) that publish only
+  // per-SERVING values, not per-100g: convert them using the serving size so
+  // their nutrients — electrolytes especially — are tracked instead of reading 0.
+  const servingQ = toNumber(p.serving_quantity);
+  const perServingFactor = servingQ && servingQ > 0 ? 100 / servingQ : null;
+  if (perServingFactor !== null) {
+    for (const [key, value] of Object.entries(rawNutriments)) {
+      if (!key.endsWith("_serving")) continue;
+      const base = key.replace(/_serving$/, "");
+      if (nutrimentsPer100g[base] !== undefined) continue; // a real per-100g value wins
+      const n = toNumber(value);
+      if (n !== null) nutrimentsPer100g[base] = Math.round(n * perServingFactor * 1000) / 1000;
+    }
+  }
+
+  // Energy: prefer kcal; fall back to kJ, then to per-serving values if that's all
+  // the product carries.
   let calories = toNumber(rawNutriments["energy-kcal_100g"]);
   if (calories === null) {
     const kj = toNumber(rawNutriments["energy-kj_100g"]) ?? toNumber(rawNutriments["energy_100g"]);
     if (kj !== null) calories = Math.round(kj / 4.184);
   }
 
+  // Read a macro preferring per-100g, else converting a per-serving value.
+  const macroPer100 = (base: string): number | null => {
+    const direct = toNumber(rawNutriments[`${base}_100g`]);
+    if (direct !== null) return direct;
+    if (perServingFactor !== null) {
+      const serv = toNumber(rawNutriments[`${base}_serving`]);
+      if (serv !== null) return Math.round(serv * perServingFactor * 10) / 10;
+    }
+    return null;
+  };
+  if (calories === null && perServingFactor !== null) {
+    const kcalS = toNumber(rawNutriments["energy-kcal_serving"]);
+    const kjS = toNumber(rawNutriments["energy-kj_serving"]) ?? toNumber(rawNutriments["energy_serving"]);
+    const perServ = kcalS ?? (kjS !== null ? Math.round(kjS / 4.184) : null);
+    if (perServ !== null) calories = Math.round(perServ * perServingFactor);
+  }
+
   const per100g = {
     calories,
-    proteinG: toNumber(rawNutriments["proteins_100g"]),
-    carbsG: toNumber(rawNutriments["carbohydrates_100g"]),
-    fatG: toNumber(rawNutriments["fat_100g"]),
+    proteinG: macroPer100("proteins"),
+    carbsG: macroPer100("carbohydrates"),
+    fatG: macroPer100("fat"),
   };
 
   const missing = (["calories", "proteinG", "carbsG", "fatG"] as const).filter(
