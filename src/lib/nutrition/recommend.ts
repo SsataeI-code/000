@@ -4,6 +4,14 @@ import { buildMicroGoals, ESSENTIAL_MICROS } from "@/lib/nutrition/micros";
 import { allowedByDiet, type DietFilter } from "@/lib/food/diet";
 import type { Sex } from "@/lib/types/db";
 
+// The nutrients "fill your rings" is willing to suggest a food for — headline
+// vitamins/minerals with broad catalog coverage. Trace minerals stay tracked
+// but aren't chased with a food nudge.
+const RECOMMENDABLE_MICRO_KEYS = new Set<string>([
+  "iron", "calcium", "potassium", "magnesium", "zinc",
+  "vitamin-c", "vitamin-a", "vitamin-d", "vitamin-b12", "vitamin-b9", "vitamin-e", "vitamin-b6",
+]);
+
 /**
  * "Ways to fill your rings" recommender (§5B, and a rule-based precursor to the
  * §11 AI assistant). Given what a client still needs today — protein/fiber left,
@@ -128,9 +136,11 @@ export function suggestFills(input: RingInput, max = 3): RingSuggestion[] {
     }
   }
 
-  // 3. Micros furthest below goal (that we can actually recommend for).
+  // 3. Micros furthest below goal — but only the headline nutrients worth a food
+  // nudge. We don't chase trace minerals (manganese, chloride, choline…) with a
+  // "fill your rings" suggestion, which would surface odd fillers like syrup.
   const goals = buildMicroGoals(input.microTotalsGrams, input.calories, input.sex).filter(
-    (g) => g.kind === "goal",
+    (g) => g.kind === "goal" && RECOMMENDABLE_MICRO_KEYS.has(g.def.key),
   );
   const shortMicros = goals
     .map((g) => ({ g, ratio: g.goal > 0 ? g.consumed / g.goal : 1 }))
