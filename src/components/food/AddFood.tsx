@@ -26,9 +26,23 @@ interface Draft {
   proteinG: string;
   carbsG: string;
   fatG: string;
+  /** Optional electrolytes/micros for THIS portion, in mg (keyed by nutriment). */
+  microsMg: Record<string, string>;
   source: "scan" | "manual";
   note?: string;
 }
+
+// The micros a client can enter by hand (label + stored nutriment key), in mg.
+const MICRO_INPUTS: { key: string; label: string }[] = [
+  { key: "sodium", label: "Sodium" },
+  { key: "potassium", label: "Potassium" },
+  { key: "magnesium", label: "Magnesium" },
+  { key: "chloride", label: "Chloride" },
+  { key: "calcium", label: "Calcium" },
+  { key: "iron", label: "Iron" },
+  { key: "zinc", label: "Zinc" },
+];
+const emptyMicrosMg: Record<string, string> = {};
 
 const emptyDraft: Draft = {
   name: "",
@@ -43,6 +57,7 @@ const emptyDraft: Draft = {
   proteinG: "",
   carbsG: "",
   fatG: "",
+  microsMg: emptyMicrosMg,
   source: "manual",
 };
 
@@ -53,6 +68,15 @@ function draftFromProduct(product: NormalizedFood): Draft {
   const qty = hasServing ? 1 : product.servingSizeG ?? 100;
   const grams = gramsForPortion(qty, unit, product.servingSizeG);
   const m = macrosForGrams(product.per100g, grams);
+  // Prefill the micro fields (mg) from any per-100g electrolyte data the scan had.
+  const micros100 = product.nutrimentsPer100g ?? {};
+  const microsMg: Record<string, string> = {};
+  for (const { key } of MICRO_INPUTS) {
+    const g100 = micros100[key];
+    if (typeof g100 === "number" && g100 > 0 && grams > 0) {
+      microsMg[key] = String(Math.round(g100 * (grams / 100) * 1000 * 10) / 10);
+    }
+  }
   return {
     name: product.name ?? "",
     brand: product.brand ?? "",
@@ -67,6 +91,7 @@ function draftFromProduct(product: NormalizedFood): Draft {
     proteinG: String(m.proteinG),
     carbsG: String(m.carbsG),
     fatG: String(m.fatG),
+    microsMg,
     source: "scan",
     note: product.missing.length ? "Some values were missing — fill them in and it saves back for everyone." : undefined,
   };
@@ -151,6 +176,9 @@ export function AddFood({ userId }: { userId: string }) {
   function update<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
   }
+  function updateMicro(key: string, value: string) {
+    setDraft((d) => ({ ...d, microsMg: { ...d.microsMg, [key]: value } }));
+  }
 
   // Re-derive grams + macros whenever the portion (quantity or unit) changes.
   function setPortion(qty: string, unit: PortionUnit) {
@@ -179,6 +207,12 @@ export function AddFood({ userId }: { userId: string }) {
     }
     startSave(async () => {
       const photoPath = await uploadPhoto();
+      // Hand-entered micros are per-portion, in mg → store in grams (÷1000).
+      const nutrimentsAbsolute: Record<string, number> = {};
+      for (const { key } of MICRO_INPUTS) {
+        const mg = Number(draft.microsMg[key]);
+        if (Number.isFinite(mg) && mg > 0) nutrimentsAbsolute[key] = mg / 1000;
+      }
       const res = await logFoodAction({
         name: draft.name,
         brand: draft.brand || null,
@@ -189,6 +223,7 @@ export function AddFood({ userId }: { userId: string }) {
         carbsG: Number(draft.carbsG) || 0,
         fatG: Number(draft.fatG) || 0,
         nutrimentsPer100g: draft.micros100g,
+        nutrimentsAbsolute: Object.keys(nutrimentsAbsolute).length ? nutrimentsAbsolute : null,
         photoPath,
         source: draft.source,
       });
@@ -342,6 +377,32 @@ export function AddFood({ userId }: { userId: string }) {
         <Field label="Carbs (g)" name="carbs" type="number" inputMode="decimal" value={draft.carbsG} onChange={(e) => update("carbsG", e.target.value)} />
         <Field label="Fat (g)" name="fat" type="number" inputMode="decimal" value={draft.fatG} onChange={(e) => update("fatG", e.target.value)} />
       </div>
+
+      <details className="border border-hairline bg-surface">
+        <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-3 py-2.5">
+          <span className="font-label text-xs uppercase tracking-wide text-ink/70">Electrolytes &amp; micros (optional)</span>
+          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">mg · tap to add</span>
+        </summary>
+        <div className="grid grid-cols-2 gap-3 px-3 pb-1">
+          {MICRO_INPUTS.map((mi) => (
+            <label key={mi.key} className="flex flex-col gap-1 text-xs text-ink/80">
+              {mi.label} (mg)
+              <input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="any"
+                value={draft.microsMg[mi.key] ?? ""}
+                onChange={(e) => updateMicro(mi.key, e.target.value)}
+                className="min-h-tap border border-hairline bg-surface px-3 py-2 font-body text-base text-ink focus:border-ink"
+              />
+            </label>
+          ))}
+        </div>
+        <p className="px-3 py-3 font-body text-[11px] text-ink/50">
+          Enter what the label lists for this serving. Perfect for electrolyte drinks and supplements the scanner can&apos;t find.
+        </p>
+      </details>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="food_photo" className="text-xs text-ink/80">Add a photo (optional)</label>

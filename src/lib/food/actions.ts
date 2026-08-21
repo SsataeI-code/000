@@ -160,6 +160,12 @@ export interface LogFoodInput {
   fatG: number;
   /** Full per-100g nutriment map (incl. micros); scaled + stored on the log. */
   nutrimentsPer100g?: Record<string, number> | null;
+  /**
+   * Micros the user entered by hand for THIS portion (in grams, e.g. sodium
+   * 0.5 = 500 mg) — stored directly, not re-scaled. Lets a client add
+   * electrolytes for a supplement Open Food Facts doesn't know.
+   */
+  nutrimentsAbsolute?: Record<string, number> | null;
   /** Storage path of an optional photo (already uploaded client-side). */
   photoPath?: string | null;
   source: "scan" | "search" | "manual";
@@ -353,10 +359,17 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   const gramsRaw = input.grams != null && Number.isFinite(input.grams) ? Number(input.grams) : null;
 
   // Scale the per-100g micro map to the actual amount eaten, and store it so
-  // every micronutrient is tracked and later sliceable (§5B).
+  // every micronutrient is tracked and later sliceable (§5B). Hand-entered
+  // micros (already for this portion) are merged on top and win, so a client can
+  // add electrolytes for a supplement OFF doesn't carry.
   const scaledMicros =
     gramsRaw && gramsRaw > 0 ? scaleNutriments(input.nutrimentsPer100g ?? null, gramsRaw) : {};
-  const microsToStore = Object.keys(scaledMicros).length > 0 ? scaledMicros : null;
+  const absMicros: Record<string, number> = {};
+  for (const [k, v] of Object.entries(input.nutrimentsAbsolute ?? {})) {
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) absMicros[k] = v;
+  }
+  const combinedMicros = { ...scaledMicros, ...absMicros };
+  const microsToStore = Object.keys(combinedMicros).length > 0 ? combinedMicros : null;
 
   const supabase = await createClient();
   const { error } = await supabase.from("food_logs").insert({
@@ -385,9 +398,13 @@ export async function logFoodAction(input: LogFoodInput): Promise<LogFoodState> 
   const grams = input.grams != null && Number.isFinite(input.grams) ? Number(input.grams) : 0;
   if (barcode && isValidBarcode(barcode) && grams > 0) {
     const factor = 100 / grams;
+    // Hand-entered micros (portion amounts) → per-100g so a re-scan auto-fills them.
+    const absPer100: Record<string, number> = {};
+    for (const [k, v] of Object.entries(absMicros)) absPer100[k] = Math.round(v * factor * 1000) / 1000;
     const per100: Record<string, number> = {
       // Carry any micros we already had for this product (per-100g).
       ...(input.nutrimentsPer100g ?? {}),
+      ...absPer100,
       energy_kcal: Math.round(nonNegInt(input.calories) * factor),
       proteins: Math.round(nonNeg(input.proteinG) * factor * 10) / 10,
       carbohydrates: Math.round(nonNeg(input.carbsG) * factor * 10) / 10,
