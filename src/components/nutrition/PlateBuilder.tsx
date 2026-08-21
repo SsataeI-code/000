@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { logFoodAction, searchPlateFoodsAction } from "@/lib/food/actions";
+import { logFoodAction, searchPlateFoodsAction, createMealAction } from "@/lib/food/actions";
 import { FoodIcon } from "@/components/nutrition/FoodIcon";
 import { allowedByDiet, type DietFilter } from "@/lib/food/diet";
 import {
@@ -56,16 +56,20 @@ export function PlateBuilder({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PlateFood[]>([]);
   const [searching, startSearch] = useTransition();
+  const [mealName, setMealName] = useState("");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Honor the client's diet + avoid list for the quick-pick palette.
   const palette = diet ? PLATE_FOODS.filter((f) => allowedByDiet(f.name, diet)) : PLATE_FOODS;
 
   const add = (food: PlateFood) => {
     setLogState("idle");
+    setSaveState("idle");
     setSelected((s) => [...s, food]);
   };
   const removeOne = (id: string) => {
     setLogState("idle");
+    setSaveState("idle");
     setSelected((s) => {
       const i = s.map((f) => f.id).lastIndexOf(id);
       if (i === -1) return s;
@@ -109,6 +113,25 @@ export function PlateBuilder({
       source: "manual",
     });
     setLogState(res.ok ? "done" : "error");
+  }
+
+  // Save the built plate as a reusable meal. Each food's portion macros are
+  // encoded as a 100 g item (per-100g × count) so re-logging round-trips exactly.
+  async function saveMeal() {
+    if (!hasFood || !mealName.trim()) return;
+    setSaveState("saving");
+    const items = grouped.map(({ food, count }) => ({
+      name: food.name,
+      grams: 100,
+      nutrimentsPer100g: {
+        energy_kcal: Math.round(food.calories * count),
+        proteins: Math.round(food.proteinG * count * 10) / 10,
+        carbohydrates: Math.round(food.carbsG * count * 10) / 10,
+        fat: Math.round(food.fatG * count * 10) / 10,
+      },
+    }));
+    const res = await createMealAction(mealName.trim(), items);
+    setSaveState(res.ok ? "saved" : "error");
   }
 
   return (
@@ -339,6 +362,41 @@ export function PlateBuilder({
         </p>
       ) : null}
 
+      {/* Save the plate as a reusable meal */}
+      {hasFood ? (
+        <div className="flex flex-col gap-2 border-t border-hairline pt-3">
+          <p className="font-label text-[11px] uppercase tracking-wide text-ink/50">Save as a meal</p>
+          <div className="flex items-end gap-2">
+            <input
+              value={mealName}
+              onChange={(e) => {
+                setMealName(e.target.value);
+                setSaveState("idle");
+              }}
+              placeholder="Name it (e.g. My go-to bowl)"
+              aria-label="Meal name"
+              className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+            />
+            <button
+              type="button"
+              onClick={saveMeal}
+              disabled={!mealName.trim() || saveState === "saving" || saveState === "saved"}
+              className="min-h-tap shrink-0 border border-ink px-4 py-2.5 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-40"
+            >
+              {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved ✓" : "Save meal"}
+            </button>
+          </div>
+          {saveState === "saved" ? (
+            <p role="status" className="font-body text-xs text-success">
+              Saved to Your meals — log it in one tap anytime.
+            </p>
+          ) : null}
+          {saveState === "error" ? (
+            <p role="alert" className="font-body text-xs text-red-ink">Couldn&apos;t save that — try again.</p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
@@ -353,6 +411,8 @@ export function PlateBuilder({
           onClick={() => {
             setSelected([]);
             setLogState("idle");
+            setSaveState("idle");
+            setMealName("");
           }}
           disabled={!hasFood}
           className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-40"
