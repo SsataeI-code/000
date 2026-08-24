@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getRoster, getRosterSeries, getArchivedClients } from "@/lib/coach/data";
+import { getRoster, getRosterSeries, getRosterBreakdown, getArchivedClients } from "@/lib/coach/data";
 import { RosterCohorts } from "@/components/coach/RosterCohorts";
+import { RosterBreakdown } from "@/components/coach/RosterBreakdown";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { RangeToggle } from "@/components/charts/RangeToggle";
 import { ViewToggle } from "@/components/charts/ViewToggle";
@@ -27,9 +28,10 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
   const view = await resolveView(sp.view);
 
   const owner = { owner: user.role === "owner" };
-  const [roster, series, archived] = await Promise.all([
+  const [roster, series, breakdown, archived] = await Promise.all([
     getRoster(user.id, owner),
     getRosterSeries(user.id, range, owner),
+    getRosterBreakdown(user.id, range, owner),
     getArchivedClients(user.id, owner),
   ]);
   const activeToday = roster.filter((c) => c.daysSinceActivity === 0).length;
@@ -66,6 +68,8 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
             <Stat label="Active today" value={String(activeToday)} />
             <Stat label="Need attention" value={String(flagged)} />
           </section>
+
+          <RosterBreakdown clients={breakdown} days={range} />
 
           <RosterTrends series={series} days={range} weightSplit={weightSplit} view={view} toggle={<RangeToggle current={range} />} viewToggle={<ViewToggle current={view} />} />
 

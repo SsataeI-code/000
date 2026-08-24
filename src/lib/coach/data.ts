@@ -3,6 +3,7 @@ import { computeAttention, type AttentionFlag } from "@/lib/coach/attention";
 import { isoDate, addDays, currentStreak, longestStreak, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { computeXp, levelForXp } from "@/lib/habits/game";
 import { lastNDates, type SeriesPoint } from "@/lib/charts/series";
+import { weightTrend, kgToLb } from "@/lib/body/trend";
 import { reconcileLayout } from "@/lib/coach/dashboard";
 import { reconcileClientLayout } from "@/lib/coach/client-screen";
 import type { Goal, Sex, ActivityLevel, DashboardTilePref, ClientSectionPref, Habit } from "@/lib/types/db";
@@ -296,6 +297,118 @@ export async function getRosterSeries(coachId: string, days = 30, scope: RosterS
   });
 
   return { dates, avgCalories, avgProtein, loggingRate, avgConsistency, clientCount: ids.length };
+}
+
+export interface RosterClientBreakdown {
+  id: string;
+  name: string;
+  goal: Goal;
+  days: number;
+  avgCalories: number | null;
+  calorieTarget: number | null;
+  avgProtein: number | null;
+  proteinTarget: number | null;
+  daysLogged: number;
+  latestWeightLb: number | null;
+  weightChangeLb: number;
+  weightDir: "down" | "up" | "flat";
+  weightSpark: number[]; // moving-avg weight (lb) over the window, for a sparkline
+  habitPct: number | null; // % of window days with a habit completion (null = no habits)
+}
+
+/**
+ * Per-client stat breakdown for the roster (§9 "full individual stats on any
+ * client"). Each client's OWN numbers over the window — avg calories/protein on
+ * logged days (with targets), days logged, weight trend + a sparkline, and habit
+ * engagement — so the coach reads the book client-by-client, not just in
+ * aggregate. Batched into a handful of queries.
+ */
+export async function getRosterBreakdown(coachId: string, days = 30, scope: RosterScope = {}): Promise<RosterClientBreakdown[]> {
+  const supabase = await createClient();
+  const dates = lastNDates(days);
+  const since = dates[0];
+  const ids = await rosterClientIds(supabase, coachId, scope);
+  if (ids.length === 0) return [];
+
+  const [profiles, cprofiles, targetsRows, food, meas, habitL, habits] = await Promise.all([
+    supabase.from("profiles").select("id,display_name").in("id", ids),
+    supabase.from("client_profiles").select("id,goal").in("id", ids),
+    supabase.from("nutrition_targets").select("client_id,calories,protein_g,computed_at").in("client_id", ids).order("computed_at", { ascending: false }),
+    supabase.from("food_logs").select("client_id,log_date,calories,protein_g").in("client_id", ids).gte("log_date", since),
+    supabase.from("body_measurements").select("client_id,log_date,weight_kg").in("client_id", ids).gte("log_date", since).order("log_date", { ascending: true }),
+    supabase.from("habit_logs").select("client_id,log_date").in("client_id", ids).gte("log_date", since).eq("completed", true),
+    supabase.from("habits").select("id,client_id").in("client_id", ids).eq("active", true),
+  ]);
+
+  const nameById = new Map((profiles.data ?? []).map((p) => [p.id, (p.display_name as string | null) ?? "Client"]));
+  const goalById = new Map((cprofiles.data ?? []).map((p) => [p.id, (p.goal ?? "maintain") as Goal]));
+  const targetById = new Map<string, { cal: number; pro: number }>();
+  for (const t of targetsRows.data ?? []) if (!targetById.has(t.client_id)) targetById.set(t.client_id, { cal: Number(t.calories) || 0, pro: Number(t.protein_g) || 0 });
+
+  const calByClient = new Map<string, Map<string, number>>();
+  const proByClient = new Map<string, Map<string, number>>();
+  for (const r of food.data ?? []) {
+    const c = calByClient.get(r.client_id) ?? new Map<string, number>();
+    c.set(r.log_date, (c.get(r.log_date) ?? 0) + (Number(r.calories) || 0));
+    calByClient.set(r.client_id, c);
+    const p = proByClient.get(r.client_id) ?? new Map<string, number>();
+    p.set(r.log_date, (p.get(r.log_date) ?? 0) + (Number(r.protein_g) || 0));
+    proByClient.set(r.client_id, p);
+  }
+  const measByClient = new Map<string, { log_date: string; weight_kg: number | null }[]>();
+  for (const m of meas.data ?? []) {
+    const arr = measByClient.get(m.client_id) ?? [];
+    arr.push({ log_date: m.log_date, weight_kg: m.weight_kg as number | null });
+    measByClient.set(m.client_id, arr);
+  }
+  const habitDaysByClient = new Map<string, Set<string>>();
+  for (const r of habitL.data ?? []) {
+    const s = habitDaysByClient.get(r.client_id) ?? new Set<string>();
+    s.add(r.log_date);
+    habitDaysByClient.set(r.client_id, s);
+  }
+  const hasHabits = new Set((habits.data ?? []).map((h) => h.client_id));
+
+  return ids
+    .map((id): RosterClientBreakdown => {
+      const cal = calByClient.get(id);
+      const pro = proByClient.get(id);
+      const loggedDates = cal ? [...cal.keys()].filter((d) => (cal.get(d) ?? 0) > 0) : [];
+      const daysLogged = loggedDates.length;
+      const avgCalories = daysLogged ? Math.round(loggedDates.reduce((s, d) => s + (cal!.get(d) ?? 0), 0) / daysLogged) : null;
+      const avgProtein = daysLogged ? Math.round(loggedDates.reduce((s, d) => s + (pro?.get(d) ?? 0), 0) / daysLogged) : null;
+
+      const trend = weightTrend((measByClient.get(id) ?? []) as never[]);
+      const weightSpark = trend.map((t) => Math.round(kgToLb(t.avgKg) * 10) / 10);
+      const latestWeightLb = trend.length ? Math.round(kgToLb(trend[trend.length - 1].avgKg)) : null;
+      let weightChangeLb = 0;
+      let weightDir: "down" | "up" | "flat" = "flat";
+      if (trend.length >= 2) {
+        const ch = kgToLb(trend[trend.length - 1].avgKg - trend[0].avgKg);
+        weightChangeLb = Math.round(ch * 10) / 10;
+        weightDir = ch < -0.2 ? "down" : ch > 0.2 ? "up" : "flat";
+      }
+      const t = targetById.get(id);
+      const habitPct = hasHabits.has(id) ? Math.round(((habitDaysByClient.get(id)?.size ?? 0) / days) * 100) : null;
+
+      return {
+        id,
+        name: nameById.get(id) ?? "Client",
+        goal: goalById.get(id) ?? "maintain",
+        days,
+        avgCalories,
+        calorieTarget: t?.cal ?? null,
+        avgProtein,
+        proteinTarget: t?.pro ?? null,
+        daysLogged,
+        latestWeightLb,
+        weightChangeLb,
+        weightDir,
+        weightSpark,
+        habitPct,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** The coach's saved dashboard layout, reconciled against the tile registry. */
