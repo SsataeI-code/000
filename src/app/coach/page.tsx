@@ -8,8 +8,9 @@ import { visibleTiles, type TileId } from "@/lib/coach/dashboard";
 import { classifySlip } from "@/lib/coach/slip";
 import { getPendingReferralCount } from "@/lib/referrals/data";
 import { getCopyServer } from "@/lib/content/data";
-import { resolveRange } from "@/lib/charts/range";
+import { resolveRange, resolveView } from "@/lib/charts/range";
 import { RangeToggle } from "@/components/charts/RangeToggle";
+import { ViewToggle } from "@/components/charts/ViewToggle";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { NudgeButton } from "@/components/coach/NudgeButton";
 
@@ -21,7 +22,7 @@ const GOAL_LABEL: Record<string, string> = {
 const WEIGHT_THRESHOLD_KG = 0.3;
 
 /** Coach command center — configurable tiles, opens on Needs-Attention (§9). */
-export default async function CoachDashboardPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
+export default async function CoachDashboardPage({ searchParams }: { searchParams: Promise<{ range?: string; view?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
@@ -59,7 +60,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   const tiles = visibleTiles(layout);
 
   // Roster-trends is heavy, so only fetch its series when the tile is on.
-  const range = await resolveRange((await searchParams).range);
+  const sp = await searchParams;
+  const range = await resolveRange(sp.range);
+  const view = await resolveView(sp.view);
   let series = null;
   let weightSplit: WeightSplit | null = null;
   if (tiles.includes("roster_trends")) {
@@ -142,7 +145,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
         ) : null;
       case "roster_trends":
         return series && weightSplit ? (
-          <RosterTrends key={id} series={series} days={range} weightSplit={weightSplit} toggle={<RangeToggle current={range} />} />
+          <RosterTrends key={id} series={series} days={range} weightSplit={weightSplit} view={view} toggle={<RangeToggle current={range} />} viewToggle={<ViewToggle current={view} />} />
         ) : null;
       case "coach_code":
         return coach?.coach_code ? (
