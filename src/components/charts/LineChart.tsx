@@ -69,8 +69,17 @@ export function LineChart({
     return d.trim();
   };
 
-  // 4 value gridlines across the range.
-  const ticks = [0, 1, 2, 3].map((k) => lo + (range * k) / 3);
+  // 4 value gridlines across the range — deduped by label so flat/zero data
+  // doesn't stack up identical "0" labels (which reads as broken).
+  const seenLabels = new Set<string>();
+  const ticks = [0, 1, 2, 3]
+    .map((k) => lo + (range * k) / 3)
+    .filter((t) => {
+      const label = formatValue(t);
+      if (seenLabels.has(label)) return false;
+      seenLabels.add(label);
+      return true;
+    });
 
   const fmtDate = (iso: string) => {
     const d = new Date(`${iso}T00:00:00Z`);

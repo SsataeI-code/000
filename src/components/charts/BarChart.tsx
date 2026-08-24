@@ -24,11 +24,10 @@ export function BarChart({
   ariaLabel: string;
   formatValue?: (n: number) => string;
 }) {
-  const vals = [
-    ...weeks.map((w) => w.value),
-    ...(target != null ? [target] : []),
-  ].filter((v): v is number => v != null);
-  if (vals.length === 0) {
+  const weekVals = weeks.map((w) => w.value).filter((v): v is number => v != null);
+  const vals = [...weekVals, ...(target != null ? [target] : [])];
+  // Nothing logged in any week → an honest empty state, not a row of "0" bars.
+  if (weekVals.length === 0 || Math.max(...weekVals) <= 0) {
     return <p className="font-body text-sm text-ink/50">Not enough data yet — keep logging and this fills in.</p>;
   }
 
@@ -62,9 +61,10 @@ export function BarChart({
         ) : null}
         {weeks.map((w, i) => {
           const cx = padL + slot * i + slot / 2;
-          if (w.value == null) {
+          // No data (or a genuine zero) → just the week label, no bar or "0" stamp.
+          if (w.value == null || w.value <= 0) {
             return (
-              <text key={i} x={cx} y={padT + plotH - 4} textAnchor="middle" className="fill-ink/25" style={{ font: "500 8px sans-serif" }}>·</text>
+              <text key={i} x={cx} y={H - 7} textAnchor="middle" className="fill-ink/40" style={{ font: "500 8px sans-serif" }}>{w.label}</text>
             );
           }
           const top = y(w.value);
