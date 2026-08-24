@@ -37,6 +37,26 @@ const ZONE_ARC: Record<Exclude<PlateZone, "fat">, [number, number]> = {
   veggie: [0.5, 1],
 };
 
+// Where a zone's food icons cluster on the plate, and how wide the grid is.
+const ZONE_LAYOUT: Record<Exclude<PlateZone, "fat">, { cx: number; cy: number; cols: number }> = {
+  protein: { cx: 132, cy: 68, cols: 2 },
+  carb: { cx: 132, cy: 132, cols: 2 },
+  veggie: { cx: 52, cy: 100, cols: 3 },
+};
+
+/** Grid positions centered on (cx, cy) for n icons. */
+function gridPositions(cx: number, cy: number, n: number, cols: number, gap = 21): [number, number][] {
+  const rows = Math.max(1, Math.ceil(n / cols));
+  const out: [number, number][] = [];
+  for (let i = 0; i < n; i++) {
+    const r = Math.floor(i / cols);
+    const c = i % cols;
+    const rowCount = Math.min(cols, n - r * cols);
+    out.push([cx + (c - (rowCount - 1) / 2) * gap, cy + (r - (rows - 1) / 2) * gap]);
+  }
+  return out;
+}
+
 /**
  * Plate builder — build a plate from real foods. Tap the common foods or search
  * for anything you eat; adjust servings with +/−. Foods drop into a reference
@@ -147,48 +167,65 @@ export function PlateBuilder({
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
         {/* The reference plate — fills in as foods are added, zone by zone. */}
         <div className="flex shrink-0 flex-col items-center gap-2">
-          <svg viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Your plate" className="shrink-0">
+          <svg viewBox="0 0 200 200" width="220" height="220" role="img" aria-label="Your plate with the foods you added" className="shrink-0">
             <circle cx="100" cy="100" r="94" fill="#0c0c0d" stroke="#2c2c31" strokeWidth="3" />
+            {/* Zone wedges — faint when empty, tinted when they hold food. */}
             {(Object.keys(ZONE_ARC) as (keyof typeof ZONE_ARC)[]).map((zone) => {
               const [a, b] = ZONE_ARC[zone];
               const active = counts[zone] > 0;
               const meta = ZONE_META[zone];
               const mid = (a + b) / 2;
               const ang = mid * 2 * Math.PI - Math.PI / 2;
-              const lx = 100 + 52 * Math.cos(ang);
-              const ly = 100 + 52 * Math.sin(ang);
+              const lx = 100 + 78 * Math.cos(ang);
+              const ly = 100 + 78 * Math.sin(ang);
               return (
                 <g key={zone}>
-                  <path
-                    d={wedge(100, 100, 90, a, b)}
-                    fill={meta.color}
-                    fillOpacity={active ? 0.9 : 0.12}
-                    stroke="#0c0c0d"
-                    strokeWidth="2"
-                  />
-                  <text x={lx} y={ly - 4} textAnchor="middle" className="fill-white" style={{ font: "700 11px sans-serif" }}>
-                    {meta.label}
-                  </text>
-                  {active ? (
-                    <text x={lx} y={ly + 10} textAnchor="middle" className="fill-white" style={{ font: "700 12px sans-serif" }}>
-                      ×{counts[zone]}
+                  <path d={wedge(100, 100, 90, a, b)} fill={meta.color} fillOpacity={active ? 0.22 : 0.1} stroke="#0c0c0d" strokeWidth="2" />
+                  {!active ? (
+                    <text x={lx} y={ly} textAnchor="middle" className="fill-white/70" style={{ font: "700 9px sans-serif" }}>
+                      {meta.label}
                     </text>
                   ) : null}
                 </g>
               );
             })}
+            {/* The foods themselves, clustered in their zone. */}
+            {(Object.keys(ZONE_LAYOUT) as (keyof typeof ZONE_LAYOUT)[]).flatMap((zone) => {
+              const zoneItems = grouped.filter((g) => g.food.zone === zone).slice(0, 6);
+              const { cx, cy, cols } = ZONE_LAYOUT[zone];
+              const pos = gridPositions(cx, cy, zoneItems.length, cols);
+              return zoneItems.map(({ food, count }, i) => {
+                const [px, py] = pos[i];
+                return (
+                  <g key={food.id} transform={`translate(${px - 12}, ${py - 12})`}>
+                    <circle cx={12} cy={12} r={13} fill="#17171b" stroke={ZONE_META[zone].color} strokeWidth={1.5} />
+                    <g transform="translate(3, 3)">
+                      <FoodIcon name={food.icon} size={18} />
+                    </g>
+                    {count > 1 ? (
+                      <>
+                        <circle cx={22} cy={3} r={6} fill={ZONE_META[zone].color} />
+                        <text x={22} y={6} textAnchor="middle" className="fill-white" style={{ font: "700 8px sans-serif" }}>{count}</text>
+                      </>
+                    ) : null}
+                  </g>
+                );
+              });
+            })}
           </svg>
-          {/* Fats — the side dish. */}
+          {/* Fats — the side dish, with its foods. */}
           <div className="flex items-center gap-2">
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
-              style={{ borderColor: ZONE_META.fat.color, background: counts.fat > 0 ? ZONE_META.fat.color : "transparent" }}
-            >
-              <FoodIcon name="drop" size={16} />
-            </span>
-            <span className="font-body text-xs text-ink/60">
-              Fats {counts.fat > 0 ? `×${counts.fat}` : "· on the side"}
-            </span>
+            <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">Fats:</span>
+            {grouped.filter((g) => g.food.zone === "fat").length > 0 ? (
+              grouped.filter((g) => g.food.zone === "fat").slice(0, 5).map(({ food, count }) => (
+                <span key={food.id} className="flex h-7 w-7 items-center justify-center rounded-full border" style={{ borderColor: ZONE_META.fat.color }}>
+                  <FoodIcon name={food.icon} size={16} />
+                  {count > 1 ? <span className="sr-only">{count}</span> : null}
+                </span>
+              ))
+            ) : (
+              <span className="font-body text-xs text-ink/50">a thumb on the side</span>
+            )}
           </div>
         </div>
 

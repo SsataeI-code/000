@@ -119,6 +119,12 @@ const P: Record<string, React.ReactNode> = {
       <circle cx="14" cy="11.5" r="0.9" fill="#d99e2b" />
     </>
   ),
+  apple: (
+    <>
+      <path d="M12 7c-2-3-7-2-7 3 0 4 3 9 5 9 1 0 1-.6 2-.6s1 .6 2 .6c2 0 5-5 5-9 0-5-5-6-7-3Z" fill="#e23b3b" />
+      <path d="M12 7c0-2 1-3 3-3.5" stroke="#5c8a2f" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+    </>
+  ),
 };
 
 export function FoodIcon({ name, size = 22, className }: { name: string; size?: number; className?: string }) {

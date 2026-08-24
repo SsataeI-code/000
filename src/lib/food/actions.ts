@@ -12,7 +12,7 @@ import {
 } from "@/lib/food/off";
 import { searchGenericFoods } from "@/lib/food/generic-foods";
 import { parseMealItems } from "@/lib/food/parse-meal";
-import { zoneForFood, iconForZone, type PlateFood } from "@/lib/nutrition/plate-foods";
+import { zoneForFood, iconForFood, type PlateFood } from "@/lib/nutrition/plate-foods";
 import { scaleNutriments } from "@/lib/nutrition/micros";
 
 export type LookupResult =
@@ -256,7 +256,7 @@ export async function searchPlateFoodsAction(query: string): Promise<PlateFood[]
       name: m.name,
       zone,
       portion: `${Math.round(servingG)} g`,
-      icon: iconForZone(zone),
+      icon: iconForFood(m.name, zone),
       calories,
       proteinG,
       carbsG,

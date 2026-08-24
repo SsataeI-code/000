@@ -169,3 +169,33 @@ export function zoneForFood(name: string, proteinG: number, carbsG: number, fatG
 export function iconForZone(zone: PlateZone): string {
   return zone === "protein" ? "steak" : zone === "carb" ? "bowl" : zone === "veggie" ? "leaf" : "drop";
 }
+
+// Keyword → specific FoodIcon key, so a searched food gets a recognizable picture.
+const ICON_RULES: [RegExp, string][] = [
+  [/chicken|turkey|poultry|wing|drumstick/, "drumstick"],
+  [/salmon|tuna|fish|cod|tilapia|shrimp|prawn|crab|lobster/, "fish"],
+  [/beef|steak|burger|bison|lamb|pork|bacon|ham|sausage|venison/, "steak"],
+  [/egg/, "egg"],
+  [/tofu|tempeh|seitan/, "cube"],
+  [/bean|lentil|chickpea|hummus/, "beans"],
+  [/yogurt|milk|kefir|cream|latte|smoothie|protein shake/, "cup"],
+  [/cheese|feta|parmesan|cheddar|mozzarella/, "cheese"],
+  [/rice|quinoa|oat|pasta|noodle|couscous|barley|grain|cereal|porridge/, "bowl"],
+  [/potato|yam|fries/, "potato"],
+  [/bread|toast|bagel|roll|bun|wrap|tortilla|pita|naan|muffin|pancake|waffle/, "bread"],
+  [/broccoli|green bean|asparagus|brussel|pea/, "broccoli"],
+  [/carrot/, "carrot"],
+  [/pepper|tomato|chili/, "pepper"],
+  [/avocado|guac/, "avocado"],
+  [/nut|almond|peanut|cashew|pistachio|walnut|seed/, "nuts"],
+  [/apple|pear|berry|banana|orange|grape|fruit|melon|mango|peach/, "apple"],
+  [/spinach|kale|lettuce|salad|greens|cabbage|arugula/, "leaf"],
+  [/oil|butter|dressing|mayo/, "drop"],
+];
+
+/** Best specific icon for a food by name; falls back to the zone's default icon. */
+export function iconForFood(name: string, zone: PlateZone): string {
+  const n = (name || "").toLowerCase();
+  for (const [re, icon] of ICON_RULES) if (re.test(n)) return icon;
+  return iconForZone(zone);
+}
