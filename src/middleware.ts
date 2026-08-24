@@ -5,7 +5,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import type { AppRole } from "@/lib/types/db";
 
 /** Routes reachable while signed out. Everything else requires a session. */
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth"];
+const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth", "/forgot-password", "/reset-password"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(

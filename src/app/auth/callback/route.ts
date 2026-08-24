@@ -40,6 +40,12 @@ export async function GET(request: NextRequest) {
     p_referral_code: referralCode,
   });
 
+  // A safe relative `next` (e.g. the password-reset flow) wins over the role home.
+  const next = searchParams.get("next");
+  if (next && next.startsWith("/") && !next.startsWith("//")) {
+    return NextResponse.redirect(`${origin}${next}`);
+  }
+
   const user = await getSessionUser();
   const dest = user ? homePathForRole(user.role) : "/client";
   return NextResponse.redirect(`${origin}${dest}`);

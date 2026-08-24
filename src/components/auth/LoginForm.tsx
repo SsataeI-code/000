@@ -40,6 +40,9 @@ export function LoginForm({ overrides = {} }: { overrides?: CopyOverrides }) {
         {pending ? t("common.loading") : t("auth.login.submit")}
       </Button>
 
+      <Link href="/forgot-password" className="text-center font-body text-sm text-ink/60 underline underline-offset-4 hover:text-red">
+        {t("auth.login.forgot")}
+      </Link>
       <Link href="/signup" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
         {t("auth.login.toSignup")}
       </Link>

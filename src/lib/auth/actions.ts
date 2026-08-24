@@ -105,6 +105,55 @@ export async function signUpAction(
   redirect("/client");
 }
 
+/**
+ * Send a password-reset email (§ auth). The link returns through /auth/callback
+ * (which establishes a short-lived recovery session) and lands on /reset-password.
+ * We always return the same neutral notice so the form never reveals whether an
+ * email has an account.
+ */
+export async function requestPasswordResetAction(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const overrides = await getContentOverrides();
+  const notice = getCopy("auth.forgot.sent", overrides);
+  if (!email) return { notice };
+
+  const redirectTo = `${siteUrl()}/auth/callback?next=/reset-password`;
+  try {
+    const supabase = await createClient();
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  } catch {
+    // Swallow — never reveal whether the address exists.
+  }
+  return { notice };
+}
+
+/**
+ * Set a new password for the user in the recovery session created by the reset
+ * link. Requires a live session (from /auth/callback); if it's missing or the
+ * link expired, we say so plainly.
+ */
+export async function updatePasswordAction(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const password = String(formData.get("password") ?? "");
+  const overrides = await getContentOverrides();
+  if (password.length < 8) return { error: getCopy("auth.reset.tooShort", overrides) };
+
+  const supabase = await createClient();
+  const { data: { user: current } } = await supabase.auth.getUser();
+  if (!current) return { error: getCopy("auth.reset.expired", overrides) };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message || getCopy("auth.error.generic", overrides) };
+
+  const user = await getSessionUser();
+  redirect(user ? homePathForRole(user.role) : "/client");
+}
+
 /** Sign out and return to the landing screen. */
 export async function signOutAction(): Promise<void> {
   const supabase = await createClient();
