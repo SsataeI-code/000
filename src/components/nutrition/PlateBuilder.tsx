@@ -271,8 +271,11 @@ export function PlateBuilder({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block font-body text-sm text-ink">{food.name}</span>
-                  <span className="block font-body text-[11px] text-ink/50">
-                    {food.portion} · {food.calories * count} cal · {food.proteinG * count}p · {food.carbsG * count}c · {food.fatG * count}f
+                  <span className="block font-body text-[11px] text-ink/60">
+                    {count > 1 ? `${count} × ` : ""}{food.portion}
+                  </span>
+                  <span className="block font-body text-[11px] text-ink/45">
+                    {food.calories * count} cal · {food.proteinG * count}p · {food.carbsG * count}c · {food.fatG * count}f
                   </span>
                 </span>
                 <div className="flex shrink-0 items-center gap-1.5">

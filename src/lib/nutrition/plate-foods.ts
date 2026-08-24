@@ -34,43 +34,44 @@ export const ZONE_META: Record<PlateZone, { label: string; color: string; aim: s
 
 export const PLATE_ZONES: PlateZone[] = ["veggie", "protein", "carb", "fat"];
 
-// Curated palette. Macros are per the stated portion (standard reference values).
+// Curated palette. Macros are per the stated portion; the portion label carries
+// both the hand-portion cue and an approximate gram serving size.
 export const PLATE_FOODS: PlateFood[] = [
   // Protein — a palm
-  { id: "chicken", name: "Chicken breast", zone: "protein", portion: "1 palm", icon: "drumstick", calories: 165, proteinG: 31, carbsG: 0, fatG: 4 },
-  { id: "beef", name: "Lean beef", zone: "protein", portion: "1 palm", icon: "steak", calories: 215, proteinG: 26, carbsG: 0, fatG: 12 },
-  { id: "salmon", name: "Salmon", zone: "protein", portion: "1 palm", icon: "fish", calories: 210, proteinG: 23, carbsG: 0, fatG: 13 },
-  { id: "shrimp", name: "Shrimp", zone: "protein", portion: "1 palm", icon: "fish", calories: 100, proteinG: 24, carbsG: 0, fatG: 1 },
-  { id: "eggs", name: "Eggs", zone: "protein", portion: "2 eggs", icon: "egg", calories: 156, proteinG: 13, carbsG: 1, fatG: 11 },
-  { id: "yogurt", name: "Greek yogurt", zone: "protein", portion: "1 cup", icon: "cup", calories: 130, proteinG: 22, carbsG: 8, fatG: 0 },
-  { id: "tofu", name: "Tofu", zone: "protein", portion: "1 palm", icon: "cube", calories: 145, proteinG: 16, carbsG: 4, fatG: 9 },
-  { id: "beans", name: "Beans / lentils", zone: "protein", portion: "1 cupped hand", icon: "beans", calories: 115, proteinG: 8, carbsG: 20, fatG: 0 },
+  { id: "chicken", name: "Chicken breast", zone: "protein", portion: "1 palm · 113 g", icon: "drumstick", calories: 165, proteinG: 31, carbsG: 0, fatG: 4 },
+  { id: "beef", name: "Lean beef", zone: "protein", portion: "1 palm · 113 g", icon: "steak", calories: 215, proteinG: 26, carbsG: 0, fatG: 12 },
+  { id: "salmon", name: "Salmon", zone: "protein", portion: "1 palm · 113 g", icon: "fish", calories: 210, proteinG: 23, carbsG: 0, fatG: 13 },
+  { id: "shrimp", name: "Shrimp", zone: "protein", portion: "1 palm · 113 g", icon: "fish", calories: 100, proteinG: 24, carbsG: 0, fatG: 1 },
+  { id: "eggs", name: "Eggs", zone: "protein", portion: "2 eggs · 100 g", icon: "egg", calories: 156, proteinG: 13, carbsG: 1, fatG: 11 },
+  { id: "yogurt", name: "Greek yogurt", zone: "protein", portion: "1 cup · 200 g", icon: "cup", calories: 130, proteinG: 22, carbsG: 8, fatG: 0 },
+  { id: "tofu", name: "Tofu", zone: "protein", portion: "1 palm · 113 g", icon: "cube", calories: 145, proteinG: 16, carbsG: 4, fatG: 9 },
+  { id: "beans", name: "Beans / lentils", zone: "protein", portion: "1 cupped hand · 130 g", icon: "beans", calories: 115, proteinG: 8, carbsG: 20, fatG: 0 },
 
   // Carbs — a cupped hand
-  { id: "rice", name: "Rice", zone: "carb", portion: "1 cupped hand", icon: "bowl", calories: 150, proteinG: 3, carbsG: 33, fatG: 0 },
-  { id: "potato", name: "Potato", zone: "carb", portion: "1 fist", icon: "potato", calories: 130, proteinG: 3, carbsG: 30, fatG: 0 },
-  { id: "sweet_potato", name: "Sweet potato", zone: "carb", portion: "1 fist", icon: "potato", calories: 115, proteinG: 2, carbsG: 27, fatG: 0 },
-  { id: "oats", name: "Oats", zone: "carb", portion: "1 cupped hand", icon: "bowl", calories: 150, proteinG: 5, carbsG: 27, fatG: 3 },
-  { id: "pasta", name: "Pasta", zone: "carb", portion: "1 cupped hand", icon: "bowl", calories: 180, proteinG: 7, carbsG: 35, fatG: 1 },
-  { id: "quinoa", name: "Quinoa", zone: "carb", portion: "1 cupped hand", icon: "bowl", calories: 160, proteinG: 6, carbsG: 29, fatG: 3 },
-  { id: "bread", name: "Bread", zone: "carb", portion: "1 slice", icon: "bread", calories: 80, proteinG: 3, carbsG: 15, fatG: 1 },
+  { id: "rice", name: "Rice", zone: "carb", portion: "1 cupped hand · 120 g", icon: "bowl", calories: 150, proteinG: 3, carbsG: 33, fatG: 0 },
+  { id: "potato", name: "Potato", zone: "carb", portion: "1 fist · 150 g", icon: "potato", calories: 130, proteinG: 3, carbsG: 30, fatG: 0 },
+  { id: "sweet_potato", name: "Sweet potato", zone: "carb", portion: "1 fist · 130 g", icon: "potato", calories: 115, proteinG: 2, carbsG: 27, fatG: 0 },
+  { id: "oats", name: "Oats", zone: "carb", portion: "1 cupped hand · 40 g dry", icon: "bowl", calories: 150, proteinG: 5, carbsG: 27, fatG: 3 },
+  { id: "pasta", name: "Pasta", zone: "carb", portion: "1 cupped hand · 140 g", icon: "bowl", calories: 180, proteinG: 7, carbsG: 35, fatG: 1 },
+  { id: "quinoa", name: "Quinoa", zone: "carb", portion: "1 cupped hand · 130 g", icon: "bowl", calories: 160, proteinG: 6, carbsG: 29, fatG: 3 },
+  { id: "bread", name: "Bread", zone: "carb", portion: "1 slice · 30 g", icon: "bread", calories: 80, proteinG: 3, carbsG: 15, fatG: 1 },
 
   // Veggies — a fist (half the plate)
-  { id: "broccoli", name: "Broccoli", zone: "veggie", portion: "1 fist", icon: "broccoli", calories: 30, proteinG: 2, carbsG: 6, fatG: 0 },
-  { id: "salad", name: "Mixed salad", zone: "veggie", portion: "2 fists", icon: "leaf", calories: 20, proteinG: 1, carbsG: 4, fatG: 0 },
-  { id: "spinach", name: "Spinach", zone: "veggie", portion: "2 fists", icon: "leaf", calories: 15, proteinG: 2, carbsG: 2, fatG: 0 },
-  { id: "carrots", name: "Carrots", zone: "veggie", portion: "1 fist", icon: "carrot", calories: 30, proteinG: 1, carbsG: 7, fatG: 0 },
-  { id: "peppers", name: "Peppers", zone: "veggie", portion: "1 fist", icon: "pepper", calories: 25, proteinG: 1, carbsG: 6, fatG: 0 },
-  { id: "green_beans", name: "Green beans", zone: "veggie", portion: "1 fist", icon: "broccoli", calories: 30, proteinG: 2, carbsG: 7, fatG: 0 },
-  { id: "tomatoes", name: "Tomatoes", zone: "veggie", portion: "1 fist", icon: "pepper", calories: 20, proteinG: 1, carbsG: 4, fatG: 0 },
+  { id: "broccoli", name: "Broccoli", zone: "veggie", portion: "1 fist · 90 g", icon: "broccoli", calories: 30, proteinG: 2, carbsG: 6, fatG: 0 },
+  { id: "salad", name: "Mixed salad", zone: "veggie", portion: "2 fists · 60 g", icon: "leaf", calories: 20, proteinG: 1, carbsG: 4, fatG: 0 },
+  { id: "spinach", name: "Spinach", zone: "veggie", portion: "2 fists · 60 g", icon: "leaf", calories: 15, proteinG: 2, carbsG: 2, fatG: 0 },
+  { id: "carrots", name: "Carrots", zone: "veggie", portion: "1 fist · 90 g", icon: "carrot", calories: 30, proteinG: 1, carbsG: 7, fatG: 0 },
+  { id: "peppers", name: "Peppers", zone: "veggie", portion: "1 fist · 90 g", icon: "pepper", calories: 25, proteinG: 1, carbsG: 6, fatG: 0 },
+  { id: "green_beans", name: "Green beans", zone: "veggie", portion: "1 fist · 90 g", icon: "broccoli", calories: 30, proteinG: 2, carbsG: 7, fatG: 0 },
+  { id: "tomatoes", name: "Tomatoes", zone: "veggie", portion: "1 fist · 90 g", icon: "pepper", calories: 20, proteinG: 1, carbsG: 4, fatG: 0 },
 
   // Fats — a thumb
-  { id: "olive_oil", name: "Olive oil", zone: "fat", portion: "1 thumb", icon: "drop", calories: 90, proteinG: 0, carbsG: 0, fatG: 10 },
-  { id: "avocado", name: "Avocado", zone: "fat", portion: "half", icon: "avocado", calories: 120, proteinG: 1, carbsG: 6, fatG: 11 },
-  { id: "nuts", name: "Nuts", zone: "fat", portion: "1 thumb", icon: "nuts", calories: 100, proteinG: 4, carbsG: 4, fatG: 9 },
-  { id: "nut_butter", name: "Nut butter", zone: "fat", portion: "1 thumb", icon: "nuts", calories: 95, proteinG: 4, carbsG: 3, fatG: 8 },
-  { id: "cheese", name: "Cheese", zone: "fat", portion: "1 thumb", icon: "cheese", calories: 110, proteinG: 7, carbsG: 1, fatG: 9 },
-  { id: "seeds", name: "Seeds", zone: "fat", portion: "1 thumb", icon: "nuts", calories: 90, proteinG: 3, carbsG: 4, fatG: 8 },
+  { id: "olive_oil", name: "Olive oil", zone: "fat", portion: "1 thumb · 14 g", icon: "drop", calories: 90, proteinG: 0, carbsG: 0, fatG: 10 },
+  { id: "avocado", name: "Avocado", zone: "fat", portion: "half · 100 g", icon: "avocado", calories: 120, proteinG: 1, carbsG: 6, fatG: 11 },
+  { id: "nuts", name: "Nuts", zone: "fat", portion: "1 thumb · 28 g", icon: "nuts", calories: 100, proteinG: 4, carbsG: 4, fatG: 9 },
+  { id: "nut_butter", name: "Nut butter", zone: "fat", portion: "1 thumb · 16 g", icon: "nuts", calories: 95, proteinG: 4, carbsG: 3, fatG: 8 },
+  { id: "cheese", name: "Cheese", zone: "fat", portion: "1 thumb · 28 g", icon: "cheese", calories: 110, proteinG: 7, carbsG: 1, fatG: 9 },
+  { id: "seeds", name: "Seeds", zone: "fat", portion: "1 thumb · 28 g", icon: "nuts", calories: 90, proteinG: 3, carbsG: 4, fatG: 8 },
 ];
 
 export function plateFoodById(id: string): PlateFood | undefined {
