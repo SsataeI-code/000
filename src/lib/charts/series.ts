@@ -19,6 +19,36 @@ export function lastNDates(n: number, today: Date = new Date()): string[] {
   return out;
 }
 
+export interface WeekPoint {
+  /** Short label for the week (its start date, M/D). */
+  label: string;
+  startDate: string;
+  /** Mean of the week's logged values (null when nothing was logged that week). */
+  value: number | null;
+}
+
+/**
+ * Roll a daily series (ascending by date) into weekly averages — the trend a
+ * coach actually reads, with day-to-day noise smoothed out. Buckets align to the
+ * end so the most recent week is whole; a mean ignores days with no data.
+ */
+export function weeklyAverages(series: SeriesPoint[]): WeekPoint[] {
+  if (series.length === 0) return [];
+  const md = (iso: string) => {
+    const d = new Date(`${iso}T00:00:00Z`);
+    return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+  };
+  const weeks: WeekPoint[] = [];
+  for (let end = series.length; end > 0; end -= 7) {
+    const start = Math.max(0, end - 7);
+    const slice = series.slice(start, end);
+    const vals = slice.map((p) => p.value).filter((v): v is number => v != null);
+    const mean = vals.length ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null;
+    weeks.unshift({ label: md(slice[0].date), startDate: slice[0].date, value: mean });
+  }
+  return weeks;
+}
+
 /** Allowed time-range windows for the graph toggles. */
 export const RANGE_OPTIONS = [7, 30, 60, 90] as const;
 export type RangeDays = (typeof RANGE_OPTIONS)[number];
@@ -30,6 +60,14 @@ export const RANGE_COOKIE = "tff_range";
 export function parseRange(v: string | undefined, def: RangeDays = 30): RangeDays {
   const n = Number(v);
   return (RANGE_OPTIONS as readonly number[]).includes(n) ? (n as RangeDays) : def;
+}
+
+/** Chart granularity: weekly averages (default) or day-by-day detail. */
+export const VIEW_OPTIONS = ["weekly", "daily"] as const;
+export type ChartView = (typeof VIEW_OPTIONS)[number];
+export const VIEW_COOKIE = "tff_chart_view";
+export function parseView(v: string | undefined, def: ChartView = "weekly"): ChartView {
+  return (VIEW_OPTIONS as readonly string[]).includes(v ?? "") ? (v as ChartView) : def;
 }
 
 /** Sum a numeric field of dated rows per day, aligned to `dates` (0 when none). */

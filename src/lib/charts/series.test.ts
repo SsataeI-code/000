@@ -6,6 +6,8 @@ import {
   seriesMean,
   averageSeries,
   daysLogged,
+  weeklyAverages,
+  parseView,
 } from "@/lib/charts/series";
 import type { FoodLog, Habit } from "@/lib/types/db";
 
@@ -68,6 +70,28 @@ describe("chart series", () => {
 
   it("daysLogged counts days with a positive value", () => {
     expect(daysLogged([{ date: "a", value: 500 }, { date: "b", value: 0 }, { date: "c", value: 200 }])).toBe(2);
+  });
+});
+
+describe("weeklyAverages", () => {
+  it("buckets 14 daily points into 2 weekly means, ignoring gaps", () => {
+    const dates = lastNDates(14);
+    const series = dates.map((d, i) => ({ date: d, value: i < 7 ? 100 : i === 13 ? null : 200 }));
+    const weeks = weeklyAverages(series);
+    expect(weeks.length).toBe(2);
+    expect(weeks[0].value).toBe(100); // first 7 days
+    expect(weeks[1].value).toBe(200); // last week, null day ignored
+  });
+  it("returns [] for an empty series", () => {
+    expect(weeklyAverages([])).toEqual([]);
+  });
+});
+
+describe("parseView", () => {
+  it("defaults to weekly and accepts daily", () => {
+    expect(parseView(undefined)).toBe("weekly");
+    expect(parseView("daily")).toBe("daily");
+    expect(parseView("nonsense")).toBe("weekly");
   });
 });
 

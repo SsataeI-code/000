@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { BodyMeasurement, FoodLog, Habit, HabitLog, NutritionTargetRow } from "@/lib/types/db";
+import type { BodyMeasurement, FoodLog, Goal, Habit, HabitLog, NutritionTargetRow } from "@/lib/types/db";
 import { weightTrend, kgToLb } from "@/lib/body/trend";
 import { completedDatesByHabit } from "@/lib/habits/data";
 import { longestStreak } from "@/lib/habits/streaks";
@@ -12,16 +12,30 @@ import {
   smoothingWindow,
   seriesMean,
   daysLogged,
+  weeklyAverages,
   type SeriesPoint,
+  type WeekPoint,
+  type ChartView,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
+import { BarChart } from "@/components/charts/BarChart";
+
+const GOAL_VERB: Record<string, string> = {
+  lose: "fat loss",
+  gain: "muscle gain",
+  maintain: "maintenance",
+  recomp: "recomp",
+  habits_only: "habits",
+};
+
+/** WeekPoint[] → SeriesPoint[] for the line chart (uses the week-start date). */
+const asSeries = (weeks: WeekPoint[]): SeriesPoint[] => weeks.map((w) => ({ date: w.startDate, value: w.value }));
 
 /**
- * The individual stats & graphs block (§9 "full picture … nutrition trends,
- * weight"). Given a client's raw rows, it computes the shared series and draws
- * a key-stats strip plus weight, food-logging, protein, body-fat, and
- * consistency graphs — reused on the coach deep-dive and the client's own
- * screens so both sides see the exact same numbers.
+ * Individual progress (§9). Leads with a weight-vs-goal readout, then the trends
+ * a coach actually reads — weekly averages by default (day-to-day noise smoothed
+ * into bars), with a Daily toggle for detail. Same component on the coach
+ * deep-dive and the client's own screen, so both see identical numbers.
  */
 export function IndividualProgress({
   measurements,
@@ -29,26 +43,31 @@ export function IndividualProgress({
   habits,
   habitLogs,
   targets,
+  goal,
+  view = "weekly",
   days = 30,
   toggle,
+  viewToggle,
 }: {
   measurements: BodyMeasurement[];
   foodLogs: FoodLog[];
   habits: Habit[];
   habitLogs: HabitLog[];
   targets: NutritionTargetRow | null;
+  goal?: Goal | null;
+  view?: ChartView;
   days?: number;
   toggle?: ReactNode;
+  viewToggle?: ReactNode;
 }) {
+  const weekly = view === "weekly";
   const dates = lastNDates(days);
   const cutoff = dates[0];
   const windowed = measurements.filter((m) => m.log_date >= cutoff);
   const maWindow = smoothingWindow(days);
 
-  // Weight
+  // ---- Weight & goal ----
   const trend = weightTrend(windowed);
-  const weightPoints: SeriesPoint[] = trend.map((t) => ({ date: t.date, value: kgToLb(t.weightKg) }));
-  const weightAvg: SeriesPoint[] = trend.map((t) => ({ date: t.date, value: kgToLb(t.avgKg) }));
   const latestWeight = trend.length ? kgToLb(trend[trend.length - 1].avgKg) : null;
   let weightRate: number | null = null;
   let weightChange: number | null = null;
@@ -60,142 +79,161 @@ export function IndividualProgress({
     weightRate = Math.round((weightChange / spanDays) * 7 * 10) / 10;
   }
 
-  // Body-fat trend (only if they log it)
-  const bfPoints: SeriesPoint[] = windowed
-    .filter((m) => m.body_fat_pct != null)
-    .map((m) => ({ date: m.log_date, value: Number(m.body_fat_pct) }));
+  // On-pace status vs the client's goal.
+  let paceLabel: string | null = null;
+  let paceGood: boolean | null = null;
+  if (goal && goal !== "habits_only" && weightRate != null) {
+    if (goal === "lose") { paceGood = weightRate < -0.1; }
+    else if (goal === "gain") { paceGood = weightRate > 0.1; }
+    else { paceGood = Math.abs(weightRate) <= 0.35; } // maintain / recomp
+    paceLabel = paceGood ? "On track" : weightRate === 0 ? "Holding" : "Off pace";
+  }
 
-  // Food logging + protein (PN's first-priority macro)
+  // Daily weight (lb) aligned to the window, for the weekly roll-up / daily line.
+  const weightByDate = new Map<string, number>();
+  for (const t of trend) weightByDate.set(t.date, kgToLb(t.weightKg));
+  const weightDaily: SeriesPoint[] = dates.map((d) => ({ date: d, value: weightByDate.get(d) ?? null }));
+  const weightWeeks = weeklyAverages(weightDaily);
+
+  // Body fat
+  const bfDaily: SeriesPoint[] = dates.map((d) => {
+    const m = windowed.find((x) => x.log_date === d && x.body_fat_pct != null);
+    return { date: d, value: m ? Number(m.body_fat_pct) : null };
+  });
+  const hasBf = bfDaily.filter((p) => p.value != null).length >= 2;
+
+  // ---- Nutrition & habits ----
   const calSeries = dailyCalories(foodLogs, dates);
   const proteinSeries = dailyMacro(foodLogs, "protein_g", dates);
   const avgCals = seriesMean(calSeries.map((p) => ({ ...p, value: p.value && p.value > 0 ? p.value : null })));
   const avgProtein = seriesMean(proteinSeries.map((p) => ({ ...p, value: p.value && p.value > 0 ? p.value : null })));
   const logged = daysLogged(calSeries);
 
-  // Consistency + streaks
   const completedByHabit = completedDatesByHabit(habitLogs);
   const consSeries = dailyConsistency(habits, completedByHabit, dates);
   const avgCons = seriesMean(consSeries);
   const bestStreak = habits.reduce((mx, h) => Math.max(mx, longestStreak(completedByHabit.get(h.id) ?? new Set())), 0);
 
+  const calWeeks = weeklyAverages(calSeries);
+  const proteinWeeks = weeklyAverages(proteinSeries);
+  const consWeeks = weeklyAverages(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })));
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-2xl text-ink">Progress &amp; trends</h2>
-        {toggle}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl text-ink">Progress</h2>
+        <div className="flex items-center gap-2">
+          {viewToggle}
+          {toggle}
+        </div>
       </div>
 
-      {/* Key stats strip */}
-      <section className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Stat label="Weight" value={latestWeight != null ? `${Math.round(latestWeight)} lb` : "—"} />
-        <Stat
-          label="Rate / wk"
-          value={weightRate == null ? "—" : weightRate === 0 ? "steady" : `${weightRate < 0 ? "−" : "+"}${Math.abs(weightRate)} lb`}
-        />
-        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} />
-        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} />
-        <Stat label="Days logged" value={`${logged} / ${days}`} />
-        <Stat label="Best streak" value={`${bestStreak}d`} sub={avgCons != null ? `${Math.round(avgCons * 100)}% avg` : undefined} />
+      {/* Weight vs goal — the headline */}
+      <section className="border border-hairline bg-surface p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
+            <p className="mt-1 font-display text-4xl leading-none text-ink">{latestWeight != null ? `${Math.round(latestWeight)} lb` : "—"}</p>
+            <p className="mt-1.5 font-body text-sm text-ink/70">
+              {weightChange == null
+                ? "Log twice to see your trend."
+                : `${weightChange === 0 ? "No net change" : `${weightChange < 0 ? "Down" : "Up"} ${Math.abs(weightChange)} lb`} in ${days} days · ${
+                    weightRate === 0 ? "steady" : `${weightRate! < 0 ? "−" : "+"}${Math.abs(weightRate!)} lb/wk`
+                  }`}
+            </p>
+            {goal && goal !== "habits_only" ? (
+              <p className="mt-0.5 font-body text-xs text-ink/50">Goal: {GOAL_VERB[goal] ?? goal}</p>
+            ) : null}
+          </div>
+          {paceLabel ? (
+            <span className={`shrink-0 border px-2.5 py-1 font-label text-[10px] uppercase tracking-wide ${paceGood ? "border-success text-success" : "border-red text-red"}`}>
+              {paceLabel}
+            </span>
+          ) : null}
+        </div>
+        <div className="mt-4">
+          {weekly ? (
+            <LineChart
+              points={asSeries(weightWeeks)}
+              ariaLabel="Weekly average body weight over time, in pounds"
+              formatValue={(nn) => `${Math.round(nn)} lb`}
+            />
+          ) : (
+            <LineChart
+              points={trend.map((t) => ({ date: t.date, value: kgToLb(t.weightKg) }))}
+              overlay={trend.map((t) => ({ date: t.date, value: kgToLb(t.avgKg) }))}
+              ariaLabel="Body weight over time, in pounds, with a smoothed trend line"
+              formatValue={(nn) => `${Math.round(nn)} lb`}
+            />
+          )}
+        </div>
       </section>
 
-      {/* Weight */}
-      <section className="border border-hairline bg-surface p-5">
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weight</p>
-          <p className="font-body text-xs text-ink/60">
-            {weightRate != null
-              ? `${weightRate === 0 ? "Holding steady" : `${weightRate < 0 ? "↓" : "↑"} ${Math.abs(weightRate)} lb / wk`}`
-              : "Log twice to see a rate"}
-          </p>
-        </div>
-        <LineChart
-          points={weightPoints}
-          overlay={weightAvg}
-          ariaLabel="Body weight over time, in pounds, with a moving-average trend line"
-          formatValue={(n) => `${Math.round(n)} lb`}
-        />
-        {weightChange != null ? (
-          <p className="mt-2 font-body text-xs text-ink/50">
-            {weightChange === 0 ? "No net change" : `${weightChange < 0 ? "Down" : "Up"} ${Math.abs(weightChange)} lb`} over this window.
-            <span className="text-ink/40"> Red line = smoothed trend.</span>
-          </p>
-        ) : null}
+      {/* Key stats */}
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} />
+        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} />
+        <Stat label="Days logged" value={`${logged} / ${days}`} sub={`${Math.round((logged / days) * 100)}%`} />
+        <Stat label="Habits" value={avgCons != null ? `${Math.round(avgCons * 100)}%` : "—"} sub={`best ${bestStreak}d streak`} />
       </section>
 
       {/* Body fat — only when logged */}
-      {bfPoints.length >= 2 ? (
-        <section className="border border-hairline bg-surface p-5">
-          <p className="mb-3 font-label text-xs uppercase tracking-wide text-ink/50">Body fat %</p>
-          <LineChart
-            points={bfPoints}
-            overlay={movingAverage(bfPoints, 3)}
-            ariaLabel="Body-fat percentage over time, with a smoothed trend line"
-            formatValue={(n) => `${Math.round(n * 10) / 10}%`}
-          />
-        </section>
+      {hasBf ? (
+        <Card title="Body fat %">
+          {weekly ? (
+            <LineChart points={asSeries(weeklyAverages(bfDaily))} ariaLabel="Weekly average body-fat percentage" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
+          ) : (
+            <LineChart points={bfDaily} overlay={movingAverage(bfDaily, 3)} ariaLabel="Body-fat percentage over time" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
+          )}
+        </Card>
       ) : null}
 
-      {/* Food logging */}
-      <section className="border border-hairline bg-surface p-5">
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Calories logged / day</p>
-          <p className="font-body text-xs text-ink/60">
-            {avgCals != null ? `avg ${Math.round(avgCals)}` : "—"}
-            {targets ? ` · target ${targets.calories}` : ""}
-          </p>
-        </div>
-        <LineChart
-          points={calSeries}
-          overlay={movingAverage(calSeries, maWindow)}
-          targetLine={targets?.calories ?? null}
-          ariaLabel="Calories logged each day, with a smoothed trend line, against the daily target"
-          formatValue={(n) => `${Math.round(n)} cal`}
-        />
-        <p className="mt-2 font-body text-xs text-ink/50">
-          Logged food on <span className="text-ink/70">{logged}</span> of the last {days} days.
-          <span className="text-ink/40"> Red line = trend{targets ? "; dashed = target" : ""}.</span>
-        </p>
-      </section>
+      {/* Calories */}
+      <Card title="Calories" note={avgCals != null ? `avg ${Math.round(avgCals)}${targets ? ` · target ${targets.calories}` : ""}` : undefined}>
+        {weekly ? (
+          <BarChart weeks={calWeeks} target={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
+        ) : (
+          <LineChart points={calSeries} overlay={movingAverage(calSeries, maWindow)} targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => `${Math.round(nn)} cal`} />
+        )}
+      </Card>
 
       {/* Protein */}
-      <section className="border border-hairline bg-surface p-5">
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Protein / day</p>
-          <p className="font-body text-xs text-ink/60">
-            {avgProtein != null ? `avg ${Math.round(avgProtein)} g` : "—"}
-            {targets ? ` · target ${targets.protein_g} g` : ""}
-          </p>
-        </div>
-        <LineChart
-          points={proteinSeries}
-          overlay={movingAverage(proteinSeries, maWindow)}
-          overlayColor="#34c759"
-          targetLine={targets?.protein_g ?? null}
-          ariaLabel="Grams of protein logged each day, with a smoothed trend line, against the protein target"
-          formatValue={(n) => `${Math.round(n)} g`}
-        />
-        <p className="mt-2 font-body text-xs text-ink/50">Protein is the target we chase first — hitting it protects muscle in a cut and builds it in a gain.</p>
-      </section>
+      <Card title="Protein" note={avgProtein != null ? `avg ${Math.round(avgProtein)} g${targets ? ` · target ${targets.protein_g} g` : ""}` : undefined}>
+        {weekly ? (
+          <BarChart weeks={proteinWeeks} target={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
+        ) : (
+          <LineChart points={proteinSeries} overlay={movingAverage(proteinSeries, maWindow)} overlayColor="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)} g`} />
+        )}
+      </Card>
 
-      {/* Consistency */}
-      <section className="border border-hairline bg-surface p-5">
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Habit consistency / day</p>
-          <p className="font-body text-xs text-ink/60">
-            {avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}
-          </p>
-        </div>
-        <LineChart
-          points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
-          overlay={movingAverage(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })), maWindow)}
-          overlayColor="#34c759"
-          targetLine={100}
-          ariaLabel="Percent of due habits completed each day, with a smoothed trend line"
-          formatValue={(n) => `${Math.round(n)}%`}
-        />
-        <p className="mt-2 font-body text-xs text-ink/50">Share of each day&apos;s due habits that got checked off.</p>
-      </section>
+      {/* Habit consistency */}
+      <Card title="Habit consistency" note={avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}>
+        {weekly ? (
+          <BarChart weeks={consWeeks} target={100} targetLabel="goal" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
+        ) : (
+          <LineChart
+            points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
+            overlay={movingAverage(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })), maWindow)}
+            overlayColor="#34c759"
+            targetLine={100}
+            ariaLabel="Percent of due habits completed each day"
+            formatValue={(nn) => `${Math.round(nn)}%`}
+          />
+        )}
+      </Card>
     </div>
+  );
+}
+
+function Card({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+  return (
+    <section className="border border-hairline bg-surface p-5">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <p className="font-label text-xs uppercase tracking-wide text-ink/50">{title}</p>
+        {note ? <p className="font-body text-xs text-ink/60">{note}</p> : null}
+      </div>
+      {children}
+    </section>
   );
 }
 

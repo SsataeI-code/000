@@ -4,33 +4,33 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getBodyMeasurements, getBodyPhotos } from "@/lib/body/data";
 import { BodyPhotos } from "@/components/body/BodyPhotos";
-import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
-import { getFoodLogsSince, getLatestTargets } from "@/lib/nutrition/data";
+import { getFoodLogsSince, getLatestTargets, getClientProfile } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs } from "@/lib/habits/data";
 import { BodyLogForm } from "@/components/body/BodyLogForm";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { resolveRange } from "@/lib/charts/range";
+import { ViewToggle } from "@/components/charts/ViewToggle";
+import { resolveRange, resolveView } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
-export default async function BodyPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
+export default async function BodyPage({ searchParams }: { searchParams: Promise<{ range?: string; view?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const range = await resolveRange((await searchParams).range);
+  const sp = await searchParams;
+  const range = await resolveRange(sp.range);
+  const view = await resolveView(sp.view);
 
-  const [measurements, foodLogs, habits, habitLogs, targets, photos] = await Promise.all([
+  const [measurements, foodLogs, habits, habitLogs, targets, photos, profile] = await Promise.all([
     getBodyMeasurements(user.id),
     getFoodLogsSince(user.id, range),
     getHabits(user.id),
     getHabitLogs(user.id),
     getLatestTargets(user.id),
     getBodyPhotos(user.id),
+    getClientProfile(user.id),
   ]);
-  const trend = weightTrend(measurements);
-  const latest = trend[trend.length - 1];
-  const change = trendChangeKg(trend);
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,22 +40,6 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
           Done
         </Link>
       </div>
-
-      {latest ? (
-        <section className="border border-hairline bg-surface p-5">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weight (trend)</p>
-          <p className="mt-1 font-display text-4xl text-ink">{kgToLb(latest.avgKg)} lb</p>
-          {trend.length > 1 ? (
-            <p className="mt-1 font-body text-sm text-ink/60">
-              {change === 0 ? "Holding steady" : `${change < 0 ? "↓" : "↑"} ${Math.abs(kgToLb(Math.abs(change)))} lb since you started tracking`}
-            </p>
-          ) : null}
-        </section>
-      ) : (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
-          Log your weight to see your trend. Just a number — the moving average smooths the daily noise.
-        </p>
-      )}
 
       <Link
         href="/client/lifts"
@@ -75,8 +59,11 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
         habits={habits}
         habitLogs={habitLogs}
         targets={targets}
+        goal={profile?.goal ?? null}
+        view={view}
         days={range}
         toggle={<RangeToggle current={range} />}
+        viewToggle={<ViewToggle current={view} />}
       />
 
       <div>
