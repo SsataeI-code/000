@@ -8,8 +8,6 @@ import {
   dailyCalories,
   dailyMacro,
   dailyConsistency,
-  movingAverage,
-  smoothingWindow,
   seriesMean,
   daysLogged,
   weeklyAverages,
@@ -18,7 +16,6 @@ import {
   type ChartView,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-import { BarChart } from "@/components/charts/BarChart";
 
 const GOAL_VERB: Record<string, string> = {
   lose: "fat loss",
@@ -67,7 +64,6 @@ export function IndividualProgress({
   const dates = lastNDates(days);
   const cutoff = dates[0];
   const windowed = measurements.filter((m) => m.log_date >= cutoff);
-  const maWindow = smoothingWindow(days);
 
   // ---- Weight & goal ----
   const trend = weightTrend(windowed);
@@ -104,6 +100,13 @@ export function IndividualProgress({
     return { date: d, value: m ? Number(m.body_fat_pct) : null };
   });
   const hasBf = bfDaily.filter((p) => p.value != null).length >= 2;
+  // Compact series of just the logged body-fat measurements, in order — so the
+  // daily view connects the measurement dots (like weight) instead of scattering
+  // isolated dots across the empty days between measurements.
+  const bfMeasured: SeriesPoint[] = windowed
+    .filter((m) => m.body_fat_pct != null)
+    .sort((a, b) => a.log_date.localeCompare(b.log_date))
+    .map((m) => ({ date: m.log_date, value: Number(m.body_fat_pct) }));
 
   // ---- Nutrition & habits ----
   const calSeries = dailyCalories(foodLogs, dates);
@@ -158,16 +161,15 @@ export function IndividualProgress({
           {weekly ? (
             <LineChart
               points={asSeries(weightWeeks)}
-              areaColor="#e10600"
-              overlayColor="#e10600"
+              color="#e10600"
               ariaLabel="Weekly average body weight over time, in pounds"
               formatValue={(nn) => `${Math.round(nn)} lb`}
             />
           ) : (
             <LineChart
               points={trend.map((t) => ({ date: t.date, value: kgToLb(t.weightKg) }))}
-              overlay={trend.map((t) => ({ date: t.date, value: kgToLb(t.avgKg) }))}
-              ariaLabel="Body weight over time, in pounds, with a smoothed trend line"
+              color="#e10600"
+              ariaLabel="Body weight over time, in pounds"
               formatValue={(nn) => `${Math.round(nn)} lb`}
             />
           )}
@@ -188,7 +190,7 @@ export function IndividualProgress({
           {weekly ? (
             <LineChart points={asSeries(weeklyAverages(bfDaily))} ariaLabel="Weekly average body-fat percentage" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
           ) : (
-            <LineChart points={bfDaily} overlay={movingAverage(bfDaily, 3)} ariaLabel="Body-fat percentage over time" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
+            <LineChart points={bfMeasured} ariaLabel="Body-fat percentage over time" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
           )}
         </Card>
       ) : null}
@@ -196,30 +198,29 @@ export function IndividualProgress({
       {/* Calories */}
       <Card title="Calories" note={avgCals != null ? `avg ${Math.round(avgCals)}${targets ? ` · target ${targets.calories}` : ""}` : undefined}>
         {weekly ? (
-          <BarChart weeks={calWeeks} target={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
+          <LineChart points={asSeries(calWeeks)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
         ) : (
-          <LineChart points={gapZero(calSeries)} overlay={movingAverage(gapZero(calSeries), maWindow)} targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => `${Math.round(nn)} cal`} />
+          <LineChart points={gapZero(calSeries)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => `${Math.round(nn)} cal`} />
         )}
       </Card>
 
       {/* Protein */}
       <Card title="Protein" note={avgProtein != null ? `avg ${Math.round(avgProtein)} g${targets ? ` · target ${targets.protein_g} g` : ""}` : undefined}>
         {weekly ? (
-          <BarChart weeks={proteinWeeks} target={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
+          <LineChart points={asSeries(proteinWeeks)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
         ) : (
-          <LineChart points={gapZero(proteinSeries)} overlay={movingAverage(gapZero(proteinSeries), maWindow)} overlayColor="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)} g`} />
+          <LineChart points={gapZero(proteinSeries)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)} g`} />
         )}
       </Card>
 
       {/* Habit consistency */}
       <Card title="Habit consistency" note={avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}>
         {weekly ? (
-          <BarChart weeks={consWeeks} target={100} targetLabel="goal" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
+          <LineChart points={asSeries(consWeeks)} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
         ) : (
           <LineChart
             points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))}
-            overlay={movingAverage(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })), maWindow)}
-            overlayColor="#34c759"
+            color="#34c759"
             targetLine={100}
             ariaLabel="Percent of due habits completed each day"
             formatValue={(nn) => `${Math.round(nn)}%`}

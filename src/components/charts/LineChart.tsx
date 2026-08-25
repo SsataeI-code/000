@@ -1,29 +1,23 @@
 import type { SeriesPoint } from "@/lib/charts/series";
 
 /**
- * Flat editorial line chart (§4 — no gradients, high contrast). Server-rendered
- * static SVG: zero client JS, crisp at any width, accessible text fallback.
- * Readable by design — real (undistorted) aspect ratio, y-axis value gridlines,
- * start/end date labels, and dots on every logged point so sparse data still
- * reads. Nulls become gaps, not zeros.
+ * Dot chart with a connecting trend line (§4 — flat, high-contrast, no
+ * gradients). Every logged point gets a dot; a line connects consecutive points
+ * in date order and BREAKS at gaps — no data, no line (a lone point keeps its
+ * dot but grows no line). Server-rendered static SVG: zero client JS, crisp at
+ * any width, readable text fallback. The latest point is emphasised so "now"
+ * stands out.
  */
 export function LineChart({
   points,
-  overlay,
   color = "#f4f4f2",
-  overlayColor = "#e10600",
-  areaColor,
   targetLine = null,
   targetLabel = "target",
   ariaLabel,
   formatValue = (n) => String(Math.round(n)),
 }: {
   points: SeriesPoint[];
-  overlay?: SeriesPoint[];
   color?: string;
-  overlayColor?: string;
-  /** Soft flat fill under the line (no gradient); defaults to the line colour. */
-  areaColor?: string;
   targetLine?: number | null;
   targetLabel?: string;
   ariaLabel: string;
@@ -31,11 +25,11 @@ export function LineChart({
 }) {
   const values = [
     ...points.map((p) => p.value),
-    ...(overlay ?? []).map((p) => p.value),
     ...(targetLine != null ? [targetLine] : []),
   ].filter((v): v is number => v != null);
 
-  if (values.length === 0 || points.filter((p) => p.value != null).length < 2) {
+  const loggedCount = points.filter((p) => p.value != null).length;
+  if (values.length === 0 || loggedCount < 1) {
     return <p className="font-body text-sm text-ink/50">Not enough data yet — keep logging and this fills in.</p>;
   }
 
@@ -43,8 +37,8 @@ export function LineChart({
   const W = 360;
   const H = 190;
   const padL = 40;
-  const padR = 12;
-  const padT = 12;
+  const padR = 14;
+  const padT = 14;
   const padB = 26;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
@@ -52,48 +46,33 @@ export function LineChart({
   const dataMin = Math.min(...values);
   const dataMax = Math.max(...values);
   const span = dataMax - dataMin || Math.abs(dataMax) || 1;
-  // A little headroom so the line never touches the frame.
-  const lo = dataMin - span * 0.08;
-  const hi = dataMax + span * 0.08;
+  // A little headroom so dots never touch the frame.
+  const lo = dataMin - span * 0.1;
+  const hi = dataMax + span * 0.1;
   const range = hi - lo || 1;
 
   const n = points.length;
   const x = (i: number) => (n === 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW);
   const y = (v: number) => padT + (1 - (v - lo) / range) * plotH;
 
-  const toPath = (series: SeriesPoint[]): string => {
-    let d = "";
-    let pen = false;
-    series.forEach((p, i) => {
-      if (p.value == null) { pen = false; return; }
-      d += `${pen ? "L" : "M"}${x(i).toFixed(1)} ${y(p.value).toFixed(1)} `;
-      pen = true;
-    });
-    return d.trim();
+  // One connecting line per contiguous run of logged points. A run of length 1
+  // draws no line (just its dot) — "no points means no line", at the segment
+  // level too.
+  const linePaths: string[] = [];
+  let run: { i: number; v: number }[] = [];
+  const flush = () => {
+    if (run.length >= 2) {
+      let d = `M ${x(run[0].i).toFixed(1)} ${y(run[0].v).toFixed(1)}`;
+      for (let k = 1; k < run.length; k++) d += ` L ${x(run[k].i).toFixed(1)} ${y(run[k].v).toFixed(1)}`;
+      linePaths.push(d);
+    }
+    run = [];
   };
+  points.forEach((p, i) => { if (p.value == null) flush(); else run.push({ i, v: p.value }); });
+  flush();
 
-  // Filled area under the line, one closed shape per contiguous run of points.
-  // Opt-in: only when a caller asks for it (areaColor), so a spiky daily line
-  // stays a clean stroke while a smooth trend line can carry a soft fill.
-  const baseY = H - padB;
-  const areaPaths: string[] = [];
-  if (areaColor) {
-    let run: { i: number; v: number }[] = [];
-    const flush = () => {
-      if (run.length >= 2) {
-        let d = `M ${x(run[0].i).toFixed(1)} ${baseY}`;
-        for (const p of run) d += ` L ${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`;
-        d += ` L ${x(run[run.length - 1].i).toFixed(1)} ${baseY} Z`;
-        areaPaths.push(d);
-      }
-      run = [];
-    };
-    points.forEach((p, i) => { if (p.value == null) flush(); else run.push({ i, v: p.value }); });
-    flush();
-  }
-
-  // 4 value gridlines across the range — deduped by label so flat/zero data
-  // doesn't stack up identical "0" labels (which reads as broken).
+  // 4 value gridlines, deduped by label so flat/zero data doesn't stack up
+  // identical labels (which reads as broken).
   const seenLabels = new Set<string>();
   const ticks = [0, 1, 2, 3]
     .map((k) => lo + (range * k) / 3)
@@ -137,37 +116,22 @@ export function LineChart({
           </>
         ) : null}
 
-        {/* Soft flat area under the line (no gradient); opt-in via areaColor */}
-        {areaColor
-          ? areaPaths.map((d, i) => <path key={`a${i}`} d={d} fill={areaColor} opacity={0.12} />)
-          : null}
+        {/* Connecting trend line (one per contiguous run; gaps stay empty) */}
+        {linePaths.map((d, i) => (
+          <path key={`l${i}`} d={d} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        ))}
 
-        {/* Trend overlay (smoothed) */}
-        {overlay ? (
-          <path d={toPath(overlay)} fill="none" stroke={overlayColor} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        ) : null}
-
-        {/* Main series */}
-        <path d={toPath(points)} fill="none" stroke={color} strokeWidth={overlay ? 1.5 : 2.75} strokeLinejoin="round" strokeLinecap="round" opacity={overlay ? 0.5 : 1} vectorEffect="non-scaling-stroke" />
-
-        {/* Dots on logged points; interior dots only on sparse series so a dense
-            daily line stays clean, but the latest always gets a bold halo. */}
-        {(() => {
-          const logged = points.filter((p) => p.value != null).length;
-          const showInterior = logged <= 14;
-          return points.map((p, i) => {
-            if (p.value == null) return null;
-            const last = i === lastIdx;
-            if (!last && !showInterior) return null;
-            const c = last ? overlayColor : color;
-            return (
-              <g key={i}>
-                {last ? <circle cx={x(i)} cy={y(p.value)} r={7} fill={c} opacity={0.18} /> : null}
-                <circle cx={x(i)} cy={y(p.value)} r={last ? 4 : 2.25} fill={c} stroke="#0b0b0d" strokeWidth={last ? 1.5 : 0} />
-              </g>
-            );
-          });
-        })()}
+        {/* A dot on every logged point; the latest gets a bold halo */}
+        {points.map((p, i) => {
+          if (p.value == null) return null;
+          const last = i === lastIdx;
+          return (
+            <g key={i}>
+              {last ? <circle cx={x(i)} cy={y(p.value)} r={8} fill={color} opacity={0.18} /> : null}
+              <circle cx={x(i)} cy={y(p.value)} r={last ? 4.5 : 3.25} fill={color} stroke="#0b0b0d" strokeWidth={1.25} />
+            </g>
+          );
+        })}
 
         {/* Date axis */}
         {firstDate ? <text x={padL} y={H - 8} textAnchor="start" className="fill-ink/40" style={{ font: "500 9px sans-serif" }}>{fmtDate(firstDate)}</text> : null}

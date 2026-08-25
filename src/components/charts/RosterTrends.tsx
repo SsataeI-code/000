@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 import type { RosterSeries } from "@/lib/coach/data";
-import { seriesMean, movingAverage, smoothingWindow, weeklyAverages, type SeriesPoint, type ChartView } from "@/lib/charts/series";
+import { seriesMean, weeklyAverages, type SeriesPoint, type ChartView } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-import { BarChart } from "@/components/charts/BarChart";
+
+/** WeekPoint[] → SeriesPoint[] for the dot chart (uses the week-start date). */
+const asSeries = (weeks: { startDate: string; value: number | null }[]): SeriesPoint[] =>
+  weeks.map((w) => ({ date: w.startDate, value: w.value }));
 
 export interface WeightSplit {
   losing: number;
@@ -34,7 +37,6 @@ export function RosterTrends({
   viewToggle?: ReactNode;
 }) {
   const weekly = view === "weekly";
-  const ma = smoothingWindow(days);
   const pct = (s: SeriesPoint[]): SeriesPoint[] => s.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }));
   const loggingPct = pct(series.loggingRate);
   const consPct = pct(series.avgConsistency);
@@ -95,9 +97,9 @@ export function RosterTrends({
           Clients logging food {weekly ? "/ week" : "/ day"}
         </p>
         {weekly ? (
-          <BarChart weeks={weeklyAverages(loggingPct)} target={100} targetLabel="all" ariaLabel="Percent of clients logging food, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
+          <LineChart points={asSeries(weeklyAverages(loggingPct))} targetLine={100} targetLabel="all" ariaLabel="Percent of clients logging food, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
         ) : (
-          <LineChart points={loggingPct} overlay={movingAverage(loggingPct, ma)} targetLine={100} targetLabel="all" ariaLabel="Percent of clients who logged food each day" formatValue={(n) => `${Math.round(n)}%`} />
+          <LineChart points={loggingPct} targetLine={100} targetLabel="all" ariaLabel="Percent of clients who logged food each day" formatValue={(n) => `${Math.round(n)}%`} />
         )}
       </div>
 
@@ -106,9 +108,9 @@ export function RosterTrends({
           Habit engagement {weekly ? "/ week" : "/ day"}
         </p>
         {weekly ? (
-          <BarChart weeks={weeklyAverages(consPct)} target={100} targetLabel="goal" ariaLabel="Average habit engagement across the roster, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
+          <LineChart points={asSeries(weeklyAverages(consPct))} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average habit engagement across the roster, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
         ) : (
-          <LineChart points={consPct} overlay={movingAverage(consPct, ma)} overlayColor="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average share of clients engaging their habits each day" formatValue={(n) => `${Math.round(n)}%`} />
+          <LineChart points={consPct} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average share of clients engaging their habits each day" formatValue={(n) => `${Math.round(n)}%`} />
         )}
       </div>
     </section>
