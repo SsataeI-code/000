@@ -30,7 +30,7 @@ function SavedMealCard({ meal, showDelete }: { meal: Meal; showDelete: boolean }
   const [logged, setLogged] = useState(false);
 
   return (
-    <div className="border border-hairline bg-surface p-4">
+    <div className="rounded-lg border border-hairline bg-surface p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-lg text-ink">{meal.name}</h3>
         <span className="shrink-0 font-body text-xs text-ink/50">≈{mealCalories(meal)} cal</span>

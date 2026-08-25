@@ -15,7 +15,7 @@ export function HandPortions({ targets }: { targets: HandTargets }) {
   const counts = { palms: p.palms, cupped: p.cupped, thumbs: p.thumbs };
 
   return (
-    <section aria-label="Hand portions" className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+    <section aria-label="Hand portions" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
       <div>
         <h2 className="text-2xl text-ink">No scale? Use your hand</h2>
         <p className="mt-1 font-body text-sm text-ink/60">

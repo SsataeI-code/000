@@ -101,7 +101,7 @@ export function BodyPhotoCamera({ onCapture, onClose }: { onCapture: (blob: Blob
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-[3/4] w-full overflow-hidden border border-hairline bg-elevated">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg border border-hairline bg-elevated">
         <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
         {status !== "ready" ? (
           <p className="absolute inset-0 flex items-center justify-center p-6 text-center font-body text-sm text-white">

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { HabitCadence, HabitType } from "@/lib/types/db";
 
 const initial: HabitFormState = {};
-const selectClass = "min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
+const selectClass = "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
 const labelClass = "text-xs text-ink/80";
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -19,7 +19,7 @@ export function HabitBuilderForm() {
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {state.error}
         </p>
       ) : null}

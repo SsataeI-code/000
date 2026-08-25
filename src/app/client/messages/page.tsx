@@ -20,7 +20,7 @@ export default async function ClientMessagesPage() {
     return (
       <div className="flex flex-col gap-6">
         <h1 className="text-4xl text-ink">Coach</h1>
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           Your coach thread will appear here soon.
         </p>
       </div>

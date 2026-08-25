@@ -145,11 +145,11 @@ export default async function ClientDeepDive({
           />
         </div>
       ) : (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No targets set yet.</p>
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No targets set yet.</p>
       )}
 
       {/* Water */}
-      <section className="border border-hairline bg-surface p-4">
+      <section className="rounded-lg border border-hairline bg-surface p-4">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Water today</p>
         <p className="mt-1 font-body text-ink/80">
           {Math.round(waterMl / 29.5735)} / {Math.round((profile?.water_goal_ml ?? 2500) / 29.5735)} oz
@@ -160,7 +160,7 @@ export default async function ClientDeepDive({
       <div className="flex flex-col gap-3">
         <h2 className="text-2xl text-ink">Habits</h2>
         {habits.length === 0 ? (
-          <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No habits yet.</p>
+          <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No habits yet.</p>
         ) : (
           <>
             <HabitGame
@@ -173,10 +173,10 @@ export default async function ClientDeepDive({
               name={firstName}
             />
             <Achievements achievements={gameState.achievements} />
-            <section className="border border-hairline bg-surface p-5">
+            <section className="rounded-lg border border-hairline bg-surface p-5">
               <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
             </section>
-            <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
               {habits.map((h) => {
                 const done = byHabit.get(h.id) ?? new Set<string>();
                 return (
@@ -194,7 +194,7 @@ export default async function ClientDeepDive({
       </div>
 
       {/* Weight */}
-      <section className="border border-hairline bg-surface p-5">
+      <section className="rounded-lg border border-hairline bg-surface p-5">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weight</p>
         {latestWeight ? (
           <>
@@ -247,7 +247,7 @@ export default async function ClientDeepDive({
 
       <Link
         href={`/coach/clients/${id}/screen`}
-        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-4 hover:border-red"
       >
         <span className="min-w-0">
           <span className="block font-body text-base text-ink">Customize their Today screen</span>
@@ -271,7 +271,7 @@ function formatHeight(cm: number): string {
 
 function Vital({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-hairline bg-surface p-3 text-center">
+    <div className="rounded-lg border border-hairline bg-surface p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
       <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>

@@ -63,7 +63,7 @@ export function HabitGame({
           : `${todayDue - todayDone} to go — you've got this.`;
 
   return (
-    <section aria-label="Your habit progress" className="border border-hairline bg-elevated p-5 text-white">
+    <section aria-label="Your habit progress" className="rounded-lg border border-hairline bg-elevated p-5 text-white">
       {/* Level + XP */}
       <div className="flex items-baseline justify-between gap-3">
         <div>

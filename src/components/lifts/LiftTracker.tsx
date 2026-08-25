@@ -25,7 +25,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Personal bests</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {bests.map((b) => (
-              <div key={b.exercise} className="border border-hairline bg-surface p-3">
+              <div key={b.exercise} className="rounded-lg border border-hairline bg-surface p-3">
                 <p className="truncate font-body text-sm text-ink">{b.exercise}</p>
                 <p className="mt-1 font-display text-xl text-ink">{b.topWeightLb} lb</p>
                 <p className="font-body text-[11px] text-ink/50">
@@ -40,11 +40,11 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
       <section className="flex flex-col gap-2">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">History</p>
         {entries.length === 0 ? (
-          <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+          <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
             {readOnly ? "No lifts logged yet." : "No lifts yet — log your first set above to start tracking progress."}
           </p>
         ) : (
-          <div className="overflow-x-auto border border-hairline bg-surface">
+          <div className="overflow-x-auto rounded-lg border border-hairline bg-surface">
             <table className="w-full min-w-[34rem] border-collapse text-left">
               <thead>
                 <tr className="border-b border-hairline">
@@ -111,13 +111,13 @@ function LiftForm({ knownExercises }: { knownExercises: string[] }) {
     }
   }, [state, router]);
 
-  const field = "min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink";
+  const field = "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink";
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-3 border border-hairline bg-surface p-4">
+    <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
       <p className="font-label text-xs uppercase tracking-wide text-ink">Log a set</p>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
 
       <div>

@@ -10,7 +10,7 @@ export function TestEmailButton({ defaultEmail }: { defaultEmail?: string }) {
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   return (
-    <section className="border border-hairline bg-surface p-5">
+    <section className="rounded-lg border border-hairline bg-surface p-5">
       <p className="font-label text-xs uppercase tracking-wide text-ink/50">Email delivery</p>
       <p className="mt-1 font-body text-sm text-ink/70">Send a sample re-engagement email to check it arrives.</p>
       <div className="mt-3 flex items-end gap-2">
@@ -22,7 +22,7 @@ export function TestEmailButton({ defaultEmail }: { defaultEmail?: string }) {
             value={to}
             onChange={(e) => setTo(e.target.value)}
             placeholder="you@example.com"
-            className="min-h-tap w-full border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
+            className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
           />
         </div>
         <button

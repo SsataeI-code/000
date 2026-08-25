@@ -48,7 +48,7 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
             Build a habit
           </Link>
         </div>
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           Your habits will live here — the heart of the app. Start with one small thing.
         </p>
       </section>
@@ -64,7 +64,7 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
         </Link>
       </div>
       <HabitTip />
-      <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
         {items.map((item) => (
           <HabitRow key={item.id} item={item} />
         ))}
@@ -93,7 +93,7 @@ function HabitTip() {
     setShow(false);
   };
   return (
-    <div className="flex items-start gap-3 border border-hairline bg-elevated p-4">
+    <div className="flex items-start gap-3 rounded-lg border border-hairline bg-elevated p-4">
       <div className="min-w-0 flex-1 font-body text-sm text-white/90">
         <p className="font-600">How it works</p>
         <p className="mt-1 text-white/70">
@@ -237,7 +237,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
               onChange={(e) => setValue(e.target.value)}
               placeholder={item.target ? String(item.target) : item.unit ?? ""}
               aria-label={`${item.name} amount`}
-              className="min-h-tap w-16 border border-hairline bg-surface px-2 py-1 text-right font-body text-sm"
+              className="min-h-tap w-16 rounded-lg border border-hairline bg-surface px-2 py-1 text-right font-body text-sm"
             />
             {item.target ? (
               <button

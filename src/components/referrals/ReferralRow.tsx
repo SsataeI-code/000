@@ -32,7 +32,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
   }
 
   return (
-    <li className={`border border-hairline bg-surface p-4 ${pending ? "opacity-70" : ""}`}>
+    <li className={`rounded-lg border border-hairline bg-surface p-4 ${pending ? "opacity-70" : ""}`}>
       <div className="flex items-baseline justify-between gap-3">
         <p className="font-body text-base text-ink">
           <span className="text-ink">{referral.referrerName}</span>
@@ -64,7 +64,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
             maxLength={200}
             placeholder="Reward note (e.g. 10% off next month)"
             aria-label="Reward note"
-            className="min-h-tap w-full border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
+            className="min-h-tap w-full rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
           />
           {error ? <p role="alert" className="font-body text-sm text-red-ink">{error}</p> : null}
           <div className="flex gap-2">

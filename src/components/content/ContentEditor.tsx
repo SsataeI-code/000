@@ -70,7 +70,7 @@ export function ContentEditor({ fields }: { fields: ContentField[] }) {
       {sections.map(([section, list]) => (
         <section key={section} className="flex flex-col gap-3">
           <h2 className="text-2xl text-ink">{SECTION_TITLES[section] ?? section}</h2>
-          <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+          <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
             {list.map((f) => {
               const overridden = (values[f.key] ?? "") !== "" && (values[f.key] ?? "") !== f.default;
               return (
@@ -97,7 +97,7 @@ export function ContentEditor({ fields }: { fields: ContentField[] }) {
                     value={values[f.key] ?? ""}
                     placeholder={f.default}
                     onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-                    className="min-h-tap w-full resize-y border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
+                    className="min-h-tap w-full resize-y rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 focus:border-ink"
                   />
                 </li>
               );
@@ -107,7 +107,7 @@ export function ContentEditor({ fields }: { fields: ContentField[] }) {
       ))}
 
       {/* Sticky save bar */}
-      <div className="sticky bottom-20 z-10 flex items-center justify-between gap-3 border border-hairline bg-elevated p-3 md:bottom-4">
+      <div className="sticky bottom-20 z-10 flex items-center justify-between gap-3 rounded-lg border border-hairline bg-elevated p-3 md:bottom-4">
         <span aria-live="polite" className="font-body text-xs text-white/80">
           {error ? <span className="text-red-ink">{error}</span> : status ? status : dirty ? "Unsaved changes" : "All saved"}
         </span>

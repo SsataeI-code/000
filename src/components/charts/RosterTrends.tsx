@@ -48,7 +48,7 @@ export function RosterTrends({
   const wpct = (n: number) => (ws.tracked > 0 ? (n / ws.tracked) * 100 : 0);
 
   return (
-    <section className="flex flex-col gap-5 border border-hairline bg-surface p-5">
+    <section className="flex flex-col gap-5 rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-2xl text-ink">Roster trends</h2>
         <div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export function RosterTrends({
       </div>
 
       {/* Weight direction — the headline for a roster (who's moving right) */}
-      <div className="border border-hairline bg-surface-muted p-4">
+      <div className="rounded-lg border border-hairline bg-surface-muted p-4">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weight direction</p>
         {ws.tracked === 0 ? (
           <p className="mt-2 font-body text-sm text-ink/50">No weight trends logged yet.</p>
@@ -117,7 +117,7 @@ export function RosterTrends({
 
 function MiniStat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="border border-hairline bg-surface-muted p-3 text-center">
+    <div className="rounded-lg border border-hairline bg-surface-muted p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
       <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
       {sub ? <p className="font-body text-[10px] text-ink/40">{sub}</p> : null}

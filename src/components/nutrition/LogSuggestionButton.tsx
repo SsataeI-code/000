@@ -34,7 +34,7 @@ export function LogSuggestionButton({ food }: { food: FoodPick }) {
       onClick={add}
       disabled={pending || done}
       aria-label={`Log ${food.name}`}
-      className="min-h-tap shrink-0 border border-hairline bg-surface px-3 py-1 font-label text-[10px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+      className="min-h-tap shrink-0 rounded-lg border border-hairline bg-surface px-3 py-1 font-label text-[10px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
     >
       {done ? "Added" : "Add"}
     </button>

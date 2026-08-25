@@ -49,7 +49,7 @@ export function AnswerHelper({ ctx }: { ctx: HelpContext }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <ol className="flex max-h-[52vh] min-h-[7rem] flex-col gap-2 overflow-y-auto border border-hairline bg-surface p-4">
+      <ol className="flex max-h-[52vh] min-h-[7rem] flex-col gap-2 overflow-y-auto rounded-lg border border-hairline bg-surface p-4">
         {turns.length === 0 ? (
           <li className="flex flex-col gap-3 py-2">
             <p className="font-body text-sm text-ink/60">
@@ -61,7 +61,7 @@ export function AnswerHelper({ ctx }: { ctx: HelpContext }) {
                   key={s}
                   type="button"
                   onClick={() => ask(s)}
-                  className="min-h-tap border border-hairline bg-surface px-3 py-2 text-left font-body text-sm text-ink hover:border-red"
+                  className="min-h-tap rounded-lg border border-hairline bg-surface px-3 py-2 text-left font-body text-sm text-ink hover:border-red"
                 >
                   {s}
                 </button>
@@ -99,7 +99,7 @@ export function AnswerHelper({ ctx }: { ctx: HelpContext }) {
           name="hq"
           autoComplete="off"
           placeholder="Ask a question, or “log 2 eggs and toast”…"
-          className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+          className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
         />
         <button
           type="submit"

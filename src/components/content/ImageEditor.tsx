@@ -82,8 +82,8 @@ function ImageRow({
   }
 
   return (
-    <div className="flex items-center gap-4 border border-hairline bg-surface p-4">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-hairline bg-surface-muted">
+    <div className="flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4">
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted">
         {current ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={current} alt={`${label} (current)`} className="h-full w-full object-contain" />
@@ -102,7 +102,7 @@ function ImageRow({
         <input ref={inputRef} id={`img-${imgKey}`} type="file" accept="image/*" onChange={onPick} disabled={busy} className="sr-only" />
         <label
           htmlFor={`img-${imgKey}`}
-          className={`inline-flex min-h-tap cursor-pointer items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
+          className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
         >
           {busy ? "Working…" : current ? "Replace" : "Upload"}
         </label>

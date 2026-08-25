@@ -11,7 +11,7 @@ export function FillYourRings({ suggestions }: { suggestions: RingSuggestion[] }
   if (suggestions.length === 0) return null;
 
   return (
-    <section aria-label="Ways to fill your rings" className="border border-hairline bg-surface p-5">
+    <section aria-label="Ways to fill your rings" className="rounded-lg border border-hairline bg-surface p-5">
       <p className="font-label text-xs uppercase tracking-wide text-red">Fill your rings</p>
       <div className="mt-3 flex flex-col gap-4">
         {suggestions.map((s) => (

@@ -17,12 +17,12 @@ export function BodyLogForm() {
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {state.error}
         </p>
       ) : null}
       {state.ok ? (
-        <p role="status" className="border border-hairline bg-surface px-3 py-2 text-sm text-success">
+        <p role="status" className="rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-success">
           Saved.
         </p>
       ) : null}
@@ -42,7 +42,7 @@ export function BodyLogForm() {
         <input type="hidden" name="weight_unit" value={unit} />
         <input name="weight" type="number" inputMode="decimal" step="0.1" placeholder={unit}
           aria-label={`Weight in ${unit}`}
-          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink" />
+          className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink" />
       </div>
 
       <button type="button" onClick={() => setShowMore((v) => !v)}

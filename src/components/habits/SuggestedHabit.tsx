@@ -23,14 +23,14 @@ export function SuggestedHabit({ name, category, why }: { name: string; category
 
   if (done) {
     return (
-      <section className="border border-success bg-surface p-5">
+      <section className="rounded-lg border border-success bg-surface p-5">
         <p className="font-body text-sm text-success">Added — nice. It&apos;s on your list now.</p>
       </section>
     );
   }
 
   return (
-    <section className="border border-hairline bg-surface p-5">
+    <section className="rounded-lg border border-hairline bg-surface p-5">
       <p className="font-label text-xs uppercase tracking-wide text-ink/50">Ready for your next habit?</p>
       <div className="mt-2 flex items-center gap-2">
         <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: CATEGORY_DOT[category] }} />

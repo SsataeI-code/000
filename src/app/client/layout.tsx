@@ -54,7 +54,7 @@ export default async function ClientLayout({ children }: { children: React.React
         </span>
       </header>
 
-      <div className="px-5 py-6">{children}</div>
+      <div className="rise px-5 py-6">{children}</div>
 
       {/* Report the browser timezone so daily stats reset at the client's midnight. */}
       <TimezoneSync />

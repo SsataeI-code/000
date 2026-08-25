@@ -39,7 +39,7 @@ export default async function AddFoodPage() {
 
       <Link
         href="/client/plate"
-        className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-4 hover:border-red"
       >
         <span className="min-w-0">
           <span className="block font-body text-base text-ink">Build a plate</span>

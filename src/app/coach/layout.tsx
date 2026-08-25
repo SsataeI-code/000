@@ -69,7 +69,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
           </ul>
         </nav>
 
-        <div className="flex-1 px-5 py-6 md:px-0 md:py-0">{children}</div>
+        <div className="rise flex-1 px-5 py-6 md:px-0 md:py-0">{children}</div>
       </div>
 
       <BottomTabBar items={tabs} />

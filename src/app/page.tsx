@@ -98,7 +98,7 @@ export default async function LandingPage() {
         <p className="max-w-[48ch] font-body text-ink/70">
           When you join, you&apos;re working with a real coach — the app is where it happens every day.
         </p>
-        <ul className="mt-2 flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ul className="mt-2 flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {[
             { title: "A plan built for you", body: "Calories, macros, and starter habits set for your goal — and adjusted as you go." },
             { title: "A coach who sees it all", body: "Your logs, streaks, and trends are right in front of them, so they can steer you between check-ins." },
@@ -115,7 +115,7 @@ export default async function LandingPage() {
       {/* Meet your coach — editable from the CMS (copy + photo) */}
       <section className="flex flex-col gap-4 border-t border-hairline pt-12">
         <h2 className="text-3xl text-ink">{t("landing.coach.heading")}</h2>
-        <div className="flex flex-col gap-5 border border-hairline bg-surface p-6 sm:flex-row sm:items-center sm:gap-6">
+        <div className="flex flex-col gap-5 rounded-lg border border-hairline bg-surface p-6 sm:flex-row sm:items-center sm:gap-6">
           {coachPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -124,7 +124,7 @@ export default async function LandingPage() {
               className="h-28 w-28 shrink-0 border border-hairline object-cover"
             />
           ) : (
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
+            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
               Photo
             </div>
           )}
@@ -140,7 +140,7 @@ export default async function LandingPage() {
         <h2 className="text-3xl text-ink">Everything in one place</h2>
         <div className="mt-2 grid gap-4 sm:grid-cols-3">
           {PILLARS.map((p) => (
-            <div key={p.title} className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+            <div key={p.title} className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
               <span aria-hidden className="block h-7 w-7 text-red">{p.icon}</span>
               <h3 className="font-display text-xl text-ink">{p.title}</h3>
               <p className="font-body text-sm text-ink/60">{p.body}</p>
@@ -152,7 +152,7 @@ export default async function LandingPage() {
       {/* How it works */}
       <section className="flex flex-col gap-4 border-t border-hairline pt-12">
         <h2 className="text-3xl text-ink">How it works</h2>
-        <ol className="mt-2 flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ol className="mt-2 flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {STEPS.map((s) => (
             <li key={s.n} className="flex items-start gap-4 p-5">
               <span className="font-display text-3xl leading-none text-red">{s.n}</span>
@@ -167,7 +167,7 @@ export default async function LandingPage() {
 
       {/* Closing CTA */}
       {configured ? (
-        <section className="mt-12 flex flex-col items-start gap-4 border border-red bg-surface p-8">
+        <section className="mt-12 flex flex-col items-start gap-4 rounded-lg border border-red bg-surface p-8">
           <h2 className="text-3xl text-ink">Ready to do the work?</h2>
           <p className="max-w-[42ch] font-body text-ink/70">
             One minute to set up, then it&apos;s small daily habits and real progress. Your coach takes it from there.

@@ -27,7 +27,7 @@ export function RemoveClient({
   const [dState, dAction, dPending] = useActionState(deleteClientAction.bind(null, clientId), initial);
 
   return (
-    <section aria-label={`Remove ${clientName}`} className="flex flex-col gap-4 border border-hairline bg-surface p-4">
+    <section aria-label={`Remove ${clientName}`} className="flex flex-col gap-4 rounded-lg border border-hairline bg-surface p-4">
       <div>
         <h2 className="text-2xl text-ink">Remove {clientName}</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
@@ -40,7 +40,7 @@ export function RemoveClient({
       <div className="flex flex-col gap-2">
         <a
           href={`/api/export/${clientId}`}
-          className="min-h-tap self-start border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+          className="min-h-tap self-start rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
         >
           Export all data (JSON)
         </a>
@@ -66,13 +66,13 @@ export function RemoveClient({
       {/* Archive — reversible */}
       <div className="flex flex-col gap-3">
         {aState.error ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{aState.error}</p>
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{aState.error}</p>
         ) : null}
         {!confirmArchive ? (
           <button
             type="button"
             onClick={() => setConfirmArchive(true)}
-            className="min-h-tap self-start border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+            className="min-h-tap self-start rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
           >
             Archive client
           </button>
@@ -99,13 +99,13 @@ export function RemoveClient({
             Permanently delete {clientName} and all their logs, habits, and messages. This cannot be undone.
           </p>
           {dState.error ? (
-            <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{dState.error}</p>
+            <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{dState.error}</p>
           ) : null}
           {!confirmDelete ? (
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="min-h-tap self-start border border-red bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-red-ink hover:bg-red hover:text-white"
+              className="min-h-tap self-start rounded-lg border border-red bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-red-ink hover:bg-red hover:text-white"
             >
               Delete permanently
             </button>

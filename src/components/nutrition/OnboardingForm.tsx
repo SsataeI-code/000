@@ -10,7 +10,7 @@ import { DIET_OPTIONS } from "@/lib/food/diet";
 const initial: OnboardingState = {};
 
 const selectClass =
-  "min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
+  "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
 const labelClass = "text-xs text-ink/80";
 
 export function OnboardingForm() {
@@ -22,7 +22,7 @@ export function OnboardingForm() {
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {state.error}
         </p>
       ) : null}
@@ -182,7 +182,7 @@ export function OnboardingForm() {
           id="food_avoid"
           name="food_avoid"
           placeholder="e.g. shellfish, peanuts, cilantro"
-          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+          className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
         />
         <p className="font-body text-xs text-ink/50">Comma-separated. We&apos;ll keep these out of your suggestions.</p>
       </div>
@@ -198,7 +198,7 @@ export function OnboardingForm() {
           anchor it.
         </p>
 
-        <div className="mt-1 flex flex-col gap-1 border border-hairline bg-surface p-3 font-body text-xs text-ink/60">
+        <div className="mt-1 flex flex-col gap-1 rounded-lg border border-hairline bg-surface p-3 font-body text-xs text-ink/60">
           <p><span className="font-600 text-ink">How to pick:</span> choose one small enough to do almost every day — “drink water,” not “run a marathon.”</p>
           <p><span className="font-600 text-ink">How it helps:</span> repeating it builds the routine your goal is made of.</p>
           <p><span className="font-600 text-ink">How you track it:</span> tap it done each day on your Today screen — watch your streak grow and your calendar fill in.</p>
@@ -213,7 +213,7 @@ export function OnboardingForm() {
               onClick={() => setOwnHabit(idea.name)}
               aria-pressed={ownHabit === idea.name}
               className={`min-h-tap px-3 py-1.5 font-body text-sm ${
-                ownHabit === idea.name ? "border-2 border-red bg-surface text-ink" : "border border-hairline bg-surface text-ink/70"
+                ownHabit === idea.name ? "border-2 border-red bg-surface text-ink" : "rounded-lg border border-hairline bg-surface text-ink/70"
               }`}
             >
               {idea.name}
@@ -225,7 +225,7 @@ export function OnboardingForm() {
           onChange={(e) => setOwnHabit(e.target.value)}
           placeholder="…or write your own"
           aria-label="Your own habit"
-          className="mt-2 min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+          className="mt-2 min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
         />
         <input type="hidden" name="own_habit" value={ownHabit} />
         <input type="hidden" name="own_habit_category" value={categoryForIdea(ownHabit)} />

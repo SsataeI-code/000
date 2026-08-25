@@ -80,9 +80,9 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
       </div>
 
       {clients.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No clients yet.</p>
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">No clients yet.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {clients.map((c) => (
             <li key={c.id}>
               <Link href={`/coach/clients/${c.id}`} className="flex flex-col gap-2 px-4 py-3 hover:bg-surface-muted">

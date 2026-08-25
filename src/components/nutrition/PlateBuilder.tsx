@@ -155,7 +155,7 @@ export function PlateBuilder({
   }
 
   return (
-    <section aria-label="Plate builder" className="flex flex-col gap-5 border border-hairline bg-surface p-5">
+    <section aria-label="Plate builder" className="flex flex-col gap-5 rounded-lg border border-hairline bg-surface p-5">
       <div>
         <h2 className="text-2xl text-ink">Build a plate</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
@@ -238,7 +238,7 @@ export function PlateBuilder({
               { label: "Carbs", value: `${totals.carbsG}g` },
               { label: "Fat", value: `${totals.fatG}g` },
             ].map((s) => (
-              <div key={s.label} className="border border-hairline bg-surface-muted py-2">
+              <div key={s.label} className="rounded-lg border border-hairline bg-surface-muted py-2">
                 <p className="font-display text-2xl text-ink">{s.value}</p>
                 <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{s.label}</p>
               </div>
@@ -252,9 +252,9 @@ export function PlateBuilder({
             </p>
           ) : null}
           {hint ? (
-            <p className="border border-hairline bg-surface-muted px-3 py-2 font-body text-xs text-ink/70">{hint}</p>
+            <p className="rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-xs text-ink/70">{hint}</p>
           ) : (
-            <p className="border border-success bg-surface px-3 py-2 font-body text-xs text-success">Nicely balanced plate — half veggies, protein and carbs in place.</p>
+            <p className="rounded-lg border border-success bg-surface px-3 py-2 font-body text-xs text-success">Nicely balanced plate — half veggies, protein and carbs in place.</p>
           )}
         </div>
       </div>
@@ -266,7 +266,7 @@ export function PlateBuilder({
           <ul className="flex flex-col gap-1.5">
             {grouped.map(({ food, count }) => (
               <li key={food.id} className="flex items-center gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-hairline bg-surface-muted">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted">
                   <FoodIcon name={food.icon} size={20} />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -318,13 +318,13 @@ export function PlateBuilder({
             }}
             placeholder="Search foods… (e.g. salmon, oatmeal, avocado)"
             aria-label="Search foods to add to the plate"
-            className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+            className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
           />
           <button
             type="button"
             onClick={runSearch}
             disabled={searching || query.trim().length < 2}
-            className="min-h-tap shrink-0 border border-hairline bg-surface px-4 py-2.5 font-label text-xs uppercase tracking-wide text-ink hover:border-red disabled:opacity-40"
+            className="min-h-tap shrink-0 rounded-lg border border-hairline bg-surface px-4 py-2.5 font-label text-xs uppercase tracking-wide text-ink hover:border-red disabled:opacity-40"
           >
             {searching ? "…" : "Search"}
           </button>
@@ -337,7 +337,7 @@ export function PlateBuilder({
                 type="button"
                 onClick={() => add(food)}
                 aria-label={`Add ${food.name}, ${food.portion}, ${food.calories} calories`}
-                className="flex min-h-tap items-center gap-2 border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-red"
+                className="flex min-h-tap items-center gap-2 rounded-lg border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-red"
               >
                 <span aria-hidden className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: ZONE_META[food.zone].color }} />
                 <span className="min-w-0">
@@ -373,7 +373,7 @@ export function PlateBuilder({
                     type="button"
                     onClick={() => add(food)}
                     aria-label={`Add ${food.name}, ${food.portion}, ${food.calories} calories`}
-                    className="flex min-h-tap items-center gap-2 border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-red"
+                    className="flex min-h-tap items-center gap-2 rounded-lg border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-red"
                   >
                     <FoodIcon name={food.icon} size={22} className="shrink-0" />
                     <span className="min-w-0">
@@ -389,7 +389,7 @@ export function PlateBuilder({
       </div>
 
       {logState === "done" ? (
-        <p role="status" className="flex items-center justify-between gap-3 border border-success bg-surface px-3 py-2 text-sm text-success">
+        <p role="status" className="flex items-center justify-between gap-3 rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
           Added to today&apos;s food log.
           <Link href="/client" className="font-label text-[10px] uppercase tracking-wide underline underline-offset-4">
             View today →
@@ -397,7 +397,7 @@ export function PlateBuilder({
         </p>
       ) : null}
       {logState === "error" ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           Couldn&apos;t log that — try again.
         </p>
       ) : null}
@@ -415,7 +415,7 @@ export function PlateBuilder({
               }}
               placeholder="Name it (e.g. My go-to bowl)"
               aria-label="Meal name"
-              className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+              className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
             />
             <button
               type="button"

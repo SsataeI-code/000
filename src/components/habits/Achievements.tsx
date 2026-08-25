@@ -10,7 +10,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
   const earned = achievements.filter((a) => a.earned).length;
 
   return (
-    <section aria-label="Achievements" className="border border-hairline bg-surface p-5">
+    <section aria-label="Achievements" className="rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-baseline justify-between">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Badges</p>
         <p className="font-body text-xs text-ink/60">{earned} of {achievements.length} earned</p>

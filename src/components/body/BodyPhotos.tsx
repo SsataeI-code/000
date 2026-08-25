@@ -85,7 +85,7 @@ export function BodyPhotos({
   }
 
   return (
-    <section aria-label="Progress photos" className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+    <section aria-label="Progress photos" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-2xl text-ink">Progress photos</h2>
         {canEdit ? (
@@ -100,13 +100,13 @@ export function BodyPhotos({
         </p>
       ) : null}
 
-      {error ? <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}
+      {error ? <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}
 
       {photos.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {photos.map((p) => (
             <li key={p.id} className="flex flex-col gap-1">
-              <div className="aspect-square overflow-hidden border border-hairline bg-surface-muted">
+              <div className="aspect-square overflow-hidden rounded-lg border border-hairline bg-surface-muted">
                 {p.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={p.url} alt={`Progress photo from ${fmt(p.taken_on)}`} className="h-full w-full object-cover" />
@@ -152,7 +152,7 @@ export function BodyPhotos({
             />
             <label
               htmlFor="body-photo-input"
-              className={`inline-flex min-h-tap cursor-pointer items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
+              className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
             >
               {busy ? "Uploading…" : "Add a photo"}
             </label>
@@ -163,7 +163,7 @@ export function BodyPhotos({
                 setCamera(true);
               }}
               disabled={busy}
-              className="inline-flex min-h-tap items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+              className="inline-flex min-h-tap items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
             >
               Take with timer
             </button>

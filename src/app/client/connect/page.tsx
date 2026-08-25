@@ -45,16 +45,16 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
       </div>
 
       {connectedLabel ? (
-        <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">
+        <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
           {connectedLabel} connected. Your steps and sleep will start syncing.
         </p>
       ) : null}
       {errorMsg ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{errorMsg}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{errorMsg}</p>
       ) : null}
 
       {anyConnected ? (
-        <section className="border border-hairline bg-surface p-4">
+        <section className="rounded-lg border border-hairline bg-surface p-4">
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Latest sync</p>
           {latest ? (
             <p className="mt-1 font-body text-base text-ink">
@@ -68,7 +68,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
         </section>
       ) : null}
 
-      <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
         {WEARABLE_PROVIDERS.map((p) => {
           const configured = providerConfigured(p, process.env);
           const st = statusByProvider.get(p.id);
@@ -103,7 +103,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
               ) : configured ? (
                 <a
                   href={`/api/wearables/${p.id}/connect`}
-                  className="min-h-tap inline-flex items-center border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+                  className="min-h-tap inline-flex items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
                 >
                   Connect
                 </a>
@@ -115,7 +115,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
         })}
       </ul>
 
-      <section className="border border-hairline bg-surface p-5">
+      <section className="rounded-lg border border-hairline bg-surface p-5">
         <h2 className="text-2xl text-ink">Apple Watch or your phone?</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
           Apple Health and phone pedometers can&apos;t sync to a web app — that&apos;s a real limitation, not a bug. Log

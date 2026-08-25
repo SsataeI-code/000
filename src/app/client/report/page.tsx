@@ -77,7 +77,7 @@ export default async function ClientReportPage() {
         </Link>
       </div>
 
-      <section aria-label="Wins" className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+      <section aria-label="Wins" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
         <h2 className="font-label text-xs uppercase tracking-wide text-success">Wins</h2>
         <ul className="flex flex-col gap-2">
           {recap.wins.map((w, i) => (
@@ -89,7 +89,7 @@ export default async function ClientReportPage() {
         </ul>
       </section>
 
-      <section aria-label="To work on" className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+      <section aria-label="To work on" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
         <h2 className="font-label text-xs uppercase tracking-wide text-ink/50">To work on</h2>
         <ul className="flex flex-col gap-2">
           {recap.focus.map((f, i) => (

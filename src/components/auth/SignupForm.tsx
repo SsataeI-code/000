@@ -23,7 +23,7 @@ export function SignupForm({
 
   if (state.notice) {
     return (
-      <p role="status" className="border border-hairline bg-surface px-4 py-4 text-sm text-ink/80">
+      <p role="status" className="rounded-lg border border-hairline bg-surface px-4 py-4 text-sm text-ink/80">
         {state.notice}
       </p>
     );
@@ -33,7 +33,7 @@ export function SignupForm({
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {referralCode ? <input type="hidden" name="referral_code" value={referralCode} /> : null}
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {state.error}
         </p>
       ) : null}

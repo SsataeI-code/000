@@ -17,7 +17,7 @@ export function HabitManageList({ items }: { items: ManageItem[] }) {
     return <p className="font-body text-sm text-ink/60">No habits yet. Create your first below.</p>;
   }
   return (
-    <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+    <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
       {items.map((it) => (
         <Row key={it.id} item={it} />
       ))}

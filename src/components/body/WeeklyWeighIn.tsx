@@ -48,7 +48,7 @@ export function WeeklyWeighIn({
   // Up to date and not expanded → a compact, findable line.
   if (!due && !open) {
     return (
-      <section aria-label="Weight" className="flex items-center justify-between gap-3 border border-hairline bg-surface px-4 py-3">
+      <section aria-label="Weight" className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface px-4 py-3">
         <div className="min-w-0">
           <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
           <p className="font-body text-sm text-ink">
@@ -74,7 +74,7 @@ export function WeeklyWeighIn({
   }
 
   return (
-    <section aria-label="Weekly weigh-in" className="flex flex-col gap-3 border border-hairline bg-surface p-4">
+    <section aria-label="Weekly weigh-in" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-label text-[10px] uppercase tracking-wide text-red">Weekly weigh-in</p>
@@ -104,7 +104,7 @@ export function WeeklyWeighIn({
             required
             placeholder={unit}
             autoFocus={open && !due}
-            className="min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+            className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
           />
         </div>
         <button
@@ -126,7 +126,7 @@ export function WeeklyWeighIn({
       </form>
 
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
 
       <Link href="/client/body" className="font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">

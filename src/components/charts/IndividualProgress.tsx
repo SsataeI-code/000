@@ -129,7 +129,7 @@ export function IndividualProgress({
       </div>
 
       {/* Weight vs goal — the headline */}
-      <section className="border border-hairline bg-surface p-5">
+      <section className="rounded-lg border border-hairline bg-surface p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
@@ -227,7 +227,7 @@ export function IndividualProgress({
 
 function Card({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
   return (
-    <section className="border border-hairline bg-surface p-5">
+    <section className="rounded-lg border border-hairline bg-surface p-5">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">{title}</p>
         {note ? <p className="font-body text-xs text-ink/60">{note}</p> : null}
@@ -239,7 +239,7 @@ function Card({ title, note, children }: { title: string; note?: string; childre
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="border border-hairline bg-surface p-3">
+    <div className="rounded-lg border border-hairline bg-surface p-3">
       <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
       <p className="mt-1 font-display text-2xl leading-none text-ink">{value}</p>
       {sub ? <p className="mt-0.5 font-body text-[11px] text-ink/40">{sub}</p> : null}

@@ -18,7 +18,7 @@ export function RosterCohorts({ clients }: { clients: CohortClient[] }) {
   const segments = segmentRoster(clients, dim);
 
   return (
-    <section className="border border-hairline bg-surface p-4">
+    <section className="rounded-lg border border-hairline bg-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Segment by</p>
         <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Segment roster by">

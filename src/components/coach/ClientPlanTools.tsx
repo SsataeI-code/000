@@ -15,7 +15,7 @@ import type { Habit, HabitCadence, HabitType } from "@/lib/types/db";
 
 const initial: PlanState = {};
 const selectClass =
-  "min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
+  "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
 const labelClass = "text-xs text-ink/80";
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -52,7 +52,7 @@ export function ClientPlanTools({
   const [cadence, setCadence] = useState<HabitCadence>("daily");
 
   return (
-    <section className="flex flex-col gap-6 border border-hairline bg-surface-muted p-5">
+    <section className="flex flex-col gap-6 rounded-lg border border-hairline bg-surface-muted p-5">
       <div>
         <h2 className="text-2xl text-ink">Coach tools</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
@@ -64,12 +64,12 @@ export function ClientPlanTools({
       <form action={tAction} className="flex flex-col gap-4" noValidate>
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Adjust targets</p>
         {tState.error ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
             {tState.error}
           </p>
         ) : null}
         {tState.ok ? (
-          <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">
+          <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
             Targets updated.
           </p>
         ) : null}
@@ -90,15 +90,15 @@ export function ClientPlanTools({
       <form action={sAction} className="flex flex-col gap-3" noValidate>
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Nutrition strictness</p>
         {sState.error ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{sState.error}</p>
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{sState.error}</p>
         ) : null}
         {sState.ok ? (
-          <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">Strictness saved.</p>
+          <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">Strictness saved.</p>
         ) : null}
         <select
           name="strictness"
           defaultValue={strictness}
-          className="min-h-tap border border-hairline bg-surface-muted px-3 py-2 font-body text-base text-ink focus:border-red focus:outline-none"
+          className="min-h-tap rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-base text-ink focus:border-red focus:outline-none"
         >
           {STRICTNESS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -117,12 +117,12 @@ export function ClientPlanTools({
       <form action={hAction} className="flex flex-col gap-4" noValidate>
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Build a habit for this client</p>
         {hState.error ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
             {hState.error}
           </p>
         ) : null}
         {hState.ok ? (
-          <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">
+          <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
             Habit added.
           </p>
         ) : null}
@@ -199,7 +199,7 @@ export function ClientPlanTools({
           <hr className="border-hairline" />
           <div className="flex flex-col gap-2">
             <p className="font-label text-xs uppercase tracking-wide text-ink/50">Remove a habit</p>
-            <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
               {habits.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                   <span className="min-w-0 truncate font-body text-sm text-ink">{h.name}</span>

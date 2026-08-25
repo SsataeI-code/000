@@ -58,7 +58,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
       </div>
 
       {roster.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           No clients yet. Share your coach code to bring your first one in.
         </p>
       ) : (
@@ -75,7 +75,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
 
           <RosterCohorts clients={roster} />
 
-          <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+          <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
             {roster.map((c) => (
               <li key={c.id}>
                 <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
@@ -101,7 +101,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-hairline bg-surface p-4 text-center">
+    <div className="rounded-lg border border-hairline bg-surface p-4 text-center">
       <p className="font-display text-3xl text-ink">{value}</p>
       <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>

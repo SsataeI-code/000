@@ -52,7 +52,7 @@ export default async function AchievementsPage() {
       </div>
 
       {habits.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           Add a habit and start earning badges — your wall fills up as your streaks grow.
         </p>
       ) : (

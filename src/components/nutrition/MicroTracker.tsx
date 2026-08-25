@@ -26,7 +26,7 @@ export function MicroTracker({
     rows.some((r) => r.def.group === g && (g !== "Also tracked" || r.consumed > 0));
 
   return (
-    <details className="border border-hairline bg-surface">
+    <details className="rounded-lg border border-hairline bg-surface">
       <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-5 py-3">
         <span className="font-label text-xs uppercase tracking-wide text-ink/70">
           Vitamins &amp; minerals

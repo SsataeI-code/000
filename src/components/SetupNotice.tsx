@@ -4,7 +4,7 @@
  */
 export function SetupNotice() {
   return (
-    <div className="mt-10 border border-hairline bg-surface p-5">
+    <div className="mt-10 rounded-lg border border-hairline bg-surface p-5">
       <p className="font-label text-xs uppercase tracking-wide text-red">
         Setup needed
       </p>

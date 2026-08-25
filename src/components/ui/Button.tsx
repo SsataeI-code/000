@@ -8,9 +8,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-none px-5 py-3 " +
-  "font-label text-sm font-600 uppercase tracking-wide transition-transform " +
-  "active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-lg px-5 py-3 " +
+  "font-label text-sm font-600 uppercase tracking-wide transition-[transform,background-color,color,border-color] duration-150 " +
+  "active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   // Flat, high-contrast, no gradients (§4).

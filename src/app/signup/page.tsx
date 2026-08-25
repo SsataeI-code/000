@@ -41,7 +41,7 @@ export default async function SignupPage({
       </p>
 
       {referralCode ? (
-        <p className="mt-4 border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
+        <p className="mt-4 rounded-lg border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
           {getCopy("auth.signup.invited", overrides)}
         </p>
       ) : null}

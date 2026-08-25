@@ -30,11 +30,11 @@ export default async function CoachMessagesPage() {
       <h1 className="text-4xl text-ink">Messages</h1>
 
       {roster.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           No clients yet. Once someone joins, your private thread with them lives here.
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {threads.map((t) => (
             <li key={t.clientId}>
               <Link href={`/coach/messages/${t.clientId}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">

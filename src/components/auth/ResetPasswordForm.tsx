@@ -15,7 +15,7 @@ export function ResetPasswordForm({ overrides = {} }: { overrides?: CopyOverride
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
 
       <Field

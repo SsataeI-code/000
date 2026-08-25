@@ -36,7 +36,7 @@ export function Assistant() {
 
   return (
     <div className="flex flex-col gap-3">
-      <ol className="flex max-h-[58vh] min-h-[8rem] flex-col gap-2 overflow-y-auto border border-hairline bg-surface p-4">
+      <ol className="flex max-h-[58vh] min-h-[8rem] flex-col gap-2 overflow-y-auto rounded-lg border border-hairline bg-surface p-4">
         {turns.length === 0 ? (
           <li className="flex flex-col gap-3 py-4">
             <p className="font-body text-sm text-ink/60">
@@ -48,7 +48,7 @@ export function Assistant() {
                   key={s}
                   type="button"
                   onClick={() => send(s)}
-                  className="min-h-tap border border-hairline bg-surface px-3 py-2 text-left font-body text-sm text-ink hover:border-red"
+                  className="min-h-tap rounded-lg border border-hairline bg-surface px-3 py-2 text-left font-body text-sm text-ink hover:border-red"
                 >
                   {s}
                 </button>
@@ -76,7 +76,7 @@ export function Assistant() {
         <div ref={endRef} />
       </ol>
 
-      {error ? <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}
+      {error ? <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}
 
       <form
         onSubmit={(e) => {
@@ -93,7 +93,7 @@ export function Assistant() {
           name="q"
           autoComplete="off"
           placeholder="Ask about food, swaps, your targets…"
-          className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+          className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
         />
         <button
           type="submit"

@@ -103,7 +103,7 @@ export default async function HabitsPage() {
 
           <Achievements achievements={gameState.achievements} />
 
-          <section className="border border-hairline bg-surface p-5">
+          <section className="rounded-lg border border-hairline bg-surface p-5">
             <div className="flex items-baseline justify-between">
               <p className="font-label text-xs uppercase tracking-wide text-ink/50">Consistency</p>
               <p className="font-body text-xs text-ink/60">Best streak: {bestStreak}d</p>
@@ -116,7 +116,7 @@ export default async function HabitsPage() {
       ) : null}
 
       {habits.length === 0 ? (
-        <form action={seedStarterHabitsAction} className="border border-hairline bg-surface p-5">
+        <form action={seedStarterHabitsAction} className="rounded-lg border border-hairline bg-surface p-5">
           <p className="font-body text-sm text-ink/70">
             Want a head start? We&apos;ll add a set of daily habits tailored to your goal — edit or
             remove any of them.

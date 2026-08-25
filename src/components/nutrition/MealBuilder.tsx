@@ -97,7 +97,7 @@ export function MealBuilder({
   }
 
   return (
-    <div className="flex flex-col gap-4 border border-hairline bg-surface p-5">
+    <div className="flex flex-col gap-4 rounded-lg border border-hairline bg-surface p-5">
       <Field label="Meal name" name="meal_name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. My go-to breakfast" />
 
       {/* Ingredients */}
@@ -112,7 +112,7 @@ export function MealBuilder({
                 aria-label={`Grams of ${it.name}`}
                 value={it.grams}
                 onChange={(e) => setGrams(i, Number(e.target.value))}
-                className="min-h-tap w-20 border border-hairline bg-surface px-2 py-1 text-right font-body text-sm"
+                className="min-h-tap w-20 rounded-lg border border-hairline bg-surface px-2 py-1 text-right font-body text-sm"
               />
               <span className="font-body text-xs text-ink/50">g</span>
               <button

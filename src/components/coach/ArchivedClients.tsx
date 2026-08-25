@@ -21,7 +21,7 @@ function ArchivedRow({ client }: { client: ArchivedClient }) {
         <button
           type="submit"
           disabled={pending}
-          className="min-h-tap border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+          className="min-h-tap rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
         >
           {pending ? "Restoring…" : "Restore"}
         </button>
@@ -36,7 +36,7 @@ export function ArchivedClients({ clients }: { clients: ArchivedClient[] }) {
     return <p className="font-body text-sm text-ink/60">No archived clients. Anyone you archive shows up here to restore.</p>;
   }
   return (
-    <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+    <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
       {clients.map((c) => (
         <ArchivedRow key={c.clientId} client={c} />
       ))}

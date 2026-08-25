@@ -26,7 +26,7 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
   }
 
   return (
-    <section aria-label="Water" className={`border border-hairline bg-surface p-5 ${pending ? "opacity-80" : ""}`}>
+    <section aria-label="Water" className={`rounded-lg border border-hairline bg-surface p-5 ${pending ? "opacity-80" : ""}`}>
       <div className="flex items-baseline justify-between">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Water</p>
         <p className="font-body text-sm text-ink/70">

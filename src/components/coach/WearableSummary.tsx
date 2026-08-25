@@ -15,7 +15,7 @@ function fmtSleep(min: number): string {
  */
 export function WearableSummary({ days }: { days: WearableDay[] }) {
   return (
-    <section aria-label="Wearable data" className="flex flex-col gap-3 border border-hairline bg-surface p-5">
+    <section aria-label="Wearable data" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
       <h2 className="text-2xl text-ink">Tracker</h2>
       <ul className="flex flex-col divide-y divide-hairline">
         {days.map((d) => (

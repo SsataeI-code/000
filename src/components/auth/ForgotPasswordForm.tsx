@@ -16,7 +16,7 @@ export function ForgotPasswordForm({ overrides = {} }: { overrides?: CopyOverrid
   if (state.notice) {
     return (
       <div className="flex flex-col gap-5">
-        <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">{state.notice}</p>
+        <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">{state.notice}</p>
         <Link href="/login" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
           {t("auth.forgot.toLogin")}
         </Link>
@@ -27,7 +27,7 @@ export function ForgotPasswordForm({ overrides = {} }: { overrides?: CopyOverrid
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
 
       <Field label={t("auth.forgot.emailLabel")} name="email" type="email" autoComplete="email" required />

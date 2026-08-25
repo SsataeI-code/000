@@ -116,7 +116,7 @@ export function ChatThread({
 
   return (
     <div className="flex flex-col gap-3">
-      <ol className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto border border-hairline bg-surface p-4">
+      <ol className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-lg border border-hairline bg-surface p-4">
         {messages.length === 0 ? (
           <li className="py-8 text-center font-body text-sm text-ink/50">
             No messages yet. Say hello — this is your private line.
@@ -129,10 +129,10 @@ export function ChatThread({
 
       <form ref={formRef} action={formAction} className="flex flex-col gap-2">
         {state.error ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
         ) : null}
         {draftError ? (
-          <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{draftError}</p>
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{draftError}</p>
         ) : null}
         <div className="flex items-end gap-2">
           <label htmlFor="body" className="sr-only">Message</label>
@@ -145,7 +145,7 @@ export function ChatThread({
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder={placeholder}
-            className="min-h-tap flex-1 resize-none border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
+            className="min-h-tap flex-1 resize-none rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-ink"
           />
           <button
             type="submit"

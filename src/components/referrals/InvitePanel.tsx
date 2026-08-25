@@ -27,7 +27,7 @@ export function InvitePanel({
 
   if (!code) {
     return (
-      <section className="border border-hairline bg-surface p-5">
+      <section className="rounded-lg border border-hairline bg-surface p-5">
         <h2 className="text-2xl text-ink">{t("client.invite.title")}</h2>
         <p className="mt-2 font-body text-sm text-ink/60">
           Your invite link will appear here in a moment.
@@ -70,11 +70,11 @@ export function InvitePanel({
   }
 
   return (
-    <section className="border border-hairline bg-surface p-5">
+    <section className="rounded-lg border border-hairline bg-surface p-5">
       <h2 className="text-2xl text-ink">{t("client.invite.title")}</h2>
       <p className="mt-2 font-body text-sm text-ink/60">{t("client.invite.body")}</p>
 
-      <div className="mt-4 flex items-center gap-2 border border-hairline bg-surface-muted px-3 py-2.5">
+      <div className="mt-4 flex items-center gap-2 rounded-lg border border-hairline bg-surface-muted px-3 py-2.5">
         <span className="min-w-0 flex-1 truncate font-body text-sm text-ink/80" aria-label="Your invite link">
           {link}
         </span>
@@ -108,7 +108,7 @@ export function InvitePanel({
 
 function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex-1 border border-hairline bg-surface-muted p-3 text-center">
+    <div className="flex-1 rounded-lg border border-hairline bg-surface-muted p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
       <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>

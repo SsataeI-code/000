@@ -51,21 +51,21 @@ export function ClientScreenOverrideEditor({
       </p>
 
       {anyError ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{anyError}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{anyError}</p>
       ) : null}
       {save.ok && !dirty ? (
-        <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">
+        <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
           Saved — {clientName}&apos;s screen now follows this custom order.
         </p>
       ) : null}
       {reset.reset ? (
-        <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">
+        <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
           Reset — {clientName} follows your roster-wide default again.
         </p>
       ) : null}
 
       <div className="grid gap-6 md:grid-cols-[1fr_minmax(0,260px)] md:items-start">
-      <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
         {layout.map((s, i) => {
           const def = clientSectionDef(s.id);
           return (

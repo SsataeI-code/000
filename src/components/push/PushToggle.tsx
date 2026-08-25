@@ -76,7 +76,7 @@ export function PushToggle() {
   }
 
   return (
-    <section className="border border-hairline bg-surface p-5">
+    <section className="rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Push notifications</p>

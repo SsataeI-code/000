@@ -5,14 +5,30 @@
 @layer base {
   :root {
     color-scheme: dark;
+    /* One shared radius token so every card/button/control rounds identically. */
+    --radius: 10px;
+    --radius-sm: 7px;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent; /* app-like, no grey flash on tap */
   }
 
   body {
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Body copy rhythm — a touch more line-height reads calmer and more premium. */
+  p {
+    line-height: 1.55;
+  }
+
+  /* Brand-red text selection. */
+  ::selection {
+    background: #e10600;
+    color: #fff;
   }
 
   /* House style: Archivo 800/900 UPPERCASE headlines (§4). */
@@ -46,6 +62,47 @@
   /* Editorial hairline divider — flat, high-contrast, no shadows. */
   .hairline {
     border-color: #2c2c31;
+  }
+
+  /* Interactive elements ease their color/border changes — no more instant
+     snaps. Keeps the flat look but makes it feel responsive and premium. */
+  a,
+  button,
+  [role="button"],
+  summary,
+  input,
+  select,
+  textarea {
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  /* Rounded inputs match the card radius (applied via Field/textarea classes),
+     and inputs lift their border subtly on hover for a tactile feel. */
+  input:hover:not(:disabled),
+  select:hover:not(:disabled),
+  textarea:hover:not(:disabled) {
+    border-color: #3a3a42;
+  }
+}
+
+/* A gentle content entrance on load (route → page). Opt out for reduced motion
+   via the media query below. */
+@layer utilities {
+  .rise {
+    animation: rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 

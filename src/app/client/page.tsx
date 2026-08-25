@@ -202,7 +202,7 @@ export default async function TodayPage() {
       case "rings":
         if (strictness === "habits_only") {
           return (
-            <div key={id} className="border border-hairline bg-surface p-4">
+            <div key={id} className="rounded-lg border border-hairline bg-surface p-4">
               <p className="font-body text-sm text-ink/70">
                 Habits-focused plan — no macro targets today. Keep your habits and water on track.
               </p>
@@ -243,7 +243,7 @@ export default async function TodayPage() {
           <Link
             key={id}
             href="/client/assistant"
-            className="flex items-center justify-between border border-hairline bg-surface p-4 hover:border-red"
+            className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-4 hover:border-red"
           >
             <span className="min-w-0">
               <span className="block font-body text-base text-ink">Ask</span>

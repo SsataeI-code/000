@@ -19,7 +19,7 @@ export function Field({ label, hint, id, className = "", ...props }: FieldProps)
         id={inputId}
         aria-describedby={hintId}
         className={
-          "min-h-tap w-full border border-hairline bg-surface px-3 py-2.5 font-body text-base " +
+          "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base " +
           "text-ink placeholder:text-ink/40 focus:border-ink " +
           className
         }

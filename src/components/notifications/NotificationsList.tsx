@@ -31,11 +31,11 @@ export function NotificationsList({ notifications }: { notifications: Notificati
       </div>
 
       {notifications.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           You&apos;re all caught up. Nudges, messages, and weekly recaps will show up here.
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {notifications.map((n) => {
             const unreadRow = n.read_at == null;
             const inner = (

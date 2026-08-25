@@ -38,7 +38,7 @@ export default async function CoachReferralsPage() {
       <p className="font-body text-sm text-ink/60">{t("coach.referrals.subtitle")}</p>
 
       {referrals.length === 0 ? (
-        <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+        <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
           {t("coach.referrals.empty")}
         </p>
       ) : (

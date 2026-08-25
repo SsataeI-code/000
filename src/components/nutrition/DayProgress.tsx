@@ -24,7 +24,7 @@ function encouragement(totals: Macros, targets: Targets): string {
 
 export function DayProgress({ totals, targets }: { totals: Macros; targets: Targets }) {
   return (
-    <section aria-label="Today's progress" className="flex flex-col items-center gap-6 border border-hairline bg-surface p-6">
+    <section aria-label="Today's progress" className="flex flex-col items-center gap-6 rounded-lg border border-hairline bg-surface p-6">
       <Ring value={totals.calories} target={targets.calories} label="Calories" unit="kcal" />
 
       <div className="grid w-full max-w-sm grid-cols-1 gap-3">

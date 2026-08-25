@@ -8,14 +8,14 @@ import type { FoodLog } from "@/lib/types/db";
 export function FoodLogList({ logs, photoUrls = {} }: { logs: FoodLog[]; photoUrls?: Record<string, string> }) {
   if (logs.length === 0) {
     return (
-      <p className="border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
+      <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
         Nothing logged yet today. Scan a barcode or add something below.
       </p>
     );
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+    <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
       {logs.map((log) => (
         <FoodLogRow key={log.id} log={log} photoUrl={photoUrls[log.id]} />
       ))}

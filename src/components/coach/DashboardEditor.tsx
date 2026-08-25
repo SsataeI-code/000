@@ -27,13 +27,13 @@ export function DashboardEditor({ initial }: { initial: DashboardTilePref[] }) {
       <input type="hidden" name="layout" value={JSON.stringify(layout)} />
 
       {state.error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
       {state.ok && !dirty ? (
-        <p role="status" className="border border-success bg-surface px-3 py-2 text-sm text-success">Layout saved.</p>
+        <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">Layout saved.</p>
       ) : null}
 
-      <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
         {layout.map((t, i) => {
           const def = tileDef(t.id);
           return (

@@ -281,7 +281,7 @@ export function AddFood({ userId }: { userId: string }) {
           </p>
         ) : null}
 
-        <ul className="flex flex-col divide-y divide-hairline border border-hairline bg-surface">
+        <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {results.map((r, i) => (
             <li key={`${r.barcode}-${i}`}>
               <button
@@ -329,12 +329,12 @@ export function AddFood({ userId }: { userId: string }) {
   return (
     <div className="flex flex-col gap-5">
       {draft.note ? (
-        <p className="border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70">
+        <p className="rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70">
           {draft.note}
         </p>
       ) : null}
       {error ? (
-        <p role="alert" className="border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
           {error}
         </p>
       ) : null}
@@ -353,13 +353,13 @@ export function AddFood({ userId }: { userId: string }) {
             value={draft.qty}
             onChange={(e) => setPortion(e.target.value, draft.unit)}
             aria-label="Amount"
-            className="min-h-tap w-24 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+            className="min-h-tap w-24 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
           />
           <select
             aria-label="Unit"
             value={draft.unit}
             onChange={(e) => setPortion(draft.qty, e.target.value as PortionUnit)}
-            className="min-h-tap flex-1 border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
+            className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
           >
             {PORTION_OPTIONS.map((o) => (
               <option key={o.unit} value={o.unit}>{o.label}</option>
@@ -378,7 +378,7 @@ export function AddFood({ userId }: { userId: string }) {
         <Field label="Fat (g)" name="fat" type="number" inputMode="decimal" value={draft.fatG} onChange={(e) => update("fatG", e.target.value)} />
       </div>
 
-      <details className="border border-hairline bg-surface">
+      <details className="rounded-lg border border-hairline bg-surface">
         <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-3 py-2.5">
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">Electrolytes &amp; micros (optional)</span>
           <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">mg · tap to add</span>
@@ -394,7 +394,7 @@ export function AddFood({ userId }: { userId: string }) {
                 step="any"
                 value={draft.microsMg[mi.key] ?? ""}
                 onChange={(e) => updateMicro(mi.key, e.target.value)}
-                className="min-h-tap border border-hairline bg-surface px-3 py-2 font-body text-base text-ink focus:border-ink"
+                className="min-h-tap rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-base text-ink focus:border-ink"
               />
             </label>
           ))}
@@ -412,7 +412,7 @@ export function AddFood({ userId }: { userId: string }) {
           accept="image/*"
           capture="environment"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-          className="min-h-tap w-full border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-elevated file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-white"
+          className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-elevated file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-white"
         />
         {photo ? <p className="font-body text-xs text-ink/50">{photo.name} attached</p> : null}
       </div>
