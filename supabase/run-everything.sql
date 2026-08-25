@@ -1,8 +1,651 @@
--- Total Form Fitness — run-everything: all feature setup in one file.
--- Paste the WHOLE thing into Supabase → SQL Editor → Run. Every part is
--- idempotent, so it's safe even if some were already applied.
+-- Total Form Fitness — RUN EVERYTHING (complete DB setup, all phases).
+-- Paste this ENTIRE file into Supabase → SQL Editor → Run. Every statement
+-- is idempotent, so it is safe even if parts were already applied.
+-- Generated from supabase/migrations/0001–0026.
 
--- ==================== phase3_coach_prefs.sql ====================
+
+-- ==================== 0001_schema.sql ====================
+-- Total Form Fitness — Phase 0 schema.
+-- Multi-coach-ready role model (CLAUDE.md §1, §16). No single-coach assumption:
+-- many coaches can live under one owner, each owning their own clients.
+--
+-- Written to be safely re-runnable (idempotent): running it again skips what
+-- already exists instead of erroring, so a half-finished run is easy to fix.
+
+-- ---------------------------------------------------------------------------
+-- Enums
+-- ---------------------------------------------------------------------------
+do $$ begin
+  create type public.app_role as enum ('owner', 'coach', 'client');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.coach_client_status as enum ('active', 'archived');
+exception when duplicate_object then null;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- profiles — one row per auth user, carries the role.
+-- ---------------------------------------------------------------------------
+create table if not exists public.profiles (
+  id           uuid primary key references auth.users (id) on delete cascade,
+  role         public.app_role not null default 'client',
+  display_name text,
+  avatar_url   text,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+comment on table public.profiles is 'Per-user profile and role. Role drives all access (owner/coach/client).';
+
+-- ---------------------------------------------------------------------------
+-- coaches — coach-specific record. A coach IS a profile with role coach/owner.
+-- coach_code is the shareable, human-typable sign-up code (§8).
+-- ---------------------------------------------------------------------------
+create table if not exists public.coaches (
+  id         uuid primary key references public.profiles (id) on delete cascade,
+  coach_code text not null unique,
+  bio        text,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.coaches is 'Coach record + shareable coach_code. Owner is also a coach.';
+
+-- ---------------------------------------------------------------------------
+-- coach_clients — the coach↔client link. One active coach per client today,
+-- but the schema already supports reassignment and many coaches per owner.
+-- ---------------------------------------------------------------------------
+create table if not exists public.coach_clients (
+  id               uuid primary key default gen_random_uuid(),
+  coach_id         uuid not null references public.coaches (id) on delete cascade,
+  client_id        uuid not null references public.profiles (id) on delete cascade,
+  status           public.coach_client_status not null default 'active',
+  consent_given_at timestamptz not null default now(),  -- consent captured at sign-up (§8, §13)
+  referred_by      uuid references public.profiles (id) on delete set null,
+  created_at       timestamptz not null default now(),
+  constraint coach_clients_no_self check (coach_id <> client_id)
+);
+
+-- A client can have at most one ACTIVE coach; history/archived rows are allowed.
+create unique index if not exists coach_clients_one_active_coach
+  on public.coach_clients (client_id)
+  where status = 'active';
+
+create index if not exists coach_clients_coach_idx on public.coach_clients (coach_id);
+create index if not exists coach_clients_client_idx on public.coach_clients (client_id);
+
+comment on table public.coach_clients is 'Coach owns client. consent_given_at records §8/§13 consent.';
+
+-- ---------------------------------------------------------------------------
+-- updated_at housekeeping
+-- ---------------------------------------------------------------------------
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_touch_updated_at on public.profiles;
+create trigger profiles_touch_updated_at
+  before update on public.profiles
+  for each row execute function public.touch_updated_at();
+
+
+-- ==================== 0002_functions_rls.sql ====================
+-- Total Form Fitness — Phase 0 access control.
+-- Helper functions are SECURITY DEFINER so RLS policies can call them without
+-- recursively triggering RLS on the same tables (a classic Postgres RLS trap).
+
+-- ---------------------------------------------------------------------------
+-- Role helpers
+-- ---------------------------------------------------------------------------
+create or replace function public.current_app_role()
+returns public.app_role
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select role from public.profiles where id = auth.uid();
+$$;
+
+create or replace function public.is_owner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce(public.current_app_role() = 'owner', false);
+$$;
+
+-- Is the caller the active coach of p_client?
+create or replace function public.is_coach_of(p_client uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1 from public.coach_clients
+    where client_id = p_client
+      and coach_id = auth.uid()
+      and status = 'active'
+  );
+$$;
+
+-- ---------------------------------------------------------------------------
+-- resolve_signup — links a freshly-signed-up client to a coach (by code) or to
+-- the owner for open public sign-ups, recording consent atomically (§8).
+-- Idempotent: safe to call again from the email-confirmation callback.
+-- ---------------------------------------------------------------------------
+create or replace function public.resolve_signup(
+  p_coach_code   text default null,
+  p_consent      boolean default false,
+  p_referral_code text default null  -- reserved for Phase 6 referrals
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid      uuid := auth.uid();
+  v_coach_id uuid;
+begin
+  if v_uid is null then
+    raise exception 'not authenticated';
+  end if;
+  if p_consent is not true then
+    raise exception 'consent required';
+  end if;
+
+  -- Already linked? Return the existing coach (idempotent).
+  select coach_id into v_coach_id
+    from public.coach_clients
+    where client_id = v_uid and status = 'active'
+    limit 1;
+  if v_coach_id is not null then
+    return v_coach_id;
+  end if;
+
+  -- Resolve the target coach.
+  if p_coach_code is not null and length(trim(p_coach_code)) > 0 then
+    select id into v_coach_id
+      from public.coaches
+      where coach_code = upper(trim(p_coach_code));
+    if v_coach_id is null then
+      raise exception 'unknown coach code';
+    end if;
+  else
+    -- Open public sign-up lands with the owner (§8).
+    select c.id into v_coach_id
+      from public.coaches c
+      join public.profiles p on p.id = c.id
+      where p.role = 'owner'
+      order by c.created_at asc
+      limit 1;
+    if v_coach_id is null then
+      raise exception 'no owner configured to receive open sign-ups';
+    end if;
+  end if;
+
+  -- Never demote an existing owner/coach who happens to call this.
+  update public.profiles
+    set role = 'client'
+    where id = v_uid and role not in ('owner', 'coach');
+
+  insert into public.coach_clients (coach_id, client_id, consent_given_at)
+    values (v_coach_id, v_uid, now())
+    on conflict do nothing;
+
+  return v_coach_id;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- handle_new_user — create the profile row the moment an auth user is created.
+-- ---------------------------------------------------------------------------
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  insert into public.profiles (id, display_name)
+    values (new.id, nullif(new.raw_user_meta_data ->> 'display_name', ''))
+    on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- ---------------------------------------------------------------------------
+-- Row Level Security
+-- ---------------------------------------------------------------------------
+alter table public.profiles      enable row level security;
+alter table public.coaches       enable row level security;
+alter table public.coach_clients enable row level security;
+
+-- profiles: a user sees itself; a coach sees its clients; the owner sees all.
+drop policy if exists profiles_select on public.profiles;
+create policy profiles_select on public.profiles
+  for select using (
+    id = auth.uid()
+    or public.is_owner()
+    or public.is_coach_of(id)
+  );
+
+drop policy if exists profiles_update_self on public.profiles;
+create policy profiles_update_self on public.profiles
+  for update using (id = auth.uid() or public.is_owner())
+  with check (id = auth.uid() or public.is_owner());
+
+drop policy if exists profiles_insert_self on public.profiles;
+create policy profiles_insert_self on public.profiles
+  for insert with check (id = auth.uid());
+
+-- coaches: coach sees own row; the owner sees all; a client sees their coach.
+drop policy if exists coaches_select on public.coaches;
+create policy coaches_select on public.coaches
+  for select using (
+    id = auth.uid()
+    or public.is_owner()
+    or exists (
+      select 1 from public.coach_clients cc
+      where cc.coach_id = coaches.id
+        and cc.client_id = auth.uid()
+        and cc.status = 'active'
+    )
+  );
+
+drop policy if exists coaches_insert on public.coaches;
+create policy coaches_insert on public.coaches
+  for insert with check (public.is_owner());
+
+drop policy if exists coaches_update on public.coaches;
+create policy coaches_update on public.coaches
+  for update using (id = auth.uid() or public.is_owner())
+  with check (id = auth.uid() or public.is_owner());
+
+-- coach_clients: client sees its links; coach sees its roster; owner sees all.
+drop policy if exists coach_clients_select on public.coach_clients;
+create policy coach_clients_select on public.coach_clients
+  for select using (
+    client_id = auth.uid()
+    or coach_id = auth.uid()
+    or public.is_owner()
+  );
+
+drop policy if exists coach_clients_insert on public.coach_clients;
+create policy coach_clients_insert on public.coach_clients
+  for insert with check (coach_id = auth.uid() or public.is_owner());
+
+drop policy if exists coach_clients_update on public.coach_clients;
+create policy coach_clients_update on public.coach_clients
+  for update using (coach_id = auth.uid() or public.is_owner())
+  with check (coach_id = auth.uid() or public.is_owner());
+
+drop policy if exists coach_clients_delete on public.coach_clients;
+create policy coach_clients_delete on public.coach_clients
+  for delete using (public.is_owner());
+
+-- ---------------------------------------------------------------------------
+-- Grants (RLS still governs row visibility; grants govern table access at all).
+-- ---------------------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete
+  on public.profiles, public.coaches, public.coach_clients
+  to authenticated;
+grant execute on function public.resolve_signup(text, boolean, text) to authenticated;
+grant execute on function public.current_app_role() to authenticated;
+grant execute on function public.is_owner() to authenticated;
+grant execute on function public.is_coach_of(uuid) to authenticated;
+
+
+-- ==================== 0003_nutrition.sql ====================
+-- Total Form Fitness — Phase 1 schema: the core client loop.
+-- Client intake + PN targets, a shared Open Food Facts product cache, and food
+-- logs. Idempotent (safe to re-run), same as the Phase 0 migrations.
+
+-- ---------------------------------------------------------------------------
+-- Enums
+-- ---------------------------------------------------------------------------
+do $$ begin create type public.sex as enum ('male','female'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.activity_level as enum ('sedentary','light','moderate','very','athlete'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.goal as enum ('lose','maintain','recomp','gain','habits_only'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.diet_preference as enum ('balanced','low_carb','low_fat'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.food_log_source as enum ('scan','search','manual'); exception when duplicate_object then null; end $$;
+
+-- ---------------------------------------------------------------------------
+-- client_profiles — first-run intake (§8) that drives the targets calculator.
+-- ---------------------------------------------------------------------------
+create table if not exists public.client_profiles (
+  id              uuid primary key references public.profiles (id) on delete cascade,
+  sex             public.sex,
+  age             int check (age between 13 and 100),
+  height_cm       numeric check (height_cm between 90 and 250),
+  weight_kg       numeric check (weight_kg between 25 and 400),
+  activity        public.activity_level,
+  goal            public.goal not null default 'maintain',
+  diet_preference public.diet_preference not null default 'balanced',
+  onboarded_at    timestamptz,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+drop trigger if exists client_profiles_touch on public.client_profiles;
+create trigger client_profiles_touch before update on public.client_profiles
+  for each row execute function public.touch_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- nutrition_targets — computed daily targets. Keep history (recalc every
+-- 4–6 weeks, §5B); the latest row by computed_at is the active one.
+-- ---------------------------------------------------------------------------
+create table if not exists public.nutrition_targets (
+  id          uuid primary key default gen_random_uuid(),
+  client_id   uuid not null references public.profiles (id) on delete cascade,
+  calories    int not null check (calories > 0),
+  protein_g   int not null check (protein_g >= 0),
+  carbs_g     int not null check (carbs_g >= 0),
+  fat_g       int not null check (fat_g >= 0),
+  method      text not null default 'pn',
+  computed_at timestamptz not null default now()
+);
+create index if not exists nutrition_targets_client_idx
+  on public.nutrition_targets (client_id, computed_at desc);
+
+-- ---------------------------------------------------------------------------
+-- food_products — shared Open Food Facts cache. Global (not per-user): every
+-- scan/confirm improves the shared data for everyone (§6).
+-- ---------------------------------------------------------------------------
+create table if not exists public.food_products (
+  barcode       text primary key,
+  name          text,
+  brand         text,
+  image_url     text,
+  serving_size_g numeric,
+  nutriments    jsonb not null default '{}'::jsonb,  -- per-100g
+  updated_by    uuid references public.profiles (id) on delete set null,
+  updated_at    timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- food_logs — one row per logged item. Macros are stored on the row so a log is
+-- immutable even if the shared product later changes (reliability, §2).
+-- ---------------------------------------------------------------------------
+create table if not exists public.food_logs (
+  id         uuid primary key default gen_random_uuid(),
+  client_id  uuid not null references public.profiles (id) on delete cascade,
+  log_date   date not null default (now() at time zone 'utc')::date,
+  logged_at  timestamptz not null default now(),
+  barcode    text,
+  name       text not null,
+  brand      text,
+  grams      numeric,
+  calories   int not null default 0 check (calories >= 0),
+  protein_g  numeric not null default 0 check (protein_g >= 0),
+  carbs_g    numeric not null default 0 check (carbs_g >= 0),
+  fat_g      numeric not null default 0 check (fat_g >= 0),
+  nutriments jsonb,
+  source     public.food_log_source not null default 'manual',
+  created_at timestamptz not null default now()
+);
+create index if not exists food_logs_client_date_idx
+  on public.food_logs (client_id, log_date);
+
+-- ---------------------------------------------------------------------------
+-- RLS
+-- ---------------------------------------------------------------------------
+alter table public.client_profiles   enable row level security;
+alter table public.nutrition_targets enable row level security;
+alter table public.food_products     enable row level security;
+alter table public.food_logs         enable row level security;
+
+-- client_profiles: self + coach-of + owner may read; self + coach + owner write.
+drop policy if exists client_profiles_select on public.client_profiles;
+create policy client_profiles_select on public.client_profiles
+  for select using (id = auth.uid() or public.is_owner() or public.is_coach_of(id));
+drop policy if exists client_profiles_write on public.client_profiles;
+create policy client_profiles_write on public.client_profiles
+  for all using (id = auth.uid() or public.is_owner() or public.is_coach_of(id))
+  with check (id = auth.uid() or public.is_owner() or public.is_coach_of(id));
+
+-- nutrition_targets: same visibility. Coaches can set/adjust targets (§5B).
+drop policy if exists nutrition_targets_select on public.nutrition_targets;
+create policy nutrition_targets_select on public.nutrition_targets
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists nutrition_targets_write on public.nutrition_targets;
+create policy nutrition_targets_write on public.nutrition_targets
+  for all using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id))
+  with check (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+
+-- food_products: shared read for all signed-in users; any signed-in user may
+-- contribute/upsert (that's how the crowdsourced cache improves, §6).
+drop policy if exists food_products_select on public.food_products;
+create policy food_products_select on public.food_products
+  for select using (auth.uid() is not null);
+drop policy if exists food_products_write on public.food_products;
+create policy food_products_write on public.food_products
+  for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- food_logs: a client owns its logs; coach-of and owner may read (dashboards).
+drop policy if exists food_logs_select on public.food_logs;
+create policy food_logs_select on public.food_logs
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists food_logs_write on public.food_logs;
+create policy food_logs_write on public.food_logs
+  for all using (client_id = auth.uid()) with check (client_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- Grants
+-- ---------------------------------------------------------------------------
+grant select, insert, update, delete
+  on public.client_profiles, public.nutrition_targets, public.food_products, public.food_logs
+  to authenticated;
+
+
+-- ==================== 0004_meals.sql ====================
+-- Total Form Fitness — Phase 1.1: user-created saved meals.
+-- A client (or their coach) can build a meal from ingredients, save it as a
+-- reusable template, and log the whole thing in one tap. Idempotent.
+
+create table if not exists public.meals (
+  id         uuid primary key default gen_random_uuid(),
+  owner_id   uuid not null references public.profiles (id) on delete cascade,
+  name       text not null,
+  -- Array of { name, grams, nutrimentsPer100g } — everything needed to log it.
+  items      jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists meals_owner_idx on public.meals (owner_id);
+
+drop trigger if exists meals_touch on public.meals;
+create trigger meals_touch before update on public.meals
+  for each row execute function public.touch_updated_at();
+
+alter table public.meals enable row level security;
+
+-- A client owns its meals; the coach-of and owner can see them (Phase 3).
+drop policy if exists meals_select on public.meals;
+create policy meals_select on public.meals
+  for select using (owner_id = auth.uid() or public.is_owner() or public.is_coach_of(owner_id));
+drop policy if exists meals_write on public.meals;
+create policy meals_write on public.meals
+  for all using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+
+grant select, insert, update, delete on public.meals to authenticated;
+
+
+-- ==================== 0005_habits.sql ====================
+-- Total Form Fitness — Phase 2: habits engine (§5A). The star of the app.
+-- Idempotent, same conventions as earlier migrations.
+
+do $$ begin create type public.habit_category as enum ('nutrition','movement','sleep','mindfulness','hydration','recovery'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.habit_type as enum ('checkbox','counter','duration','quantity'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.habit_cadence as enum ('daily','weekly_count','specific_days'); exception when duplicate_object then null; end $$;
+
+create table if not exists public.habits (
+  id            uuid primary key default gen_random_uuid(),
+  client_id     uuid not null references public.profiles (id) on delete cascade,
+  name          text not null,
+  category      public.habit_category not null default 'movement',
+  type          public.habit_type not null default 'checkbox',
+  target        numeric,                 -- for counter/duration/quantity
+  unit          text,                    -- e.g. "min", "steps", "glasses"
+  cadence       public.habit_cadence not null default 'daily',
+  times_per_week int check (times_per_week between 1 and 7),
+  days_of_week  int[],                   -- 0=Sun .. 6=Sat, for specific_days
+  reminder_time time,
+  why           text,                    -- shown at check-in
+  anchor        text,                    -- habit stacking: "after morning coffee"
+  position      int not null default 0,
+  active        boolean not null default true,
+  created_by    uuid references public.profiles (id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists habits_client_idx on public.habits (client_id) where active;
+
+drop trigger if exists habits_touch on public.habits;
+create trigger habits_touch before update on public.habits
+  for each row execute function public.touch_updated_at();
+
+create table if not exists public.habit_logs (
+  id         uuid primary key default gen_random_uuid(),
+  habit_id   uuid not null references public.habits (id) on delete cascade,
+  client_id  uuid not null references public.profiles (id) on delete cascade,
+  log_date   date not null,
+  value      numeric not null default 1,
+  completed  boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (habit_id, log_date)
+);
+create index if not exists habit_logs_client_date_idx on public.habit_logs (client_id, log_date);
+create index if not exists habit_logs_habit_idx on public.habit_logs (habit_id, log_date);
+
+-- RLS
+alter table public.habits enable row level security;
+alter table public.habit_logs enable row level security;
+
+-- habits: client sees own; coach-of/owner see them. Coach can also create/veto
+-- (assign or remove) a client's habits (§5A adaptive engine); client manages own.
+drop policy if exists habits_select on public.habits;
+create policy habits_select on public.habits
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists habits_write on public.habits;
+create policy habits_write on public.habits
+  for all using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id))
+  with check (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+
+-- habit_logs: the client checks off their own; coach-of/owner can read.
+drop policy if exists habit_logs_select on public.habit_logs;
+create policy habit_logs_select on public.habit_logs
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists habit_logs_write on public.habit_logs;
+create policy habit_logs_write on public.habit_logs
+  for all using (client_id = auth.uid()) with check (client_id = auth.uid());
+
+grant select, insert, update, delete on public.habits, public.habit_logs to authenticated;
+
+
+-- ==================== 0006_hydration_body.sql ====================
+-- Total Form Fitness — Phase 2: hydration (§5 dedicated) + body (§5C).
+-- Idempotent.
+
+-- --- Hydration: a first-class daily water tracker ---
+alter table public.client_profiles
+  add column if not exists water_goal_ml int not null default 2500;
+
+create table if not exists public.water_logs (
+  id         uuid primary key default gen_random_uuid(),
+  client_id  uuid not null references public.profiles (id) on delete cascade,
+  log_date   date not null default (now() at time zone 'utc')::date,
+  ml         int not null,               -- increments (can be negative to undo)
+  created_at timestamptz not null default now()
+);
+create index if not exists water_logs_client_date_idx on public.water_logs (client_id, log_date);
+
+-- --- Body: weight, body-fat %, optional measurements (§5C) ---
+create table if not exists public.body_measurements (
+  id           uuid primary key default gen_random_uuid(),
+  client_id    uuid not null references public.profiles (id) on delete cascade,
+  log_date     date not null,
+  weight_kg    numeric check (weight_kg is null or weight_kg between 20 and 500),
+  body_fat_pct numeric check (body_fat_pct is null or body_fat_pct between 2 and 75),
+  waist_cm     numeric,
+  hips_cm      numeric,
+  notes        text,
+  created_at   timestamptz not null default now(),
+  unique (client_id, log_date)
+);
+create index if not exists body_client_date_idx on public.body_measurements (client_id, log_date);
+
+-- RLS
+alter table public.water_logs enable row level security;
+alter table public.body_measurements enable row level security;
+
+drop policy if exists water_logs_select on public.water_logs;
+create policy water_logs_select on public.water_logs
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists water_logs_write on public.water_logs;
+create policy water_logs_write on public.water_logs
+  for all using (client_id = auth.uid()) with check (client_id = auth.uid());
+
+drop policy if exists body_select on public.body_measurements;
+create policy body_select on public.body_measurements
+  for select using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+drop policy if exists body_write on public.body_measurements;
+create policy body_write on public.body_measurements
+  for all using (client_id = auth.uid()) with check (client_id = auth.uid());
+
+grant select, insert, update, delete on public.water_logs, public.body_measurements to authenticated;
+
+
+-- ==================== 0007_food_photos.sql ====================
+-- Total Form Fitness — food photo (bonus). Optional picture attached to a food
+-- log, stored in a PRIVATE Storage bucket the client owns. Idempotent.
+
+alter table public.food_logs add column if not exists photo_path text;
+
+-- Private bucket (served via short-lived signed URLs, never public).
+insert into storage.buckets (id, name, public)
+  values ('food-photos', 'food-photos', false)
+  on conflict (id) do nothing;
+
+-- A client can read/write only their own folder (path = "<uid>/<file>").
+-- The coach-of / owner can read a client's photos (dashboards, Phase 3).
+drop policy if exists "food_photos_own_write" on storage.objects;
+create policy "food_photos_own_write" on storage.objects
+  for all to authenticated
+  using (bucket_id = 'food-photos' and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'food-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "food_photos_coach_read" on storage.objects;
+create policy "food_photos_coach_read" on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'food-photos'
+    and (
+      public.is_owner()
+      or public.is_coach_of(((storage.foldername(name))[1])::uuid)
+    )
+  );
+
+
+-- ==================== 0008_coach_prefs.sql ====================
 -- Total Form Fitness — Phase 3: coach dashboard preferences (§9 "the dashboard
 -- is open-ended and editable — the coach arranges, adds, and edits the tiles").
 -- One row per coach holds their dashboard tile layout as JSON. Idempotent, same
@@ -29,7 +672,8 @@ create policy coach_prefs_rw on public.coach_prefs
 
 grant select, insert, update, delete on public.coach_prefs to authenticated;
 
--- ==================== phase4_messages.sql ====================
+
+-- ==================== 0009_messages.sql ====================
 -- Total Form Fitness — Phase 4: coach ↔ client messaging (§10). One thread per
 -- (coach, client) pair; each row is one message. Multi-coach-safe (keyed by both
 -- ids), RLS scopes a thread to its two participants (owner sees all). Idempotent.
@@ -79,7 +723,8 @@ do $$ begin
   alter publication supabase_realtime add table public.messages;
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
--- ==================== phase4_notifications.sql ====================
+
+-- ==================== 0010_notifications.sql ====================
 -- Total Form Fitness — Phase 4: in-app notifications (§10 "in-app notifications
 -- are the default"). One row per notification for a recipient. Idempotent.
 -- Feeds the bell/inbox on both sides and, later, PWA push + the 3-day email.
@@ -127,7 +772,8 @@ do $$ begin
   alter publication supabase_realtime add table public.notifications;
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
--- ==================== phase4_engagement.sql ====================
+
+-- ==================== 0011_engagement.sql ====================
 -- Total Form Fitness — Phase 4: engagement sweep state (§9 auto-nudge, §10
 -- re-engagement email). One row per client tracks what the daily sweep has
 -- already fired for the current quiet spell, so nothing double-sends. Written
@@ -156,7 +802,8 @@ create policy engagement_state_owner on public.engagement_state
 
 grant select on public.engagement_state to authenticated;
 
--- ==================== phase4_push.sql ====================
+
+-- ==================== 0012_push_subscriptions.sql ====================
 -- Total Form Fitness — Phase 4: Web Push subscriptions (§10 "PWA push"). One row
 -- per device a user has opted into push on. The server (service role) reads these
 -- to send pushes; users manage their own. Idempotent.
@@ -182,26 +829,8 @@ create policy push_subscriptions_rw on public.push_subscriptions
 
 grant select, insert, update, delete on public.push_subscriptions to authenticated;
 
--- ==================== phase4_quiet_hours.sql ====================
--- Total Form Fitness — quiet hours (§10 "Client can set quiet hours").
--- Stored on the client's profile as minutes-of-day plus their IANA timezone (so
--- the server can tell whether it's currently quiet for them). Null start/end
--- means "no quiet hours". Suppresses the push buzz only — the in-app
--- notification is still recorded so nothing is lost.
---
--- Idempotent: safe to re-run.
 
-alter table public.client_profiles add column if not exists quiet_start smallint
-  check (quiet_start is null or quiet_start between 0 and 1439);
-alter table public.client_profiles add column if not exists quiet_end smallint
-  check (quiet_end is null or quiet_end between 0 and 1439);
-alter table public.client_profiles add column if not exists timezone text;
-
-comment on column public.client_profiles.quiet_start is 'Quiet-hours start, minutes past local midnight (§10). Null = off.';
-comment on column public.client_profiles.quiet_end is 'Quiet-hours end, minutes past local midnight (§10). Null = off.';
-comment on column public.client_profiles.timezone is 'IANA timezone for evaluating quiet hours server-side.';
-
--- ==================== phase6_referrals.sql ====================
+-- ==================== 0013_referrals.sql ====================
 -- Total Form Fitness — Phase 6 (Growth): referrals (§8).
 -- A client shares a personal link; a new sign-up on that link is tracked, and
 -- the referral surfaces to the coach, who PROCESSES the reward (10% is only a
@@ -435,7 +1064,8 @@ grant select on public.referrals to authenticated;
 grant execute on function public.ensure_referral_code() to authenticated;
 grant execute on function public.process_referral(uuid, public.referral_status, text) to authenticated;
 
--- ==================== phase6_content.sql ====================
+
+-- ==================== 0014_content.sql ====================
 -- Total Form Fitness — Phase 6 (Growth): full CMS content overrides (§4, §16).
 -- Every user-facing string ships with a house-style default in code; this table
 -- lets the owner override any of them without a code change. Overrides are
@@ -485,33 +1115,28 @@ create policy content_delete on public.content_overrides
 grant select on public.content_overrides to anon, authenticated;
 grant insert, update, delete on public.content_overrides to authenticated;
 
--- ==================== phase6_content_images.sql ====================
--- Total Form Fitness — CMS editable images (§4 "every word and every image in
--- the app is editable by the coach"). Companion to the copy CMS (0014): the
--- owner uploads branding images (e.g. the logo) to a PUBLIC bucket, and the
--- public URL is stored as a content_overrides row keyed "image:<name>". No new
--- table — image overrides ride the existing content_overrides key/value store.
--- Idempotent.
 
--- Public bucket: these are app-wide branding assets shown to everyone, incl.
--- signed-out visitors on /login, so they're served by public URL (not signed).
-insert into storage.buckets (id, name, public)
-  values ('content-images', 'content-images', true)
-  on conflict (id) do update set public = true;
+-- ==================== 0015_quiet_hours.sql ====================
+-- Total Form Fitness — quiet hours (§10 "Client can set quiet hours").
+-- Stored on the client's profile as minutes-of-day plus their IANA timezone (so
+-- the server can tell whether it's currently quiet for them). Null start/end
+-- means "no quiet hours". Suppresses the push buzz only — the in-app
+-- notification is still recorded so nothing is lost.
+--
+-- Idempotent: safe to re-run.
 
--- Everyone may read (public branding); only the owner may write/replace/remove.
-drop policy if exists "content_images_read" on storage.objects;
-create policy "content_images_read" on storage.objects
-  for select
-  using (bucket_id = 'content-images');
+alter table public.client_profiles add column if not exists quiet_start smallint
+  check (quiet_start is null or quiet_start between 0 and 1439);
+alter table public.client_profiles add column if not exists quiet_end smallint
+  check (quiet_end is null or quiet_end between 0 and 1439);
+alter table public.client_profiles add column if not exists timezone text;
 
-drop policy if exists "content_images_owner_write" on storage.objects;
-create policy "content_images_owner_write" on storage.objects
-  for all to authenticated
-  using (bucket_id = 'content-images' and public.is_owner())
-  with check (bucket_id = 'content-images' and public.is_owner());
+comment on column public.client_profiles.quiet_start is 'Quiet-hours start, minutes past local midnight (§10). Null = off.';
+comment on column public.client_profiles.quiet_end is 'Quiet-hours end, minutes past local midnight (§10). Null = off.';
+comment on column public.client_profiles.timezone is 'IANA timezone for evaluating quiet hours server-side.';
 
--- ==================== phase6_client_screen.sql ====================
+
+-- ==================== 0016_client_screen.sql ====================
 -- Total Form Fitness — coach-configurable client "Today" screen (§4 "coach-
 -- editable everything"; §9 configurable, applied to the client side). The coach
 -- arranges/shows/hides the sections their clients see on Today. Stored per coach
@@ -559,7 +1184,8 @@ $$;
 
 grant execute on function public.client_screen_layout() to authenticated;
 
--- ==================== phase6_client_screen_overrides.sql ====================
+
+-- ==================== 0017_client_screen_overrides.sql ====================
 -- Total Form Fitness — per-client "Today" screen overrides (§4 coach-editable
 -- everything, at the individual-client grain). The coach can tailor one client's
 -- Today screen differently from the roster-wide default (coach_prefs.client_today
@@ -643,7 +1269,8 @@ $$;
 
 grant execute on function public.client_screen_layout() to authenticated;
 
--- ==================== phase2_body_photos.sql ====================
+
+-- ==================== 0018_body_photos.sql ====================
 -- Total Form Fitness — Body progress photos (§C: "optional, opt-in progress
 -- photos … private & encrypted"). A secondary Body add-on: the client uploads
 -- photos to a PRIVATE bucket they own; their coach / the owner may view them
@@ -704,14 +1331,35 @@ create policy "body_photos_coach_read" on storage.objects
     )
   );
 
--- ==================== phase7_weekly_reports.sql ====================
--- Total Form Fitness — weekly report scheduling (§12 "Weekly (default), in-app +
--- a notification"). One dedup column on engagement_state so the daily sweep
--- fires each client's weekly recap notification at most once per week. Idempotent.
 
-alter table public.engagement_state add column if not exists last_report_on date;
+-- ==================== 0019_content_images.sql ====================
+-- Total Form Fitness — CMS editable images (§4 "every word and every image in
+-- the app is editable by the coach"). Companion to the copy CMS (0014): the
+-- owner uploads branding images (e.g. the logo) to a PUBLIC bucket, and the
+-- public URL is stored as a content_overrides row keyed "image:<name>". No new
+-- table — image overrides ride the existing content_overrides key/value store.
+-- Idempotent.
 
--- ==================== phase7_wearables.sql ====================
+-- Public bucket: these are app-wide branding assets shown to everyone, incl.
+-- signed-out visitors on /login, so they're served by public URL (not signed).
+insert into storage.buckets (id, name, public)
+  values ('content-images', 'content-images', true)
+  on conflict (id) do update set public = true;
+
+-- Everyone may read (public branding); only the owner may write/replace/remove.
+drop policy if exists "content_images_read" on storage.objects;
+create policy "content_images_read" on storage.objects
+  for select
+  using (bucket_id = 'content-images');
+
+drop policy if exists "content_images_owner_write" on storage.objects;
+create policy "content_images_owner_write" on storage.objects
+  for all to authenticated
+  using (bucket_id = 'content-images' and public.is_owner())
+  with check (bucket_id = 'content-images' and public.is_owner());
+
+
+-- ==================== 0020_wearables.sql ====================
 -- Total Form Fitness — wearable connections (§7 "auto-sync via cloud APIs only:
 -- Oura, Fitbit, Garmin, Whoop — OAuth 'Connect your tracker'"). One row per
 -- (client, provider) holds the OAuth tokens used to pull steps/sleep. Tokens are
@@ -756,7 +1404,16 @@ create policy wearable_conn_rw on public.wearable_connections
 
 grant select, insert, update, delete on public.wearable_connections to authenticated;
 
--- ==================== phase7_wearable_daily.sql ====================
+
+-- ==================== 0021_weekly_reports.sql ====================
+-- Total Form Fitness — weekly report scheduling (§12 "Weekly (default), in-app +
+-- a notification"). One dedup column on engagement_state so the daily sweep
+-- fires each client's weekly recap notification at most once per week. Idempotent.
+
+alter table public.engagement_state add column if not exists last_report_on date;
+
+
+-- ==================== 0022_wearable_daily.sql ====================
 -- Total Form Fitness — synced wearable daily metrics (§7 "pull steps/sleep/HR").
 -- The background sync writes one row per (client, provider, day). Unlike the
 -- tokens table (client-only), these metrics are health data the coach steers, so
@@ -796,7 +1453,8 @@ create policy wearable_daily_write on public.wearable_daily
 
 grant select, insert, update, delete on public.wearable_daily to authenticated;
 
--- ==================== phase-strictness.sql ====================
+
+-- ==================== 0023_client_strictness.sql ====================
 -- Total Form Fitness — per-client nutrition strictness (§B "per-client strictness
 -- setting, coach-controlled"): precise macros / protein+calories / flexible
 -- ranges / habits-only. Stored on the client profile so it survives target
@@ -804,7 +1462,8 @@ grant select, insert, update, delete on public.wearable_daily to authenticated;
 -- Idempotent.
 alter table public.client_profiles add column if not exists strictness text not null default 'precise';
 
--- ==================== phase-delete-client.sql ====================
+
+-- ==================== 0024_delete_client_rpc.sql ====================
 -- Total Form Fitness — delete a client without needing the service-role key.
 -- A SECURITY DEFINER function (runs with elevated rights) deletes the client's
 -- auth user, which cascades to their profile and all their data. Authorized:
@@ -834,3 +1493,64 @@ grant execute on function public.delete_client(uuid) to authenticated;
 -- Tell Supabase's API to pick up the new function right away.
 notify pgrst, 'reload schema';
 
+
+-- ==================== 0025_diet_prefs.sql ====================
+-- Total Form Fitness — dietary pattern + food preferences (client-customizable;
+-- filters food recommendations). diet_pattern is the eating style (vegan,
+-- vegetarian, pescatarian, mediterranean, carnivore, or anything); food_avoid is
+-- a free-text list of ingredients to keep out of suggestions. Coach or client can
+-- set them (client_profiles_write already permits both). Idempotent.
+alter table public.client_profiles add column if not exists diet_pattern text not null default 'anything';
+alter table public.client_profiles add column if not exists food_avoid text not null default '';
+
+
+-- ==================== 0026_lifts.sql ====================
+-- Total Form Fitness — Lift progress log (owner decision, 2026: track strength
+-- progress). A simple, spreadsheet-style record: one row per logged set —
+-- exercise, weight, reps, sets, unit, date, optional note. RLS mirrors body
+-- data: the client owns their log; their coach + the owner may read it (consent
+-- captured at sign-up, §8/§13). Idempotent.
+
+create table if not exists public.lift_logs (
+  id         uuid primary key default gen_random_uuid(),
+  client_id  uuid not null references public.profiles (id) on delete cascade,
+  log_date   date not null default (now() at time zone 'utc')::date,
+  exercise   text not null check (length(btrim(exercise)) > 0),
+  weight     numeric not null default 0 check (weight >= 0 and weight <= 5000),
+  unit       text not null default 'lb' check (unit in ('lb','kg')),
+  reps       integer not null default 1 check (reps >= 0 and reps <= 1000),
+  sets       integer not null default 1 check (sets >= 1 and sets <= 100),
+  note       text,
+  created_at timestamptz not null default now()
+);
+create index if not exists lift_logs_client_idx on public.lift_logs (client_id, log_date desc);
+create index if not exists lift_logs_exercise_idx on public.lift_logs (client_id, exercise, log_date desc);
+
+alter table public.lift_logs enable row level security;
+
+-- The client manages their own lifts; their coach + the owner may view.
+drop policy if exists lift_logs_select on public.lift_logs;
+create policy lift_logs_select on public.lift_logs
+  for select to authenticated
+  using (client_id = auth.uid() or public.is_owner() or public.is_coach_of(client_id));
+
+drop policy if exists lift_logs_insert on public.lift_logs;
+create policy lift_logs_insert on public.lift_logs
+  for insert to authenticated
+  with check (client_id = auth.uid());
+
+drop policy if exists lift_logs_update on public.lift_logs;
+create policy lift_logs_update on public.lift_logs
+  for update to authenticated
+  using (client_id = auth.uid())
+  with check (client_id = auth.uid());
+
+drop policy if exists lift_logs_delete on public.lift_logs;
+create policy lift_logs_delete on public.lift_logs
+  for delete to authenticated
+  using (client_id = auth.uid() or public.is_owner());
+
+grant select, insert, update, delete on public.lift_logs to authenticated;
+
+
+notify pgrst, 'reload schema';
