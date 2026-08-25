@@ -94,7 +94,7 @@ export function LineChart({
   const midIdx = Math.floor((n - 1) / 2);
 
   return (
-    <figure className="m-0">
+    <figure className="mx-auto m-0 w-full max-w-[440px]">
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={ariaLabel} className="block">
         {/* Value gridlines + labels */}
         {ticks.map((t, i) => (
