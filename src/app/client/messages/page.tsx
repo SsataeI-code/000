@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
-import { getClientCoachId, getThread, markThreadRead } from "@/lib/messages/data";
+import { getClientCoachId, getClientThread, markClientThreadRead } from "@/lib/messages/data";
 import { sendClientMessageAction } from "@/lib/messages/actions";
 import { ChatThread } from "@/components/messages/ChatThread";
 
@@ -14,9 +14,17 @@ export default async function ClientMessagesPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const coachId = await getClientCoachId(user.id);
+  // Load every message addressed to this client — never scoped to a single
+  // guessed coach id, so a coach's messages always show up.
+  const messages = await getClientThread(user.id);
 
-  if (!coachId) {
+  // Who this client talks to: their resolved coach, or — as a fallback — the
+  // coach who actually sent the messages we're already showing.
+  const resolvedCoachId = await getClientCoachId(user.id);
+  const senderCoachId = [...messages].reverse().find((m) => m.kind !== "client")?.coach_id ?? null;
+  const coachId = resolvedCoachId ?? senderCoachId;
+
+  if (!coachId && messages.length === 0) {
     return (
       <div className="flex flex-col gap-6">
         <h1 className="text-4xl text-ink">Coach</h1>
@@ -28,11 +36,12 @@ export default async function ClientMessagesPage() {
   }
 
   const supabase = await createClient();
-  const { data: coachRow } = await supabase.from("profiles").select("display_name").eq("id", coachId).maybeSingle();
+  const { data: coachRow } = coachId
+    ? await supabase.from("profiles").select("display_name").eq("id", coachId).maybeSingle()
+    : { data: null };
   const coachName = coachRow?.display_name ?? "Your coach";
 
-  const messages = await getThread(coachId, user.id);
-  await markThreadRead(coachId, user.id, false);
+  await markClientThreadRead(user.id);
 
   return (
     <div className="flex flex-col gap-5">

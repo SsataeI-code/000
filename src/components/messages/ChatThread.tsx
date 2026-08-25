@@ -38,7 +38,7 @@ export function ChatThread({
   canDraft = false,
   aiEnabled = false,
 }: {
-  coachId: string;
+  coachId: string | null;
   clientId: string;
   viewerId: string;
   viewerIsCoach: boolean;
@@ -88,17 +88,19 @@ export function ChatThread({
     });
   }
 
-  // Live subscription to this thread.
+  // Live subscription to this thread. A coach's page is scoped to itself as the
+  // coach (match coach_id), but the client's page shows every message addressed
+  // to them regardless of which coach_id it carries — so don't drop on coach_id.
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel(`thread:${coachId}:${clientId}`)
+      .channel(`thread:${coachId || "client"}:${clientId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `client_id=eq.${clientId}` },
         (payload) => {
           const m = payload.new as Message;
-          if (m.coach_id !== coachId) return;
+          if (viewerIsCoach && m.coach_id !== coachId) return;
           setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
           router.refresh();
         },
@@ -107,7 +109,7 @@ export function ChatThread({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [coachId, clientId, router]);
+  }, [coachId, clientId, viewerIsCoach, router]);
 
   // Keep the newest message in view.
   useEffect(() => {

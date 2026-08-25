@@ -39,6 +39,34 @@ export async function getThread(coachId: string, clientId: string): Promise<Mess
   return (data as Message[] | null) ?? [];
 }
 
+/**
+ * Every message addressed to a client, oldest first — regardless of which
+ * coach_id it was sent under. The client's view must not depend on correctly
+ * guessing their single coach id: a message from the owner, or from a coach
+ * whose id differs from the client's currently-resolved coach, must still show.
+ * RLS already scopes this to the caller's own messages (client_id = auth.uid()).
+ */
+export async function getClientThread(clientId: string): Promise<Message[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: true });
+  return (data as Message[] | null) ?? [];
+}
+
+/** Mark all coach/nudge messages to this client as read (best-effort, any coach). */
+export async function markClientThreadRead(clientId: string): Promise<void> {
+  const supabase = await createClient();
+  await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("client_id", clientId)
+    .neq("kind", "client")
+    .is("read_at", null);
+}
+
 /** Mark the other side's messages in this thread as read (best-effort). */
 export async function markThreadRead(coachId: string, clientId: string, readerIsCoach: boolean): Promise<void> {
   const supabase = await createClient();
