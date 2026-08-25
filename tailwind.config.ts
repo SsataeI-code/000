@@ -27,12 +27,13 @@ const config: Config = {
         },
         success: "#34c759",
         surface: {
-          DEFAULT: "#17171b", // cards
-          muted: "#0c0c0d", // page background
+          DEFAULT: "#1c1c22", // cards — lifted off the page so they read as cards
+          muted: "#0b0b0d", // page background (a touch deeper for contrast)
+          input: "#131318", // form fields — inset, clearly a field
         },
-        hairline: "#2c2c31",
+        hairline: "#34353d", // visible borders (were nearly invisible)
         // A slightly-raised dark block for former "bg-ink" accents (banners, bubbles).
-        elevated: "#26262c",
+        elevated: "#2a2a32",
       },
       fontFamily: {
         // Archivo 800/900 UPPERCASE headlines · Oswald labels · Spline Sans body.

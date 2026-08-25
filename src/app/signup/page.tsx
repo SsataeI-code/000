@@ -26,28 +26,30 @@ export default async function SignupPage({
   const overrides = await getContentOverrides();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-6 py-12">
-      <Link href="/" className="mb-8 flex items-center gap-2">
-        <BrandLogo size={24} />
-        <span className="font-label text-xs uppercase tracking-wide text-ink/70">
+    <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-6 py-12">
+      <Link href="/" className="mb-6 flex items-center justify-center gap-2.5">
+        <BrandLogo size={30} />
+        <span className="font-label text-sm uppercase tracking-wide text-ink">
           {getCopy("brand.name", overrides)}
         </span>
       </Link>
 
-      <h1 className="text-4xl text-ink">{getCopy("auth.signup.title", overrides)}</h1>
-      <p className="mt-2 font-body text-ink/70">{getCopy("auth.signup.subtitle", overrides)}</p>
-      <p className="mt-3 font-label text-[11px] uppercase tracking-wide text-ink/45">
-        {getCopy("auth.signup.reassure", overrides)}
-      </p>
-
-      {referralCode ? (
-        <p className="mt-4 rounded-lg border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
-          {getCopy("auth.signup.invited", overrides)}
+      <div className="rise rounded-xl border border-hairline bg-surface p-6 sm:p-8">
+        <h1 className="text-3xl text-ink">{getCopy("auth.signup.title", overrides)}</h1>
+        <p className="mt-2 font-body text-ink/60">{getCopy("auth.signup.subtitle", overrides)}</p>
+        <p className="mt-3 font-label text-[11px] uppercase tracking-wide text-red/80">
+          {getCopy("auth.signup.reassure", overrides)}
         </p>
-      ) : null}
 
-      <div className="mt-8">
-        {configured ? <SignupForm coachCode={coachCode} referralCode={referralCode} overrides={overrides} /> : <SetupNotice />}
+        {referralCode ? (
+          <p className="mt-4 rounded-lg border border-hairline bg-elevated px-4 py-3 font-body text-sm text-white">
+            {getCopy("auth.signup.invited", overrides)}
+          </p>
+        ) : null}
+
+        <div className="mt-7">
+          {configured ? <SignupForm coachCode={coachCode} referralCode={referralCode} overrides={overrides} /> : <SetupNotice />}
+        </div>
       </div>
     </main>
   );

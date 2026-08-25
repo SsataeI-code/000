@@ -11,16 +11,18 @@ export default async function ForgotPasswordPage() {
   const overrides = await getContentOverrides();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center px-6 py-12">
-      <Link href="/" className="mb-8 flex items-center gap-2">
-        <BrandLogo size={24} />
-        <span className="font-label text-xs uppercase tracking-wide text-ink/70">{getCopy("brand.name", overrides)}</span>
+    <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-6 py-12">
+      <Link href="/" className="mb-6 flex items-center justify-center gap-2.5">
+        <BrandLogo size={30} />
+        <span className="font-label text-sm uppercase tracking-wide text-ink">{getCopy("brand.name", overrides)}</span>
       </Link>
 
-      <h1 className="text-4xl text-ink">{getCopy("auth.forgot.title", overrides)}</h1>
-      <p className="mt-2 font-body text-ink/70">{getCopy("auth.forgot.subtitle", overrides)}</p>
+      <div className="rise rounded-xl border border-hairline bg-surface p-6 sm:p-8">
+        <h1 className="text-3xl text-ink">{getCopy("auth.forgot.title", overrides)}</h1>
+        <p className="mt-2 font-body text-ink/60">{getCopy("auth.forgot.subtitle", overrides)}</p>
 
-      <div className="mt-8">{configured ? <ForgotPasswordForm overrides={overrides} /> : <SetupNotice />}</div>
+        <div className="mt-7">{configured ? <ForgotPasswordForm overrides={overrides} /> : <SetupNotice />}</div>
+      </div>
     </main>
   );
 }
