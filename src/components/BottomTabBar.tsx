@@ -20,7 +20,7 @@ export function BottomTabBar({ items }: { items: TabItem[] }) {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 flex border-t border-hairline bg-surface md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex border-t border-hairline bg-surface/95 backdrop-blur md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {items.map((item) => {
@@ -31,12 +31,17 @@ export function BottomTabBar({ items }: { items: TabItem[] }) {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={
-              "flex min-h-tap flex-1 flex-col items-center justify-center gap-1 py-2 " +
-              "font-label text-[10px] uppercase tracking-wide " +
-              (active ? "text-red" : "text-ink/60 hover:text-ink")
+              "relative flex min-h-tap flex-1 flex-col items-center justify-center gap-1 py-2 " +
+              "font-label text-[10px] uppercase tracking-wide transition-colors " +
+              (active ? "text-red" : "text-ink/55 hover:text-ink")
             }
           >
-            <span aria-hidden className="h-5 w-5">
+            {/* Active indicator — a crisp red bar at the top of the tab. */}
+            <span
+              aria-hidden
+              className={`absolute inset-x-4 top-0 h-0.5 rounded-full bg-red transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
+            />
+            <span aria-hidden className={`h-5 w-5 transition-transform ${active ? "-translate-y-px scale-105" : ""}`}>
               {item.icon}
             </span>
             {item.label}

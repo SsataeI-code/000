@@ -63,7 +63,7 @@ export default async function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="py-16 md:py-20">
+      <section className="rise py-16 md:py-20">
         <p className="font-label text-xs uppercase tracking-wide text-red">For people who want to see results</p>
         <h1 className="mt-4 text-5xl leading-[0.95] text-ink md:text-6xl">
           Build the habits.
@@ -121,7 +121,7 @@ export default async function LandingPage() {
             <img
               src={coachPhoto}
               alt={t("landing.coach.name")}
-              className="h-28 w-28 shrink-0 border border-hairline object-cover"
+              className="h-28 w-28 shrink-0 rounded-lg border border-hairline object-cover"
             />
           ) : (
             <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
