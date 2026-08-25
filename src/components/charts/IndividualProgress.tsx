@@ -31,6 +31,9 @@ const GOAL_VERB: Record<string, string> = {
 /** WeekPoint[] → SeriesPoint[] for the line chart (uses the week-start date). */
 const asSeries = (weeks: WeekPoint[]): SeriesPoint[] => weeks.map((w) => ({ date: w.startDate, value: w.value }));
 
+/** Treat a 0 as "no data that day" so a missed day is a gap, not a spike to zero. */
+const gapZero = (s: SeriesPoint[]): SeriesPoint[] => s.map((p) => ({ ...p, value: p.value && p.value > 0 ? p.value : null }));
+
 /**
  * Individual progress (§9). Leads with a weight-vs-goal readout, then the trends
  * a coach actually reads — weekly averages by default (day-to-day noise smoothed
@@ -133,7 +136,7 @@ export function IndividualProgress({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
-            <p className="mt-1 font-display text-4xl leading-none text-ink">{latestWeight != null ? `${Math.round(latestWeight)} lb` : "—"}</p>
+            <p className="mt-1 font-display text-5xl leading-none text-ink">{latestWeight != null ? `${Math.round(latestWeight)}` : "—"}<span className="ml-1 text-2xl text-ink/50">lb</span></p>
             <p className="mt-1.5 font-body text-sm text-ink/70">
               {weightChange == null
                 ? "Log twice to see your trend."
@@ -146,7 +149,7 @@ export function IndividualProgress({
             ) : null}
           </div>
           {paceLabel ? (
-            <span className={`shrink-0 border px-2.5 py-1 font-label text-[10px] uppercase tracking-wide ${paceGood ? "border-success text-success" : "border-red text-red"}`}>
+            <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide ${paceGood ? "bg-success/15 text-success" : "bg-red/15 text-red"}`}>
               {paceLabel}
             </span>
           ) : null}
@@ -155,6 +158,8 @@ export function IndividualProgress({
           {weekly ? (
             <LineChart
               points={asSeries(weightWeeks)}
+              areaColor="#e10600"
+              overlayColor="#e10600"
               ariaLabel="Weekly average body weight over time, in pounds"
               formatValue={(nn) => `${Math.round(nn)} lb`}
             />
@@ -193,7 +198,7 @@ export function IndividualProgress({
         {weekly ? (
           <BarChart weeks={calWeeks} target={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
         ) : (
-          <LineChart points={calSeries} overlay={movingAverage(calSeries, maWindow)} targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => `${Math.round(nn)} cal`} />
+          <LineChart points={gapZero(calSeries)} overlay={movingAverage(gapZero(calSeries), maWindow)} targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => `${Math.round(nn)} cal`} />
         )}
       </Card>
 
@@ -202,7 +207,7 @@ export function IndividualProgress({
         {weekly ? (
           <BarChart weeks={proteinWeeks} target={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
         ) : (
-          <LineChart points={proteinSeries} overlay={movingAverage(proteinSeries, maWindow)} overlayColor="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)} g`} />
+          <LineChart points={gapZero(proteinSeries)} overlay={movingAverage(gapZero(proteinSeries), maWindow)} overlayColor="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)} g`} />
         )}
       </Card>
 
@@ -227,10 +232,10 @@ export function IndividualProgress({
 
 function Card({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-hairline bg-surface p-5">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">{title}</p>
-        {note ? <p className="font-body text-xs text-ink/60">{note}</p> : null}
+    <section className="rounded-xl border border-hairline bg-surface p-5">
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <p className="font-label text-sm uppercase tracking-wide text-ink">{title}</p>
+        {note ? <p className="font-body text-xs text-ink/55">{note}</p> : null}
       </div>
       {children}
     </section>
@@ -239,9 +244,9 @@ function Card({ title, note, children }: { title: string; note?: string; childre
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-lg border border-hairline bg-surface p-3">
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
-      <p className="mt-1 font-display text-2xl leading-none text-ink">{value}</p>
+    <div className="rounded-xl border border-hairline bg-surface p-3.5">
+      <p className="font-display text-3xl leading-none text-ink">{value}</p>
+      <p className="mt-1.5 font-label text-[10px] uppercase tracking-wide text-ink/55">{label}</p>
       {sub ? <p className="mt-0.5 font-body text-[11px] text-ink/40">{sub}</p> : null}
     </div>
   );

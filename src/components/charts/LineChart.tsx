@@ -12,6 +12,7 @@ export function LineChart({
   overlay,
   color = "#f4f4f2",
   overlayColor = "#e10600",
+  areaColor,
   targetLine = null,
   targetLabel = "target",
   ariaLabel,
@@ -21,6 +22,8 @@ export function LineChart({
   overlay?: SeriesPoint[];
   color?: string;
   overlayColor?: string;
+  /** Soft flat fill under the line (no gradient); defaults to the line colour. */
+  areaColor?: string;
   targetLine?: number | null;
   targetLabel?: string;
   ariaLabel: string;
@@ -69,6 +72,26 @@ export function LineChart({
     return d.trim();
   };
 
+  // Filled area under the line, one closed shape per contiguous run of points.
+  // Opt-in: only when a caller asks for it (areaColor), so a spiky daily line
+  // stays a clean stroke while a smooth trend line can carry a soft fill.
+  const baseY = H - padB;
+  const areaPaths: string[] = [];
+  if (areaColor) {
+    let run: { i: number; v: number }[] = [];
+    const flush = () => {
+      if (run.length >= 2) {
+        let d = `M ${x(run[0].i).toFixed(1)} ${baseY}`;
+        for (const p of run) d += ` L ${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`;
+        d += ` L ${x(run[run.length - 1].i).toFixed(1)} ${baseY} Z`;
+        areaPaths.push(d);
+      }
+      run = [];
+    };
+    points.forEach((p, i) => { if (p.value == null) flush(); else run.push({ i, v: p.value }); });
+    flush();
+  }
+
   // 4 value gridlines across the range — deduped by label so flat/zero data
   // doesn't stack up identical "0" labels (which reads as broken).
   const seenLabels = new Set<string>();
@@ -114,20 +137,37 @@ export function LineChart({
           </>
         ) : null}
 
+        {/* Soft flat area under the line (no gradient); opt-in via areaColor */}
+        {areaColor
+          ? areaPaths.map((d, i) => <path key={`a${i}`} d={d} fill={areaColor} opacity={0.12} />)
+          : null}
+
         {/* Trend overlay (smoothed) */}
         {overlay ? (
-          <path d={toPath(overlay)} fill="none" stroke={overlayColor} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={toPath(overlay)} fill="none" stroke={overlayColor} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         ) : null}
 
         {/* Main series */}
-        <path d={toPath(points)} fill="none" stroke={color} strokeWidth={overlay ? 1.25 : 2} strokeLinejoin="round" strokeLinecap="round" opacity={overlay ? 0.55 : 1} vectorEffect="non-scaling-stroke" />
+        <path d={toPath(points)} fill="none" stroke={color} strokeWidth={overlay ? 1.5 : 2.75} strokeLinejoin="round" strokeLinecap="round" opacity={overlay ? 0.5 : 1} vectorEffect="non-scaling-stroke" />
 
-        {/* Dots on logged points */}
-        {points.map((p, i) =>
-          p.value == null ? null : (
-            <circle key={i} cx={x(i)} cy={y(p.value)} r={i === lastIdx ? 3.2 : 1.8} fill={i === lastIdx ? overlayColor : color} />
-          ),
-        )}
+        {/* Dots on logged points; interior dots only on sparse series so a dense
+            daily line stays clean, but the latest always gets a bold halo. */}
+        {(() => {
+          const logged = points.filter((p) => p.value != null).length;
+          const showInterior = logged <= 14;
+          return points.map((p, i) => {
+            if (p.value == null) return null;
+            const last = i === lastIdx;
+            if (!last && !showInterior) return null;
+            const c = last ? overlayColor : color;
+            return (
+              <g key={i}>
+                {last ? <circle cx={x(i)} cy={y(p.value)} r={7} fill={c} opacity={0.18} /> : null}
+                <circle cx={x(i)} cy={y(p.value)} r={last ? 4 : 2.25} fill={c} stroke="#0b0b0d" strokeWidth={last ? 1.5 : 0} />
+              </g>
+            );
+          });
+        })()}
 
         {/* Date axis */}
         {firstDate ? <text x={padL} y={H - 8} textAnchor="start" className="fill-ink/40" style={{ font: "500 9px sans-serif" }}>{fmtDate(firstDate)}</text> : null}
