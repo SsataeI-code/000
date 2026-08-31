@@ -9,6 +9,9 @@ import { computeTargets } from "@/lib/nutrition/targets";
 import { starterHabits } from "@/lib/habits/starter";
 import { isHabitCategory } from "@/lib/habits/ideas";
 import { isDietPattern } from "@/lib/food/diet";
+import { getClientCoachId } from "@/lib/messages/data";
+import { notify } from "@/lib/notifications/data";
+import { GOAL_OPTIONS, isGoal } from "@/lib/nutrition/types";
 import type {
   ActivityLevel,
   DietPreference,
@@ -19,6 +22,11 @@ import type {
 
 export interface OnboardingState {
   error?: string;
+}
+
+export interface GoalState {
+  error?: string;
+  ok?: boolean;
 }
 
 const SEXES: Sex[] = ["male", "female"];
@@ -179,26 +187,32 @@ export async function saveOnboardingAction(
  * stored profile and the latest logged body weight, inserts fresh targets, and
  * syncs the profile weight. Triggered by the monthly review nudge.
  */
-export async function recalcTargetsAction(): Promise<void> {
-  const user = await getSessionUser();
-  if (!user) return;
-  const profile = await getClientProfile(user.id);
+/**
+ * Recompute a client's PN targets from their stored profile + latest weight, and
+ * insert a fresh nutrition_targets row (history kept). Optionally overrides the
+ * goal (used when the goal is being changed in the same action). Returns whether
+ * a new target row was written. RLS scopes the writes to the caller's authority
+ * (client on self; coach/owner on their client). Defensive — missing intake just
+ * returns false, never throws.
+ */
+export async function recomputeTargetsForClient(clientId: string, goalOverride?: Goal): Promise<boolean> {
+  const profile = await getClientProfile(clientId);
   if (!profile || !profile.sex || !profile.activity || profile.age == null || profile.height_cm == null) {
-    return;
+    return false;
   }
 
   const supabase = await createClient();
   const { data: latestBody } = await supabase
     .from("body_measurements")
     .select("weight_kg")
-    .eq("client_id", user.id)
+    .eq("client_id", clientId)
     .not("weight_kg", "is", null)
     .order("log_date", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   const weightKg = latestBody?.weight_kg != null ? Number(latestBody.weight_kg) : profile.weight_kg;
-  if (weightKg == null) return;
+  if (weightKg == null) return false;
 
   const targets = computeTargets({
     sex: profile.sex,
@@ -206,22 +220,68 @@ export async function recalcTargetsAction(): Promise<void> {
     heightCm: Number(profile.height_cm),
     weightKg,
     activity: profile.activity,
-    goal: profile.goal,
+    goal: goalOverride ?? profile.goal,
     dietPreference: profile.diet_preference,
   });
 
-  await supabase.from("nutrition_targets").insert({
-    client_id: user.id,
+  const { error } = await supabase.from("nutrition_targets").insert({
+    client_id: clientId,
     calories: targets.calories,
     protein_g: targets.proteinG,
     carbs_g: targets.carbsG,
     fat_g: targets.fatG,
     method: "pn",
   });
+  if (error) return false;
   if (latestBody?.weight_kg != null) {
-    await supabase.from("client_profiles").update({ weight_kg: weightKg }).eq("id", user.id);
+    await supabase.from("client_profiles").update({ weight_kg: weightKg }).eq("id", clientId);
   }
+  return true;
+}
+
+export async function recalcTargetsAction(): Promise<void> {
+  const user = await getSessionUser();
+  if (!user) return;
+  await recomputeTargetsForClient(user.id);
   revalidatePath("/client");
+}
+
+/**
+ * A client changes their own goal (§ owner: "if clients want to change goals").
+ * Updates their goal and recomputes PN targets so calories/macros reflect it,
+ * then notifies their coach so nothing changes behind the coach's back (§9).
+ */
+export async function setMyGoalAction(_prev: GoalState, formData: FormData): Promise<GoalState> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Please sign in again." };
+  const goal = formData.get("goal");
+  if (!isGoal(goal)) return { error: "Pick a goal." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("client_profiles").update({ goal }).eq("id", user.id);
+  if (error) return { error: "Couldn't save your goal — try again." };
+
+  await recomputeTargetsForClient(user.id, goal);
+
+  // Let the coach know (best-effort).
+  try {
+    const coachId = await getClientCoachId(user.id);
+    if (coachId && coachId !== user.id) {
+      const label = GOAL_OPTIONS.find((g) => g.value === goal)?.label ?? goal;
+      await notify({
+        recipientId: coachId,
+        kind: "system",
+        title: "A client changed their goal",
+        body: `${user.profile?.display_name ?? "A client"} set their goal to “${label}”. Targets were recalculated.`,
+        link: `/coach/clients/${user.id}`,
+      });
+    }
+  } catch {
+    /* notification is best-effort */
+  }
+
+  revalidatePath("/client");
+  return { ok: true };
 }
 
 export interface FoodPrefsState {

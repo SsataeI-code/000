@@ -243,6 +243,7 @@ export default async function ClientDeepDive({
         targets={targets ? { calories: targets.calories, protein_g: targets.protein_g, carbs_g: targets.carbs_g, fat_g: targets.fat_g } : null}
         habits={habits}
         strictness={profile?.strictness ?? "precise"}
+        goal={profile?.goal ?? "maintain"}
       />
 
       <Link

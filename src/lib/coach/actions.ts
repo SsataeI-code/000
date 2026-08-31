@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { coachHasClient } from "@/lib/coach/data";
 import { isStrictness } from "@/lib/nutrition/strictness";
+import { isGoal } from "@/lib/nutrition/types";
+import { recomputeTargetsForClient } from "@/lib/nutrition/actions";
 import type { HabitCategory, HabitType, HabitCadence } from "@/lib/types/db";
 
 /** A coach may act on a client they coach; the owner on anyone. */
@@ -49,6 +51,39 @@ export async function coachSetTargetsAction(
     method: "coach",
   });
   if (error) return { error: "Couldn't save — try again." };
+  revalidatePath(`/coach/clients/${clientId}`);
+  revalidatePath("/client");
+  return { ok: true };
+}
+
+/**
+ * Coach/owner changes a client's goal (§9 "editing their goals"). Updates the
+ * stored goal and recomputes PN targets so calories/macros reflect the new goal.
+ */
+export async function coachSetGoalAction(
+  clientId: string,
+  _prev: PlanState,
+  formData: FormData,
+): Promise<PlanState> {
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
+  const goal = formData.get("goal");
+  if (!isGoal(goal)) return { error: "Pick a goal." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("client_profiles").update({ goal }).eq("id", clientId);
+  if (error) return { error: "Couldn't save the goal — try again." };
+
+  await recomputeTargetsForClient(clientId, goal);
+  revalidatePath(`/coach/clients/${clientId}`);
+  revalidatePath("/client");
+  return { ok: true };
+}
+
+/** Coach/owner regenerates a client's PN targets from their profile + weight. */
+export async function coachRecalcTargetsAction(clientId: string): Promise<PlanState> {
+  if (!(await authorize(clientId))) return { error: "Not allowed." };
+  const ok = await recomputeTargetsForClient(clientId);
+  if (!ok) return { error: "Need the client's age, height, weight & activity first." };
   revalidatePath(`/coach/clients/${clientId}`);
   revalidatePath("/client");
   return { ok: true };

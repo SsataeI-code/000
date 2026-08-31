@@ -8,6 +8,19 @@ export type ActivityLevel = "sedentary" | "light" | "moderate" | "very" | "athle
 /** Supported goals (§5B). "recomp" is treated as maintenance calories. */
 export type Goal = "lose" | "maintain" | "recomp" | "gain" | "habits_only";
 
+/** Goals in menu order, with client-facing labels + a one-line description. */
+export const GOAL_OPTIONS: { value: Goal; label: string; help: string }[] = [
+  { value: "lose", label: "Lose fat", help: "A calorie deficit to drop body fat." },
+  { value: "gain", label: "Build muscle", help: "A modest surplus to gain." },
+  { value: "maintain", label: "Maintain", help: "Hold steady at maintenance." },
+  { value: "recomp", label: "Recomp", help: "Maintenance calories, recompose." },
+  { value: "habits_only", label: "Habits only", help: "No weight goal — just habits." },
+];
+
+export function isGoal(v: unknown): v is Goal {
+  return typeof v === "string" && GOAL_OPTIONS.some((g) => g.value === v);
+}
+
 /** Macro split preference (§5B). */
 export type DietPreference = "balanced" | "low_carb" | "low_fat";
 

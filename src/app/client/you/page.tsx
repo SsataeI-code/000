@@ -6,6 +6,7 @@ import { getNotifications } from "@/lib/notifications/data";
 import { getContentOverrides } from "@/lib/content/data";
 import { getMyReferralCode, getMyReferralStats } from "@/lib/referrals/data";
 import { getClientProfile } from "@/lib/nutrition/data";
+import { GoalPicker } from "@/components/nutrition/GoalPicker";
 import { NotificationsList } from "@/components/notifications/NotificationsList";
 import { InvitePanel } from "@/components/referrals/InvitePanel";
 import { QuietHours } from "@/components/notifications/QuietHours";
@@ -37,6 +38,8 @@ export default async function ClientYouPage() {
       </div>
 
       <NotificationsList notifications={notifications} />
+
+      <GoalPicker goal={profile?.goal ?? "maintain"} />
 
       <InvitePanel code={referralCode} origin={origin} stats={referralStats} overrides={overrides} />
 

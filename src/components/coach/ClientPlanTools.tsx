@@ -1,9 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { STRICTNESS_OPTIONS } from "@/lib/nutrition/strictness";
+import { GOAL_OPTIONS } from "@/lib/nutrition/types";
+import { balanceMacros, macroPercents, ratioOf, type MacroField } from "@/lib/nutrition/macros";
 import {
   coachSetTargetsAction,
+  coachSetGoalAction,
+  coachRecalcTargetsAction,
   coachAddHabitAction,
   coachSetStrictnessAction,
   coachArchiveHabitAction,
@@ -11,7 +16,7 @@ import {
 } from "@/lib/coach/actions";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import type { Habit, HabitCadence, HabitType } from "@/lib/types/db";
+import type { Goal, Habit, HabitCadence, HabitType } from "@/lib/types/db";
 
 const initial: PlanState = {};
 const selectClass =
@@ -36,20 +41,61 @@ export function ClientPlanTools({
   targets,
   habits,
   strictness,
+  goal,
 }: {
   clientId: string;
   targets: Targets | null;
   habits: Habit[];
   strictness: string;
+  goal: Goal;
 }) {
+  const router = useRouter();
   const setTargets = coachSetTargetsAction.bind(null, clientId);
+  const setGoal = coachSetGoalAction.bind(null, clientId);
   const addHabit = coachAddHabitAction.bind(null, clientId);
   const setStrictness = coachSetStrictnessAction.bind(null, clientId);
   const [tState, tAction, tPending] = useActionState(setTargets, initial);
+  const [gState, gAction, gPending] = useActionState(setGoal, initial);
   const [hState, hAction, hPending] = useActionState(addHabit, initial);
   const [sState, sAction, sPending] = useActionState(setStrictness, initial);
   const [type, setType] = useState<HabitType>("checkbox");
   const [cadence, setCadence] = useState<HabitCadence>("daily");
+
+  // Live macro calculator: change calories → macros scale; change a macro →
+  // calories recompute. Controlled so the submitted values are the balanced ones.
+  const initialMacros = {
+    calories: targets?.calories ?? 2000,
+    proteinG: targets?.protein_g ?? 150,
+    carbsG: targets?.carbs_g ?? 200,
+    fatG: targets?.fat_g ?? 60,
+  };
+  const [macros, setMacros] = useState(initialMacros);
+  // Stable macro split, updated only when a macro is edited — so editing
+  // calories digit-by-digit recomputes from it instead of collapsing to zero.
+  const ratio = useRef(ratioOf(initialMacros));
+  const onMacro = (field: MacroField) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Math.max(0, Math.round(Number(e.target.value) || 0));
+    setMacros((m) => {
+      const next = balanceMacros({ ...m, [field]: v }, field, ratio.current);
+      if (field !== "calories") ratio.current = ratioOf(next);
+      return next;
+    });
+  };
+  const pct = macroPercents(macros);
+
+  const [recalcPending, startRecalc] = useTransition();
+  const [recalcMsg, setRecalcMsg] = useState<string | null>(null);
+  function autoGenerate() {
+    setRecalcMsg(null);
+    startRecalc(async () => {
+      const res = await coachRecalcTargetsAction(clientId);
+      if (res.error) setRecalcMsg(res.error);
+      else {
+        setRecalcMsg("Recalculated from their profile.");
+        router.refresh();
+      }
+    });
+  }
 
   return (
     <section className="flex flex-col gap-6 rounded-lg border border-hairline bg-surface-muted p-5">
@@ -60,9 +106,38 @@ export function ClientPlanTools({
         </p>
       </div>
 
-      {/* Adjust targets */}
+      {/* Goal */}
+      <form action={gAction} className="flex flex-col gap-3" noValidate>
+        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Goal</p>
+        {gState.error ? (
+          <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{gState.error}</p>
+        ) : null}
+        {gState.ok ? (
+          <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">Goal changed — targets recalculated.</p>
+        ) : null}
+        <select name="goal" defaultValue={goal} className={selectClass}>
+          {GOAL_OPTIONS.map((g) => (
+            <option key={g.value} value={g.value}>{g.label} — {g.help}</option>
+          ))}
+        </select>
+        <Button type="submit" disabled={gPending}>{gPending ? "Saving…" : "Change goal & recalc targets"}</Button>
+      </form>
+
+      <hr className="border-hairline" />
+
+      {/* Adjust targets — live macro calculator */}
       <form action={tAction} className="flex flex-col gap-4" noValidate>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Adjust targets</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Adjust targets</p>
+          <button
+            type="button"
+            onClick={autoGenerate}
+            disabled={recalcPending}
+            className="min-h-tap font-label text-[10px] uppercase tracking-wide text-red underline underline-offset-4 hover:text-red-ink disabled:opacity-50"
+          >
+            {recalcPending ? "Recalculating…" : "Auto-generate (PN)"}
+          </button>
+        </div>
         {tState.error ? (
           <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
             {tState.error}
@@ -73,12 +148,18 @@ export function ClientPlanTools({
             Targets updated.
           </p>
         ) : null}
+        {recalcMsg ? (
+          <p role="status" className="rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-ink/70">{recalcMsg}</p>
+        ) : null}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Calories" name="calories" type="number" inputMode="numeric" min={0} defaultValue={targets?.calories ?? ""} required />
-          <Field label="Protein (g)" name="protein_g" type="number" inputMode="numeric" min={0} defaultValue={targets?.protein_g ?? ""} />
-          <Field label="Carbs (g)" name="carbs_g" type="number" inputMode="numeric" min={0} defaultValue={targets?.carbs_g ?? ""} />
-          <Field label="Fat (g)" name="fat_g" type="number" inputMode="numeric" min={0} defaultValue={targets?.fat_g ?? ""} />
+          <Field label="Calories" name="calories" type="number" inputMode="numeric" min={0} value={macros.calories} onChange={onMacro("calories")} required />
+          <Field label="Protein (g)" name="protein_g" type="number" inputMode="numeric" min={0} value={macros.proteinG} onChange={onMacro("proteinG")} />
+          <Field label="Carbs (g)" name="carbs_g" type="number" inputMode="numeric" min={0} value={macros.carbsG} onChange={onMacro("carbsG")} />
+          <Field label="Fat (g)" name="fat_g" type="number" inputMode="numeric" min={0} value={macros.fatG} onChange={onMacro("fatG")} />
         </div>
+        <p className="rounded-lg border border-hairline bg-surface px-3 py-2 font-label text-[11px] uppercase tracking-wide text-ink/70">
+          = {macros.calories.toLocaleString()} kcal · {pct.protein}% P / {pct.carbs}% C / {pct.fat}% F
+        </p>
         <Button type="submit" disabled={tPending}>
           {tPending ? "Saving…" : "Save targets"}
         </Button>
