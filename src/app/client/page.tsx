@@ -7,6 +7,7 @@ import {
   getFoodPhotoUrls,
   getLatestTargets,
   getRecentFoodNames,
+  getRecentFoodsToRelog,
   getSavedMeals,
   getTodayFoodLogs,
   isOnboarded,
@@ -15,6 +16,7 @@ import {
 import { isDietPattern, parseAvoid, type DietFilter } from "@/lib/food/diet";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
+import { RecentFoods } from "@/components/nutrition/RecentFoods";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
@@ -65,7 +67,7 @@ export default async function TodayPage() {
   // (not the server's UTC midnight), so evening logs land on the right day (§2).
   const today = dayInTimeZone(profile?.timezone);
 
-  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames, measurements] = await Promise.all([
+  const [logs, savedMeals, habits, habitLogs, waterMl, screenLayout, recentNames, measurements, relogFoods] = await Promise.all([
     getTodayFoodLogs(user.id, today),
     getSavedMeals(user.id),
     getHabits(user.id),
@@ -74,6 +76,7 @@ export default async function TodayPage() {
     getMyClientScreenLayout(),
     getRecentFoodNames(user.id),
     getBodyMeasurements(user.id, 60),
+    getRecentFoodsToRelog(user.id, 30, 8),
   ]);
 
   // Weekly weigh-in state (surfaced on Today so weight is never hard to find).
@@ -259,11 +262,12 @@ export default async function TodayPage() {
               <h2 className="text-2xl text-ink">{t("client.nav.food")}</h2>
               <Link
                 href="/client/food"
-                className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
+                className="inline-flex min-h-tap items-center rounded-xl bg-grad-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white shadow-pop-red transition-transform active:translate-y-[3px] active:shadow-none"
               >
                 Add food
               </Link>
             </div>
+            <RecentFoods foods={relogFoods} />
             <FoodLogList logs={logs} photoUrls={photoUrls} />
           </div>
         );
