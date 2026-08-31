@@ -16,15 +16,6 @@ import {
   type ChartView,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-import { BarChart } from "@/components/charts/BarChart";
-
-/** Short M/D label from an ISO date (UTC-safe). */
-const mdLabel = (iso: string): string => {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
-};
-/** Daily SeriesPoint[] → WeekPoint[] so the bar chart can render one bar/day. */
-const dailyBars = (s: SeriesPoint[]): WeekPoint[] => s.map((p) => ({ label: mdLabel(p.date), startDate: p.date, value: p.value }));
 
 const GOAL_VERB: Record<string, string> = {
   lose: "fat loss",
@@ -207,27 +198,27 @@ export function IndividualProgress({
       {/* Calories */}
       <Card title="Calories" note={avgCals != null ? `avg ${Math.round(avgCals)}${targets ? ` · target ${targets.calories}` : ""}` : undefined}>
         {weekly ? (
-          <BarChart weeks={calWeeks} target={targets?.calories ?? null} color="#e10600" ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
+          <LineChart points={asSeries(calWeeks)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
         ) : (
-          <BarChart weeks={dailyBars(gapZero(calSeries))} target={targets?.calories ?? null} color="#e10600" ariaLabel="Calories logged each day vs target" formatValue={(nn) => String(Math.round(nn))} />
+          <LineChart points={gapZero(calSeries)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => String(Math.round(nn))} />
         )}
       </Card>
 
       {/* Protein */}
       <Card title="Protein" note={avgProtein != null ? `avg ${Math.round(avgProtein)} g${targets ? ` · target ${targets.protein_g} g` : ""}` : undefined}>
         {weekly ? (
-          <BarChart weeks={proteinWeeks} target={targets?.protein_g ?? null} color="#34c759" ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
+          <LineChart points={asSeries(proteinWeeks)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
         ) : (
-          <BarChart weeks={dailyBars(gapZero(proteinSeries))} target={targets?.protein_g ?? null} color="#34c759" ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
+          <LineChart points={gapZero(proteinSeries)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
         )}
       </Card>
 
       {/* Habit consistency */}
       <Card title="Habit consistency" note={avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}>
         {weekly ? (
-          <BarChart weeks={consWeeks} target={100} targetLabel="goal" color="#34c759" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
+          <LineChart points={asSeries(consWeeks)} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
         ) : (
-          <BarChart weeks={dailyBars(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })))} target={100} targetLabel="goal" color="#34c759" ariaLabel="Percent of due habits completed each day" formatValue={(nn) => `${Math.round(nn)}%`} />
+          <LineChart points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Percent of due habits completed each day" formatValue={(nn) => `${Math.round(nn)}%`} />
         )}
       </Card>
     </div>

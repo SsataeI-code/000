@@ -8,13 +8,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-lg px-5 py-3 " +
-  "font-label text-sm font-600 uppercase tracking-wide transition-[transform,background-color,color,border-color] duration-150 " +
-  "active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-xl px-5 py-3 " +
+  "font-label text-sm font-600 uppercase tracking-wide transition-[transform,box-shadow,background-color,color,border-color] duration-150 " +
+  "active:translate-y-[3px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
-  // Flat, high-contrast, no gradients (§4).
-  primary: "bg-red text-white hover:bg-red-ink",
+  // Cartoon-game: gradient fill, chunky "pop" bottom edge that presses in, red glow.
+  primary: "bg-grad-red text-white shadow-pop-red hover:shadow-glow",
   ghost: "bg-transparent text-ink underline underline-offset-4 hover:text-red",
 };
 

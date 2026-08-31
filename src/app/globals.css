@@ -18,6 +18,11 @@
   body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    /* Soft neon glow bleeding from the top — the arcade backdrop (game look). */
+    background-color: #0b0b0d;
+    background-image: radial-gradient(1100px 520px at 50% -8%, rgba(225, 6, 0, 0.14), transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
   /* Body copy rhythm — a touch more line-height reads calmer and more premium. */
@@ -93,6 +98,38 @@
 @layer utilities {
   .rise {
     animation: rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  /* Cartoon hero numbers — a chunky dark drop so big digits pop off the card. */
+  .toon-shadow {
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
+  }
+  /* Comic-style outlined text (light stroke) for big level/number art. */
+  .toon-outline {
+    -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
+    paint-order: stroke fill;
+  }
+  /* Glassy sheen swipe used on XP bars / hero buttons. */
+  .sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translateX(-120%);
+    animation: shine 2.8s ease-in-out infinite;
+  }
+  @keyframes shine {
+    0% {
+      transform: translateX(-120%);
+    }
+    100% {
+      transform: translateX(320%);
+    }
   }
   @keyframes rise {
     from {
