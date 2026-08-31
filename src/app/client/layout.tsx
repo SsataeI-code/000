@@ -9,6 +9,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea, hasCoachPowers } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer } from "@/lib/content/data";
+import { getViewerGame } from "@/lib/habits/state";
+import { LevelBar } from "@/components/habits/LevelBar";
 import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
@@ -23,6 +25,7 @@ export default async function ClientLayout({ children }: { children: React.React
   if (!canAccessArea(user.role, "client")) redirect("/coach");
 
   const t = await getCopyServer();
+  const game = await getViewerGame(user.id);
   const tabs: TabItem[] = [
     { href: "/client", label: t("client.nav.today"), icon: <IconToday /> },
     { href: "/client/habits", label: t("client.nav.habits"), icon: <IconHabits /> },
@@ -53,6 +56,13 @@ export default async function ClientLayout({ children }: { children: React.React
           <SignOutButton />
         </span>
       </header>
+
+      {/* Persistent level bar — progress always in view (game HUD). */}
+      {game ? (
+        <div className="sticky top-[49px] z-20 border-b border-hairline bg-surface-muted/80 px-5 py-2 backdrop-blur">
+          <LevelBar game={game} />
+        </div>
+      ) : null}
 
       <div className="rise px-5 py-6">{children}</div>
 
