@@ -17,6 +17,7 @@ import { isDietPattern, parseAvoid, type DietFilter } from "@/lib/food/diet";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { RecentFoods } from "@/components/nutrition/RecentFoods";
+import { GoalPicker } from "@/components/nutrition/GoalPicker";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
@@ -314,6 +315,8 @@ export default async function TodayPage() {
       </div>
 
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
+
+      <GoalPicker goal={profile?.goal ?? "maintain"} />
 
       <WeeklyWeighIn latestKg={latestKg} daysSince={daysSinceWeigh} changeKg={weightChangeKg} />
 

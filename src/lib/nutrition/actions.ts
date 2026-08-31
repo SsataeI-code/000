@@ -251,11 +251,10 @@ export async function recalcTargetsAction(): Promise<void> {
  * Updates their goal and recomputes PN targets so calories/macros reflect it,
  * then notifies their coach so nothing changes behind the coach's back (§9).
  */
-export async function setMyGoalAction(_prev: GoalState, formData: FormData): Promise<GoalState> {
+/** Core goal change for the signed-in client: save, recompute targets, notify. */
+async function changeMyGoal(goal: Goal): Promise<GoalState> {
   const user = await getSessionUser();
   if (!user) return { error: "Please sign in again." };
-  const goal = formData.get("goal");
-  if (!isGoal(goal)) return { error: "Pick a goal." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("client_profiles").update({ goal }).eq("id", user.id);
@@ -281,7 +280,21 @@ export async function setMyGoalAction(_prev: GoalState, formData: FormData): Pro
   }
 
   revalidatePath("/client");
+  revalidatePath("/client/you");
   return { ok: true };
+}
+
+/** Form-action version (used by a <form> submit). */
+export async function setMyGoalAction(_prev: GoalState, formData: FormData): Promise<GoalState> {
+  const goal = formData.get("goal");
+  if (!isGoal(goal)) return { error: "Pick a goal." };
+  return changeMyGoal(goal);
+}
+
+/** One-tap version (used by the goal chips) — change the goal directly. */
+export async function setMyGoalDirect(goal: string): Promise<GoalState> {
+  if (!isGoal(goal)) return { error: "Pick a goal." };
+  return changeMyGoal(goal);
 }
 
 export interface FoodPrefsState {
