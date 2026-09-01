@@ -176,6 +176,11 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
               Edit copy
             </Link>
           ) : null}
+          {isOwner ? (
+            <Link href="/coach/health" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+              Setup health
+            </Link>
+          ) : null}
           <Link href="/coach/report" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Weekly digest
           </Link>

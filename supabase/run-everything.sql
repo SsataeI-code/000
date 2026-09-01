@@ -1,10 +1,19 @@
--- Total Form Fitness — RUN EVERYTHING (complete DB setup, all phases).
--- Paste this ENTIRE file into Supabase → SQL Editor → Run. Every statement
--- is idempotent, so it is safe even if parts were already applied.
--- Generated from supabase/migrations/0001–0026.
+-- ============================================================================
+-- Total Form Fitness — COMPLETE database setup (run this once).
+--
+-- Paste this whole file into Supabase → SQL Editor → Run. It creates every
+-- table, function, RLS policy, trigger, and realtime publication the app needs,
+-- in dependency order (migrations 0001–0026). Everything is idempotent — safe
+-- to run again; already-applied objects are skipped.
+--
+-- After running, verify with the in-app owner Setup Health page (/coach/health).
+-- Generated from supabase/migrations/*. Do not edit by hand — regenerate.
+-- ============================================================================
 
 
--- ==================== 0001_schema.sql ====================
+-- ============================================================================
+-- 0001_schema.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 0 schema.
 -- Multi-coach-ready role model (CLAUDE.md §1, §16). No single-coach assumption:
 -- many coaches can live under one owner, each owning their own clients.
@@ -96,7 +105,9 @@ create trigger profiles_touch_updated_at
   for each row execute function public.touch_updated_at();
 
 
--- ==================== 0002_functions_rls.sql ====================
+-- ============================================================================
+-- 0002_functions_rls.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 0 access control.
 -- Helper functions are SECURITY DEFINER so RLS policies can call them without
 -- recursively triggering RLS on the same tables (a classic Postgres RLS trap).
@@ -314,7 +325,9 @@ grant execute on function public.is_owner() to authenticated;
 grant execute on function public.is_coach_of(uuid) to authenticated;
 
 
--- ==================== 0003_nutrition.sql ====================
+-- ============================================================================
+-- 0003_nutrition.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 1 schema: the core client loop.
 -- Client intake + PN targets, a shared Open Food Facts product cache, and food
 -- logs. Idempotent (safe to re-run), same as the Phase 0 migrations.
@@ -456,7 +469,9 @@ grant select, insert, update, delete
   to authenticated;
 
 
--- ==================== 0004_meals.sql ====================
+-- ============================================================================
+-- 0004_meals.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 1.1: user-created saved meals.
 -- A client (or their coach) can build a meal from ingredients, save it as a
 -- reusable template, and log the whole thing in one tap. Idempotent.
@@ -489,7 +504,9 @@ create policy meals_write on public.meals
 grant select, insert, update, delete on public.meals to authenticated;
 
 
--- ==================== 0005_habits.sql ====================
+-- ============================================================================
+-- 0005_habits.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 2: habits engine (§5A). The star of the app.
 -- Idempotent, same conventions as earlier migrations.
 
@@ -561,7 +578,9 @@ create policy habit_logs_write on public.habit_logs
 grant select, insert, update, delete on public.habits, public.habit_logs to authenticated;
 
 
--- ==================== 0006_hydration_body.sql ====================
+-- ============================================================================
+-- 0006_hydration_body.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 2: hydration (§5 dedicated) + body (§5C).
 -- Idempotent.
 
@@ -614,7 +633,9 @@ create policy body_write on public.body_measurements
 grant select, insert, update, delete on public.water_logs, public.body_measurements to authenticated;
 
 
--- ==================== 0007_food_photos.sql ====================
+-- ============================================================================
+-- 0007_food_photos.sql
+-- ============================================================================
 -- Total Form Fitness — food photo (bonus). Optional picture attached to a food
 -- log, stored in a PRIVATE Storage bucket the client owns. Idempotent.
 
@@ -645,7 +666,9 @@ create policy "food_photos_coach_read" on storage.objects
   );
 
 
--- ==================== 0008_coach_prefs.sql ====================
+-- ============================================================================
+-- 0008_coach_prefs.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 3: coach dashboard preferences (§9 "the dashboard
 -- is open-ended and editable — the coach arranges, adds, and edits the tiles").
 -- One row per coach holds their dashboard tile layout as JSON. Idempotent, same
@@ -673,7 +696,9 @@ create policy coach_prefs_rw on public.coach_prefs
 grant select, insert, update, delete on public.coach_prefs to authenticated;
 
 
--- ==================== 0009_messages.sql ====================
+-- ============================================================================
+-- 0009_messages.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 4: coach ↔ client messaging (§10). One thread per
 -- (coach, client) pair; each row is one message. Multi-coach-safe (keyed by both
 -- ids), RLS scopes a thread to its two participants (owner sees all). Idempotent.
@@ -724,7 +749,9 @@ do $$ begin
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
 
--- ==================== 0010_notifications.sql ====================
+-- ============================================================================
+-- 0010_notifications.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 4: in-app notifications (§10 "in-app notifications
 -- are the default"). One row per notification for a recipient. Idempotent.
 -- Feeds the bell/inbox on both sides and, later, PWA push + the 3-day email.
@@ -773,7 +800,9 @@ do $$ begin
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
 
--- ==================== 0011_engagement.sql ====================
+-- ============================================================================
+-- 0011_engagement.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 4: engagement sweep state (§9 auto-nudge, §10
 -- re-engagement email). One row per client tracks what the daily sweep has
 -- already fired for the current quiet spell, so nothing double-sends. Written
@@ -803,7 +832,9 @@ create policy engagement_state_owner on public.engagement_state
 grant select on public.engagement_state to authenticated;
 
 
--- ==================== 0012_push_subscriptions.sql ====================
+-- ============================================================================
+-- 0012_push_subscriptions.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 4: Web Push subscriptions (§10 "PWA push"). One row
 -- per device a user has opted into push on. The server (service role) reads these
 -- to send pushes; users manage their own. Idempotent.
@@ -830,7 +861,9 @@ create policy push_subscriptions_rw on public.push_subscriptions
 grant select, insert, update, delete on public.push_subscriptions to authenticated;
 
 
--- ==================== 0013_referrals.sql ====================
+-- ============================================================================
+-- 0013_referrals.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 6 (Growth): referrals (§8).
 -- A client shares a personal link; a new sign-up on that link is tracked, and
 -- the referral surfaces to the coach, who PROCESSES the reward (10% is only a
@@ -1065,7 +1098,9 @@ grant execute on function public.ensure_referral_code() to authenticated;
 grant execute on function public.process_referral(uuid, public.referral_status, text) to authenticated;
 
 
--- ==================== 0014_content.sql ====================
+-- ============================================================================
+-- 0014_content.sql
+-- ============================================================================
 -- Total Form Fitness — Phase 6 (Growth): full CMS content overrides (§4, §16).
 -- Every user-facing string ships with a house-style default in code; this table
 -- lets the owner override any of them without a code change. Overrides are
@@ -1116,7 +1151,9 @@ grant select on public.content_overrides to anon, authenticated;
 grant insert, update, delete on public.content_overrides to authenticated;
 
 
--- ==================== 0015_quiet_hours.sql ====================
+-- ============================================================================
+-- 0015_quiet_hours.sql
+-- ============================================================================
 -- Total Form Fitness — quiet hours (§10 "Client can set quiet hours").
 -- Stored on the client's profile as minutes-of-day plus their IANA timezone (so
 -- the server can tell whether it's currently quiet for them). Null start/end
@@ -1136,7 +1173,9 @@ comment on column public.client_profiles.quiet_end is 'Quiet-hours end, minutes 
 comment on column public.client_profiles.timezone is 'IANA timezone for evaluating quiet hours server-side.';
 
 
--- ==================== 0016_client_screen.sql ====================
+-- ============================================================================
+-- 0016_client_screen.sql
+-- ============================================================================
 -- Total Form Fitness — coach-configurable client "Today" screen (§4 "coach-
 -- editable everything"; §9 configurable, applied to the client side). The coach
 -- arranges/shows/hides the sections their clients see on Today. Stored per coach
@@ -1185,7 +1224,9 @@ $$;
 grant execute on function public.client_screen_layout() to authenticated;
 
 
--- ==================== 0017_client_screen_overrides.sql ====================
+-- ============================================================================
+-- 0017_client_screen_overrides.sql
+-- ============================================================================
 -- Total Form Fitness — per-client "Today" screen overrides (§4 coach-editable
 -- everything, at the individual-client grain). The coach can tailor one client's
 -- Today screen differently from the roster-wide default (coach_prefs.client_today
@@ -1270,7 +1311,9 @@ $$;
 grant execute on function public.client_screen_layout() to authenticated;
 
 
--- ==================== 0018_body_photos.sql ====================
+-- ============================================================================
+-- 0018_body_photos.sql
+-- ============================================================================
 -- Total Form Fitness — Body progress photos (§C: "optional, opt-in progress
 -- photos … private & encrypted"). A secondary Body add-on: the client uploads
 -- photos to a PRIVATE bucket they own; their coach / the owner may view them
@@ -1332,7 +1375,9 @@ create policy "body_photos_coach_read" on storage.objects
   );
 
 
--- ==================== 0019_content_images.sql ====================
+-- ============================================================================
+-- 0019_content_images.sql
+-- ============================================================================
 -- Total Form Fitness — CMS editable images (§4 "every word and every image in
 -- the app is editable by the coach"). Companion to the copy CMS (0014): the
 -- owner uploads branding images (e.g. the logo) to a PUBLIC bucket, and the
@@ -1359,7 +1404,9 @@ create policy "content_images_owner_write" on storage.objects
   with check (bucket_id = 'content-images' and public.is_owner());
 
 
--- ==================== 0020_wearables.sql ====================
+-- ============================================================================
+-- 0020_wearables.sql
+-- ============================================================================
 -- Total Form Fitness — wearable connections (§7 "auto-sync via cloud APIs only:
 -- Oura, Fitbit, Garmin, Whoop — OAuth 'Connect your tracker'"). One row per
 -- (client, provider) holds the OAuth tokens used to pull steps/sleep. Tokens are
@@ -1405,7 +1452,9 @@ create policy wearable_conn_rw on public.wearable_connections
 grant select, insert, update, delete on public.wearable_connections to authenticated;
 
 
--- ==================== 0021_weekly_reports.sql ====================
+-- ============================================================================
+-- 0021_weekly_reports.sql
+-- ============================================================================
 -- Total Form Fitness — weekly report scheduling (§12 "Weekly (default), in-app +
 -- a notification"). One dedup column on engagement_state so the daily sweep
 -- fires each client's weekly recap notification at most once per week. Idempotent.
@@ -1413,7 +1462,9 @@ grant select, insert, update, delete on public.wearable_connections to authentic
 alter table public.engagement_state add column if not exists last_report_on date;
 
 
--- ==================== 0022_wearable_daily.sql ====================
+-- ============================================================================
+-- 0022_wearable_daily.sql
+-- ============================================================================
 -- Total Form Fitness — synced wearable daily metrics (§7 "pull steps/sleep/HR").
 -- The background sync writes one row per (client, provider, day). Unlike the
 -- tokens table (client-only), these metrics are health data the coach steers, so
@@ -1454,7 +1505,9 @@ create policy wearable_daily_write on public.wearable_daily
 grant select, insert, update, delete on public.wearable_daily to authenticated;
 
 
--- ==================== 0023_client_strictness.sql ====================
+-- ============================================================================
+-- 0023_client_strictness.sql
+-- ============================================================================
 -- Total Form Fitness — per-client nutrition strictness (§B "per-client strictness
 -- setting, coach-controlled"): precise macros / protein+calories / flexible
 -- ranges / habits-only. Stored on the client profile so it survives target
@@ -1463,7 +1516,9 @@ grant select, insert, update, delete on public.wearable_daily to authenticated;
 alter table public.client_profiles add column if not exists strictness text not null default 'precise';
 
 
--- ==================== 0024_delete_client_rpc.sql ====================
+-- ============================================================================
+-- 0024_delete_client_rpc.sql
+-- ============================================================================
 -- Total Form Fitness — delete a client without needing the service-role key.
 -- A SECURITY DEFINER function (runs with elevated rights) deletes the client's
 -- auth user, which cascades to their profile and all their data. Authorized:
@@ -1494,7 +1549,9 @@ grant execute on function public.delete_client(uuid) to authenticated;
 notify pgrst, 'reload schema';
 
 
--- ==================== 0025_diet_prefs.sql ====================
+-- ============================================================================
+-- 0025_diet_prefs.sql
+-- ============================================================================
 -- Total Form Fitness — dietary pattern + food preferences (client-customizable;
 -- filters food recommendations). diet_pattern is the eating style (vegan,
 -- vegetarian, pescatarian, mediterranean, carnivore, or anything); food_avoid is
@@ -1504,7 +1561,9 @@ alter table public.client_profiles add column if not exists diet_pattern text no
 alter table public.client_profiles add column if not exists food_avoid text not null default '';
 
 
--- ==================== 0026_lifts.sql ====================
+-- ============================================================================
+-- 0026_lifts.sql
+-- ============================================================================
 -- Total Form Fitness — Lift progress log (owner decision, 2026: track strength
 -- progress). A simple, spreadsheet-style record: one row per logged set —
 -- exercise, weight, reps, sets, unit, date, optional note. RLS mirrors body
@@ -1552,5 +1611,3 @@ create policy lift_logs_delete on public.lift_logs
 
 grant select, insert, update, delete on public.lift_logs to authenticated;
 
-
-notify pgrst, 'reload schema';
