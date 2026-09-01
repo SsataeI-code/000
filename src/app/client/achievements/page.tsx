@@ -6,6 +6,7 @@ import { getClientProfile } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { currentStreak, FREEZE_BUDGET, isDueToday, isoDate } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
+import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
 import { dayInTimeZone } from "@/lib/time/day";
 import { HabitGame } from "@/components/habits/HabitGame";
 import { Achievements } from "@/components/habits/Achievements";
@@ -22,7 +23,11 @@ export default async function AchievementsPage() {
   const today = dayInTimeZone(profile?.timezone);
   const now = new Date(`${today}T12:00:00Z`);
 
-  const [habits, habitLogs] = await Promise.all([getHabits(user.id), getHabitLogs(user.id)]);
+  const [habits, habitLogs, loggingXp] = await Promise.all([
+    getHabits(user.id),
+    getHabitLogs(user.id),
+    getLoggingXpCounts(user.id, today),
+  ]);
   const byHabit = completedDatesByHabit(habitLogs);
   const todayStr = isoDate(now);
   const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now));
@@ -36,6 +41,10 @@ export default async function AchievementsPage() {
     ),
     todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
     todayDue: dueToday.length,
+    foodLogs: loggingXp.foodLogs,
+    hydrationDays: loggingXp.hydrationDays,
+    todayFoodLogs: loggingXp.todayFoodLogs,
+    hydratedToday: loggingXp.hydratedToday,
   });
   const state = computeGameState(stats);
 

@@ -1,6 +1,7 @@
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState, type GameState } from "@/lib/habits/game";
+import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
 
 export interface ViewerGame {
   state: GameState;
@@ -17,12 +18,17 @@ export interface ViewerGame {
  */
 export async function getViewerGame(clientId: string): Promise<ViewerGame | null> {
   try {
-    const [habits, habitLogs] = await Promise.all([getHabits(clientId), getHabitLogs(clientId)]);
-    if (habits.length === 0) return null;
-
-    const byHabit = completedDatesByHabit(habitLogs);
     const now = new Date();
     const todayStr = isoDate(now);
+    const [habits, habitLogs, logging] = await Promise.all([
+      getHabits(clientId),
+      getHabitLogs(clientId),
+      getLoggingXpCounts(clientId, todayStr),
+    ]);
+    // Show the level bar once there's any progress — habits OR logging.
+    if (habits.length === 0 && logging.foodLogs === 0 && logging.hydrationDays === 0) return null;
+
+    const byHabit = completedDatesByHabit(habitLogs);
 
     const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), now));
     const todayDue = dueToday.length;
@@ -34,7 +40,18 @@ export async function getViewerGame(clientId: string): Promise<ViewerGame | null
       0,
     );
 
-    const stats = habitGameStats({ habits, completedByHabit: byHabit, totalCompletions, bestCurrentStreak, todayDone, todayDue });
+    const stats = habitGameStats({
+      habits,
+      completedByHabit: byHabit,
+      totalCompletions,
+      bestCurrentStreak,
+      todayDone,
+      todayDue,
+      foodLogs: logging.foodLogs,
+      hydrationDays: logging.hydrationDays,
+      todayFoodLogs: logging.todayFoodLogs,
+      hydratedToday: logging.hydratedToday,
+    });
     const state = computeGameState(stats);
     return { state, currentStreak: bestCurrentStreak, todayDone, todayDue };
   } catch {

@@ -9,6 +9,9 @@ import { isScheduledOn, longestStreak } from "@/lib/habits/streaks";
  */
 
 export const POINTS_PER_COMPLETION = 10;
+/** Logging also earns real XP (owner: water & food should move the level bar). */
+export const XP_PER_FOOD_LOG = 12; // each food logged
+export const XP_PER_HYDRATION_DAY = 15; // each distinct day with water (not per sip — no spam)
 
 /** Streak milestones award a one-time bonus and a name to celebrate. */
 export const STREAK_MILESTONES: { days: number; bonus: number; label: string }[] = [
@@ -46,6 +49,11 @@ export interface GameStats {
   habitCount: number;
   todayDone: number;
   todayDue: number;
+  // Logging XP inputs (default 0 when not supplied).
+  foodLogs: number; // lifetime food logs
+  hydrationDays: number; // lifetime distinct days with water
+  todayFoodLogs: number; // food logs today (for the "+XP today" chip)
+  hydratedToday: boolean; // any water today
 }
 
 export interface Achievement {
@@ -69,11 +77,14 @@ export interface GameState {
   earnedCount: number;
 }
 
-/** Total XP: showing up (completions) + keeping chains alive (streak bonuses). */
-export function computeXp(stats: Pick<GameStats, "totalCompletions" | "perHabitLongest">): number {
+/** Total XP: habits (completions + streak bonuses) + logging (food + hydration days). */
+export function computeXp(
+  stats: Pick<GameStats, "totalCompletions" | "perHabitLongest"> & { foodLogs?: number; hydrationDays?: number },
+): number {
   const base = stats.totalCompletions * POINTS_PER_COMPLETION;
   const streak = stats.perHabitLongest.reduce((sum, d) => sum + streakBonusFor(d), 0);
-  return base + streak;
+  const logging = (stats.foodLogs ?? 0) * XP_PER_FOOD_LOG + (stats.hydrationDays ?? 0) * XP_PER_HYDRATION_DAY;
+  return base + streak + logging;
 }
 
 /** Resolve XP to a level with progress toward the next. */
@@ -134,7 +145,10 @@ export function computeGameState(stats: GameStats): GameState {
     xpSpan: lvl.span,
     progressToNext: lvl.progress,
     xpToNext: lvl.toNext,
-    todayPoints: stats.todayDone * POINTS_PER_COMPLETION,
+    todayPoints:
+      stats.todayDone * POINTS_PER_COMPLETION +
+      (stats.todayFoodLogs ?? 0) * XP_PER_FOOD_LOG +
+      (stats.hydratedToday ? XP_PER_HYDRATION_DAY : 0),
     achievements,
     earnedCount: achievements.filter((a) => a.earned).length,
   };
@@ -174,6 +188,11 @@ export function habitGameStats(params: {
   bestCurrentStreak: number;
   todayDone: number;
   todayDue: number;
+  /** Logging XP inputs — optional; default 0 so existing callers keep working. */
+  foodLogs?: number;
+  hydrationDays?: number;
+  todayFoodLogs?: number;
+  hydratedToday?: boolean;
 }): GameStats {
   const perHabitLongest = params.habits.map((h) => longestStreak(params.completedByHabit.get(h.id) ?? new Set()));
   return {
@@ -186,6 +205,10 @@ export function habitGameStats(params: {
     habitCount: params.habits.length,
     todayDone: params.todayDone,
     todayDue: params.todayDue,
+    foodLogs: params.foodLogs ?? 0,
+    hydrationDays: params.hydrationDays ?? 0,
+    todayFoodLogs: params.todayFoodLogs ?? 0,
+    hydratedToday: params.hydratedToday ?? false,
   };
 }
 

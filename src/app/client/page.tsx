@@ -33,6 +33,7 @@ import { getTodayWaterMl, getBodyMeasurements } from "@/lib/body/data";
 import { currentStreak, isStreakFrozen, isDueToday, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { dayInTimeZone } from "@/lib/time/day";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
+import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
 import { sumMicros } from "@/lib/nutrition/micros";
 import { suggestFills } from "@/lib/nutrition/recommend";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
@@ -146,6 +147,7 @@ export default async function TodayPage() {
     0,
   );
   const todayDone = habitItems.filter((i) => i.doneToday).length;
+  const loggingXp = await getLoggingXpCounts(user.id, today);
   const gameStats = habitGameStats({
     habits,
     completedByHabit: byHabit,
@@ -153,6 +155,10 @@ export default async function TodayPage() {
     bestCurrentStreak,
     todayDone,
     todayDue: habitItems.length,
+    foodLogs: loggingXp.foodLogs,
+    hydrationDays: loggingXp.hydrationDays,
+    todayFoodLogs: loggingXp.todayFoodLogs,
+    hydratedToday: loggingXp.hydratedToday,
   });
   const gameState = computeGameState(gameStats);
 

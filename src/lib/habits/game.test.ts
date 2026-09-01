@@ -23,6 +23,7 @@ function habit(over: Partial<Habit>): Habit {
 const baseStats: GameStats = {
   totalCompletions: 0, perHabitLongest: [], bestStreak: 0, bestCurrentStreak: 0,
   perfectDays: 0, comebacks: 0, habitCount: 0, todayDone: 0, todayDue: 0,
+  foodLogs: 0, hydrationDays: 0, todayFoodLogs: 0, hydratedToday: false,
 };
 
 describe("habit game — XP & levels", () => {
@@ -35,6 +36,11 @@ describe("habit game — XP & levels", () => {
 
   it("computeXp = completions×10 + per-habit streak bonuses", () => {
     expect(computeXp({ totalCompletions: 12, perHabitLongest: [7, 3] })).toBe(120 + 100 + 30);
+  });
+
+  it("computeXp adds logging XP (food + hydration days)", () => {
+    // 12 food logs × 12 + 5 hydration days × 15 = 144 + 75, on top of habit XP.
+    expect(computeXp({ totalCompletions: 12, perHabitLongest: [7, 3], foodLogs: 12, hydrationDays: 5 })).toBe(120 + 100 + 30 + 144 + 75);
   });
 
   it("levelForXp finds the band and progress to next", () => {

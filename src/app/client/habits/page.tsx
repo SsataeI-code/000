@@ -5,6 +5,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { consistency, currentStreak, longestStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
+import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
 import { recommendNextHabit } from "@/lib/habits/recommend";
 import { getClientProfile } from "@/lib/nutrition/data";
 import { HabitBuilderForm } from "@/components/habits/HabitBuilderForm";
@@ -60,6 +61,7 @@ export default async function HabitsPage() {
 
   // Game state — points, level, streaks, badges.
   const todayStr = isoDate(today);
+  const loggingXp = await getLoggingXpCounts(user.id, todayStr);
   const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), today));
   const gameStats = habitGameStats({
     habits,
@@ -68,6 +70,10 @@ export default async function HabitsPage() {
     bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today, FREEZE_BUDGET)), 0),
     todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
     todayDue: dueToday.length,
+    foodLogs: loggingXp.foodLogs,
+    hydrationDays: loggingXp.hydrationDays,
+    todayFoodLogs: loggingXp.todayFoodLogs,
+    hydratedToday: loggingXp.hydratedToday,
   });
   const gameState = computeGameState(gameStats);
 

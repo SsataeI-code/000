@@ -14,6 +14,7 @@ import {
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
 import { consistency, currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState } from "@/lib/habits/game";
+import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
 import { getBodyMeasurements, getTodayWaterMl, getBodyPhotos } from "@/lib/body/data";
 import { getWearableDaily } from "@/lib/wearables/data";
 import { getLifts } from "@/lib/lifts/data";
@@ -90,6 +91,7 @@ export default async function ClientDeepDive({
 
   // The same habit game the client sees — so the owner/coach sees all of it too.
   const todayStr = isoDate(today);
+  const loggingXp = await getLoggingXpCounts(id, todayStr);
   const dueToday = habits.filter((h) => isDueToday(h, byHabit.get(h.id) ?? new Set<string>(), today));
   const gameStats = habitGameStats({
     habits,
@@ -98,6 +100,10 @@ export default async function ClientDeepDive({
     bestCurrentStreak: habits.reduce((m, h) => Math.max(m, currentStreak(h, byHabit.get(h.id) ?? new Set<string>(), today, FREEZE_BUDGET)), 0),
     todayDone: dueToday.filter((h) => (byHabit.get(h.id) ?? new Set<string>()).has(todayStr)).length,
     todayDue: dueToday.length,
+    foodLogs: loggingXp.foodLogs,
+    hydrationDays: loggingXp.hydrationDays,
+    todayFoodLogs: loggingXp.todayFoodLogs,
+    hydratedToday: loggingXp.hydratedToday,
   });
   const gameState = computeGameState(gameStats);
   const firstName = name.split(" ")[0];
