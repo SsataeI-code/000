@@ -20,7 +20,7 @@ import type { Goal, Habit, HabitCadence, HabitType } from "@/lib/types/db";
 
 const initial: PlanState = {};
 const selectClass =
-  "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
+  "min-h-tap w-full rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2.5 font-body text-base text-ink focus:border-ink";
 const labelClass = "text-xs text-ink/80";
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -98,7 +98,7 @@ export function ClientPlanTools({
   }
 
   return (
-    <section className="flex flex-col gap-6 rounded-lg border border-hairline bg-surface-muted p-5">
+    <section className="flex flex-col gap-6 rounded-2xl border border-hairline bg-surface-muted shadow-card p-5">
       <div>
         <h2 className="text-2xl text-ink">Coach tools</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
@@ -149,7 +149,7 @@ export function ClientPlanTools({
           </p>
         ) : null}
         {recalcMsg ? (
-          <p role="status" className="rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-ink/70">{recalcMsg}</p>
+          <p role="status" className="rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2 text-sm text-ink/70">{recalcMsg}</p>
         ) : null}
         <div className="grid grid-cols-2 gap-3">
           <Field label="Calories" name="calories" type="number" inputMode="numeric" min={0} value={macros.calories} onChange={onMacro("calories")} required />
@@ -157,7 +157,7 @@ export function ClientPlanTools({
           <Field label="Carbs (g)" name="carbs_g" type="number" inputMode="numeric" min={0} value={macros.carbsG} onChange={onMacro("carbsG")} />
           <Field label="Fat (g)" name="fat_g" type="number" inputMode="numeric" min={0} value={macros.fatG} onChange={onMacro("fatG")} />
         </div>
-        <p className="rounded-lg border border-hairline bg-surface px-3 py-2 font-label text-[11px] uppercase tracking-wide text-ink/70">
+        <p className="rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2 font-label text-[11px] uppercase tracking-wide text-ink/70">
           = {macros.calories.toLocaleString()} kcal · {pct.protein}% P / {pct.carbs}% C / {pct.fat}% F
         </p>
         <Button type="submit" disabled={tPending}>
@@ -179,7 +179,7 @@ export function ClientPlanTools({
         <select
           name="strictness"
           defaultValue={strictness}
-          className="min-h-tap rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-base text-ink focus:border-red focus:outline-none"
+          className="min-h-tap rounded-2xl border border-hairline bg-surface-muted shadow-card px-3 py-2 font-body text-base text-ink focus:border-red focus:outline-none"
         >
           {STRICTNESS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -280,7 +280,7 @@ export function ClientPlanTools({
           <hr className="border-hairline" />
           <div className="flex flex-col gap-2">
             <p className="font-label text-xs uppercase tracking-wide text-ink/50">Remove a habit</p>
-            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
               {habits.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                   <span className="min-w-0 truncate font-body text-sm text-ink">{h.name}</span>

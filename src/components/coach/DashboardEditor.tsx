@@ -33,7 +33,7 @@ export function DashboardEditor({ initial }: { initial: DashboardTilePref[] }) {
         <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">Layout saved.</p>
       ) : null}
 
-      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
         {layout.map((t, i) => {
           const def = tileDef(t.id);
           return (

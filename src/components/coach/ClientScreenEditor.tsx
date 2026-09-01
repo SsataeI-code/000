@@ -40,7 +40,7 @@ export function ClientScreenEditor({ initial }: { initial: ClientSectionPref[] }
       ) : null}
 
       <div className="grid gap-6 md:grid-cols-[1fr_minmax(0,260px)] md:items-start">
-      <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+      <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
         {layout.map((s, i) => {
           const def = clientSectionDef(s.id);
           return (

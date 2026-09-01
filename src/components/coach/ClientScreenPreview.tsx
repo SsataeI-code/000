@@ -47,7 +47,7 @@ export function ClientScreenPreview({ layout }: { layout: ClientSectionPref[] })
 function PreviewBlock({ id }: { id: ClientSectionId }) {
   const label = clientSectionDef(id)?.label ?? id;
   return (
-    <div className="rounded rounded-lg border border-hairline bg-surface-muted/60 p-2">
+    <div className="rounded rounded-2xl border border-hairline bg-surface-muted/60 p-2">
       <div className="mb-1 flex items-center justify-between">
         <span className="font-label text-[9px] uppercase tracking-wide text-ink/50">{label}</span>
       </div>

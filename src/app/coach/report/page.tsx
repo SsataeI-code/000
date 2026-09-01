@@ -38,17 +38,17 @@ export default async function CoachReportPage() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-hairline bg-surface p-4">
+        <div className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
           <p className="font-display text-4xl text-ink">{digest.total}</p>
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Clients</p>
         </div>
-        <div className="rounded-lg border border-hairline bg-surface p-4">
+        <div className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
           <p className="font-display text-4xl text-ink">{digest.activeThisWeek}</p>
           <p className="font-label text-xs uppercase tracking-wide text-ink/50">Active this week</p>
         </div>
       </section>
 
-      <section aria-label="Wins to celebrate" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
+      <section aria-label="Wins to celebrate" className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface shadow-card p-5">
         <h2 className="font-label text-xs uppercase tracking-wide text-success">Celebrate</h2>
         {digest.celebrate.length > 0 ? (
           <ul className="flex flex-col gap-2">
@@ -64,7 +64,7 @@ export default async function CoachReportPage() {
         )}
       </section>
 
-      <section aria-label="Who needs you" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
+      <section aria-label="Who needs you" className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface shadow-card p-5">
         <h2 className="font-label text-xs uppercase tracking-wide text-red-ink">Needs you Monday</h2>
         {digest.needsYou.length > 0 ? (
           <ul className="flex flex-col divide-y divide-hairline">

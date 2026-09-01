@@ -29,16 +29,16 @@ export default async function CoachLayout({ children }: { children: React.ReactN
 
   return (
     <div className="mx-auto min-h-dvh max-w-[960px] pb-24 md:pb-0">
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/90 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
           <BrandLogo size={22} />
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">
             {t("coach.dashboard.title")}
           </span>
         </span>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {user.role === "owner" ? (
-            <span className="font-label text-[10px] uppercase tracking-wide text-red">
+            <span className="rounded-full bg-grad-red px-2.5 py-1 font-label text-[10px] font-600 uppercase tracking-wide text-white shadow-glow">
               Owner
             </span>
           ) : null}

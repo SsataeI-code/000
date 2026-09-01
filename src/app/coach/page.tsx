@@ -43,7 +43,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
     return (
       <div className="flex flex-col gap-6">
         <h1 className="text-4xl text-ink">No clients yet</h1>
-        <section className="rounded-lg border border-hairline bg-surface p-5">
+        <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
           <p className="font-body text-ink/70">{t("coach.dashboard.empty")}</p>
           {coach?.coach_code ? (
             <p className="mt-3 font-body text-sm text-ink/60">
@@ -92,7 +92,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
             {needsAttention.map((c) => <ClientCard key={c.id} client={c} />)}
           </ul>
         ) : (
-          <p key={id} className="rounded-lg border border-hairline bg-surface p-4 font-body text-sm text-ink/50">Nobody&apos;s flagged right now — nice.</p>
+          <p key={id} className="rounded-2xl border border-hairline bg-surface shadow-card p-4 font-body text-sm text-ink/50">Nobody&apos;s flagged right now — nice.</p>
         );
       case "full_roster":
         return (
@@ -103,7 +103,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                 Stats &amp; cohorts
               </Link>
             </div>
-            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
               {roster.map((c) => (
                 <li key={c.id}>
                   <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
@@ -129,7 +129,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
         return steady.length > 0 ? (
           <section key={id} className="flex flex-col gap-3">
             <p className="font-label text-xs uppercase tracking-wide text-ink/50">Steady</p>
-            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
               {steady.map((c) => (
                 <li key={c.id}>
                   <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between px-4 py-3 hover:bg-surface-muted">
@@ -149,7 +149,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
         ) : null;
       case "coach_code":
         return coach?.coach_code ? (
-          <section key={id} className="rounded-lg border border-hairline bg-surface p-5">
+          <section key={id} className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
             <p className="font-label text-xs uppercase tracking-wide text-ink/50">Your coach code</p>
             <p className="mt-2 font-display text-3xl uppercase tracking-widest text-red">{coach.coach_code}</p>
             <p className="mt-2 font-body text-sm text-ink/60">Share it to bring in your next client.</p>
@@ -203,9 +203,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-hairline bg-surface p-4 text-center">
-      <p className="font-display text-3xl text-ink">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-grad-elevated p-4 text-center text-white shadow-card">
+      <p className="font-display text-3xl toon-shadow">{value}</p>
+      <p className="mt-0.5 font-label text-[10px] uppercase tracking-wide text-white/60">{label}</p>
     </div>
   );
 }
@@ -213,7 +213,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function ClientCard({ client }: { client: RosterClient }) {
   const decision = classifySlip(client.flags, client.score);
   return (
-    <li className="border-l-4 border-red bg-surface">
+    <li className="overflow-hidden rounded-2xl border border-red/40 bg-surface shadow-card ring-1 ring-red/20">
       <Link href={`/coach/clients/${client.id}`} className="block p-4 pb-2 hover:bg-surface-muted">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-xl text-ink">{client.name}</span>
