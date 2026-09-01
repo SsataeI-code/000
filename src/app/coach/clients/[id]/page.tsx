@@ -26,6 +26,7 @@ import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
 import { HabitGame } from "@/components/habits/HabitGame";
 import { Achievements } from "@/components/habits/Achievements";
 import { ClientPlanTools } from "@/components/coach/ClientPlanTools";
+import { MealRecommender } from "@/components/coach/MealRecommender";
 import { RemoveClient } from "@/components/coach/RemoveClient";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
@@ -143,6 +144,14 @@ export default async function ClientDeepDive({
             totals={totals}
             targets={{ calories: targets.calories, proteinG: targets.protein_g, carbsG: targets.carbs_g, fatG: targets.fat_g }}
           />
+          <div className="mt-4">
+            <MealRecommender
+              clientId={id}
+              clientName={name}
+              remainingCalories={Math.max(0, targets.calories - totals.calories)}
+              remainingProtein={Math.max(0, targets.protein_g - totals.proteinG)}
+            />
+          </div>
         </div>
       ) : (
         <p className="rounded-2xl border border-hairline bg-surface shadow-card p-5 font-body text-sm text-ink/60">No targets set yet.</p>
