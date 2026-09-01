@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ViewerGame } from "@/lib/habits/state";
 import { IconFlame, IconBolt } from "@/components/icons";
+import { LevelAvatar } from "@/components/habits/LevelAvatar";
 
 /**
  * Persistent level bar — pinned in the client header on every screen so progress
@@ -18,10 +19,8 @@ export function LevelBar({ game }: { game: ViewerGame }) {
       aria-label={`Level ${state.level}, ${state.levelName}. ${state.xp} XP. View your badges.`}
       className="flex items-center gap-2.5 rounded-full border border-white/10 bg-grad-elevated px-2.5 py-1.5 text-white shadow-card transition-transform active:scale-[0.99]"
     >
-      {/* level badge */}
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-grad-red text-white shadow-glow ring-1 ring-white/25">
-        <span className="font-display text-xs leading-none">{state.level}</span>
-      </span>
+      {/* leveling mascot */}
+      <LevelAvatar level={state.level} size={30} className="shrink-0" />
 
       {/* XP bar + label */}
       <span className="min-w-0 flex-1">

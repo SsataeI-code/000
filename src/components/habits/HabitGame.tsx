@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { GameState } from "@/lib/habits/game";
 import { IconFlame, IconBolt, IconMedal } from "@/components/icons";
+import { LevelAvatar } from "@/components/habits/LevelAvatar";
 
 /**
  * The game HUD (§4 "celebrate wins", §5A habits are the star). A cartoon-arcade
@@ -72,13 +73,11 @@ export function HabitGame({
     >
       {/* Level + XP */}
       <div className="flex items-center gap-4">
-        {/* Glowing level badge */}
+        {/* Leveling mascot — evolves from Spark to Legend */}
         <div className="relative shrink-0">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-grad-red shadow-glow ring-2 ring-white/25">
-            <span className="font-display text-2xl leading-none text-white toon-shadow">{state.level}</span>
-          </div>
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-1.5 py-0.5 font-label text-[8px] uppercase tracking-widest text-white/80">
-            Lvl
+          <LevelAvatar level={state.level} size={64} />
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-1.5 py-0.5 font-label text-[8px] uppercase tracking-widest text-white/90">
+            Lvl {state.level}
           </span>
         </div>
 
