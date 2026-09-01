@@ -1,11 +1,21 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { coachRecommendAction, coachSendRecommendationAction, type RecommendResult } from "@/lib/coach/recommend";
+import { searchFoodsAction } from "@/lib/food/actions";
+import type { NormalizedFood } from "@/lib/food/off";
 import type { MealSuggestion, MealLogItem } from "@/lib/nutrition/meals";
 import type { FoodPick } from "@/lib/nutrition/recommend";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+
+/** A food search result → a meal ingredient (ensuring macros are present). */
+function toItem(f: NormalizedFood): MealLogItem {
+  const per100 = { ...f.nutrimentsPer100g };
+  if (per100.energy_kcal == null && f.per100g.calories != null) per100.energy_kcal = f.per100g.calories;
+  if (per100.proteins == null && f.per100g.proteinG != null) per100.proteins = f.per100g.proteinG;
+  return { name: f.name ?? "Food", grams: f.servingSizeG ?? 100, nutrimentsPer100g: per100 };
+}
 
 /**
  * Coach tool to recommend food/meals from the macros a client still needs
@@ -140,8 +150,26 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
   const [sent, setSent] = useState(false);
   const totals = itemMacros(items);
 
-  const setGrams = (i: number, g: number) => setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, grams: Math.max(0, Math.round(g) || 0) } : it)));
-  const remove = (i: number) => setItems((prev) => prev.filter((_, idx) => idx !== i));
+  // Ingredient search (add or swap).
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<NormalizedFood[]>([]);
+  const [searching, setSearching] = useState(false);
+  const seq = useRef(0);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) { setResults([]); return; }
+    setSearching(true);
+    const s = ++seq.current;
+    const t = setTimeout(async () => {
+      const found = await searchFoodsAction(q);
+      if (s === seq.current) { setResults(found); setSearching(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  const setGrams = (i: number, g: number) => { setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, grams: Math.max(0, Math.round(g) || 0) } : it))); setSent(false); };
+  const remove = (i: number) => { setItems((prev) => prev.filter((_, idx) => idx !== i)); setSent(false); };
+  const addFood = (f: NormalizedFood) => { setItems((prev) => [...prev, toItem(f)]); setQuery(""); setResults([]); setSent(false); };
 
   function doSend(text: string) {
     start(async () => { if (await send(text)) setSent(true); });
@@ -173,7 +201,33 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
               <button type="button" aria-label={`Remove ${it.name}`} onClick={() => { remove(i); setSent(false); }} className="min-h-tap min-w-tap font-label text-xs text-ink/40 hover:text-red">✕</button>
             </div>
           ))}
-          {items.length === 0 ? <p className="px-3 py-2 font-body text-xs text-ink/50">All ingredients removed.</p> : null}
+          {items.length === 0 ? <p className="px-3 py-2 font-body text-xs text-ink/50">All ingredients removed — add one below.</p> : null}
+        </div>
+      ) : null}
+
+      {open ? (
+        <div className="mt-2 flex flex-col gap-1.5">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Add or swap an ingredient — search foods…"
+            autoComplete="off"
+            className="min-h-tap w-full rounded-lg border border-hairline bg-surface-input px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 outline-none focus:border-red focus:ring-2 focus:ring-red/30"
+          />
+          {searching ? <p className="font-body text-xs text-ink/50">Searching…</p> : null}
+          {results.length > 0 ? (
+            <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
+              {results.slice(0, 8).map((r, i) => (
+                <li key={`${r.barcode}-${i}`}>
+                  <button type="button" onClick={() => addFood(r)} className="flex w-full min-h-tap items-center justify-between gap-2 px-3 py-2 text-left hover:bg-surface-muted">
+                    <span className="min-w-0 truncate font-body text-sm text-ink">{r.name}</span>
+                    <span className="shrink-0 font-body text-xs text-ink/40">{r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal/100g` : "add"}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       ) : null}
 
