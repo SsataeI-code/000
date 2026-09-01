@@ -104,6 +104,7 @@ export function AddFood({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [saving, startSave] = useTransition();
+  const [justLogged, setJustLogged] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
 
   /** Upload the optional photo to the client's private folder; returns its path. */
@@ -231,7 +232,8 @@ export function AddFood({ userId }: { userId: string }) {
         setError(res.error);
         return;
       }
-      router.push("/client");
+      setJustLogged(true);
+      window.setTimeout(() => router.push("/client"), 850);
     });
   }
 
@@ -417,9 +419,16 @@ export function AddFood({ userId }: { userId: string }) {
         {photo ? <p className="font-body text-xs text-ink/50">{photo.name} attached</p> : null}
       </div>
 
-      <Button onClick={save} disabled={saving}>
-        {saving ? "Saving…" : "Log it"}
-      </Button>
+      <div className="relative">
+        {justLogged ? (
+          <span aria-hidden className="animate-xp-burst pointer-events-none absolute -top-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad-success px-2.5 py-0.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow-success">
+            Logged +15 XP
+          </span>
+        ) : null}
+        <Button onClick={save} disabled={saving || justLogged}>
+          {justLogged ? "Logged ✓" : saving ? "Saving…" : "Log it"}
+        </Button>
+      </div>
       <button
         type="button"
         onClick={() => setMode("choose")}

@@ -74,11 +74,13 @@ export function MealRecommender({
             <p className="font-body text-sm text-ink/60">No ideas fit those numbers — try loosening them.</p>
           ) : null}
 
+          <p className="font-body text-xs text-ink/50">Send an idea as-is, or <strong className="text-ink/70">Edit</strong> it into the box below to tweak before sending.</p>
+
           {result.meals.length > 0 ? (
             <div className="flex flex-col gap-2">
               <p className="font-label text-xs uppercase tracking-wide text-ink/50">Meals</p>
               {result.meals.map((m, i) => (
-                <MealRow key={`m${i}`} m={m} sent={sent === `m${i}`} onSend={() => send(mealText(m, first), `m${i}`)} />
+                <MealRow key={`m${i}`} m={m} sent={sent === `m${i}`} onSend={() => send(mealText(m, first), `m${i}`)} onEdit={() => setCustom(mealText(m, first))} />
               ))}
             </div>
           ) : null}
@@ -88,7 +90,7 @@ export function MealRecommender({
               <p className="font-label text-xs uppercase tracking-wide text-ink/50">Single foods</p>
               <div className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
                 {result.foods.map((f, i) => (
-                  <FoodRow key={`f${i}`} f={f} sent={sent === `f${i}`} onSend={() => send(foodText(f, first), `f${i}`)} />
+                  <FoodRow key={`f${i}`} f={f} sent={sent === `f${i}`} onSend={() => send(foodText(f, first), `f${i}`)} onEdit={() => setCustom(foodText(f, first))} />
                 ))}
               </div>
             </div>
@@ -98,7 +100,7 @@ export function MealRecommender({
 
       {/* Write your own */}
       <div className="flex flex-col gap-2 border-t border-hairline pt-4">
-        <label htmlFor="rec_custom" className="font-label text-xs uppercase tracking-wide text-ink/50">Or write your own recommendation</label>
+        <label htmlFor="rec_custom" className="font-label text-xs uppercase tracking-wide text-ink/50">Write or edit a recommendation</label>
         <textarea
           id="rec_custom"
           rows={2}
@@ -115,7 +117,7 @@ export function MealRecommender({
   );
 }
 
-function MealRow({ m, sent, onSend }: { m: MealSuggestion; sent: boolean; onSend: () => void }) {
+function MealRow({ m, sent, onSend, onEdit }: { m: MealSuggestion; sent: boolean; onSend: () => void; onEdit: () => void }) {
   return (
     <div className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-surface p-3.5">
       <div className="flex items-baseline justify-between gap-3">
@@ -124,23 +126,33 @@ function MealRow({ m, sent, onSend }: { m: MealSuggestion; sent: boolean; onSend
       </div>
       <p className="font-body text-xs text-ink/55">{m.ingredients.join(" · ")}</p>
       {m.richIn.length > 0 ? <p className="font-body text-[11px] text-success">Rich in {m.richIn.join(", ")}</p> : null}
-      <button type="button" onClick={onSend} className="mt-1 min-h-tap self-start rounded-full bg-grad-red px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-pop-red active:translate-y-[2px] active:shadow-none">
-        {sent ? "Sent ✓" : "Send to client"}
-      </button>
+      <div className="mt-1 flex items-center gap-2">
+        <button type="button" onClick={onSend} className="min-h-tap rounded-full bg-grad-red px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-pop-red active:translate-y-[2px] active:shadow-none">
+          {sent ? "Sent ✓" : "Send to client"}
+        </button>
+        <button type="button" onClick={onEdit} className="min-h-tap rounded-full border border-hairline px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
+          Edit
+        </button>
+      </div>
     </div>
   );
 }
 
-function FoodRow({ f, sent, onSend }: { f: FoodPick; sent: boolean; onSend: () => void }) {
+function FoodRow({ f, sent, onSend, onEdit }: { f: FoodPick; sent: boolean; onSend: () => void; onEdit: () => void }) {
   return (
     <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
       <span className="min-w-0">
         <span className="block truncate font-body text-sm text-ink">{f.name}</span>
         <span className="block font-body text-xs text-ink/50">{f.grams}g · {f.proteinG}g protein · {f.calories} cal</span>
       </span>
-      <button type="button" onClick={onSend} className="min-h-tap shrink-0 rounded-full border border-red px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide text-red hover:bg-red hover:text-white">
-        {sent ? "Sent ✓" : "Send"}
-      </button>
+      <span className="flex shrink-0 items-center gap-2">
+        <button type="button" onClick={onSend} className="min-h-tap rounded-full border border-red px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide text-red hover:bg-red hover:text-white">
+          {sent ? "Sent ✓" : "Send"}
+        </button>
+        <button type="button" onClick={onEdit} className="min-h-tap rounded-full border border-hairline px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
+          Edit
+        </button>
+      </span>
     </div>
   );
 }

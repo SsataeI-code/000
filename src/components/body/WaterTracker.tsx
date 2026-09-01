@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addWaterAction } from "@/lib/body/actions";
 
@@ -11,6 +11,7 @@ import { addWaterAction } from "@/lib/body/actions";
 export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalMl: number }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [burst, setBurst] = useState(false);
   const pct = goalMl > 0 ? Math.min(consumedMl / goalMl, 1) : 0;
   const ML_PER_OZ = 29.5735;
   const BOTTLE_ML = 500; // a standard 16.9 fl oz bottle
@@ -19,6 +20,10 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
   const bottles = Math.round((consumedMl / BOTTLE_ML) * 10) / 10;
 
   function add(ml: number) {
+    if (ml > 0) {
+      setBurst(true);
+      window.setTimeout(() => setBurst(false), 1100);
+    }
     start(async () => {
       await addWaterAction(ml);
       router.refresh();
@@ -26,7 +31,12 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
   }
 
   return (
-    <section aria-label="Water" className={`rounded-lg border border-hairline bg-surface p-5 ${pending ? "opacity-80" : ""}`}>
+    <section aria-label="Water" className={`relative rounded-2xl border border-hairline bg-surface shadow-card p-5 ${pending ? "opacity-80" : ""}`}>
+      {burst ? (
+        <span aria-hidden className="animate-xp-burst pointer-events-none absolute right-5 top-4 z-10 whitespace-nowrap rounded-full bg-grad-success px-2 py-0.5 font-label text-[10px] font-600 uppercase tracking-wide text-white shadow-glow-success">
+          Hydrated +5 XP
+        </span>
+      ) : null}
       <div className="flex items-baseline justify-between">
         <p className="font-label text-xs uppercase tracking-wide text-ink/50">Water</p>
         <p className="font-body text-sm text-ink/70">
