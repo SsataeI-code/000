@@ -11,6 +11,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer } from "@/lib/content/data";
 import { getViewerGame } from "@/lib/habits/state";
 import { LevelBar } from "@/components/habits/LevelBar";
+import { MilestoneCelebration } from "@/components/habits/MilestoneCelebration";
 import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
@@ -62,6 +63,15 @@ export default async function ClientLayout({ children }: { children: React.React
         <div className="sticky top-[49px] z-20 border-b border-hairline bg-surface-muted/80 px-5 py-2 backdrop-blur">
           <LevelBar game={game} />
         </div>
+      ) : null}
+
+      {/* Celebrate a new level or badge the moment it's unlocked (on-brand, no confetti). */}
+      {game ? (
+        <MilestoneCelebration
+          level={game.state.level}
+          levelName={game.state.levelName}
+          achievements={game.state.achievements}
+        />
       ) : null}
 
       <div className="rise px-5 py-6">{children}</div>
