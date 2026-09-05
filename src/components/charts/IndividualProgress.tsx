@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import type { BodyMeasurement, FoodLog, Goal, Habit, HabitLog, NutritionTargetRow } from "@/lib/types/db";
 import { weightTrend, kgToLb } from "@/lib/body/trend";
 import { completedDatesByHabit } from "@/lib/habits/data";
@@ -42,6 +43,7 @@ export function IndividualProgress({
   goal,
   days = 30,
   toggle,
+  clientView = false,
 }: {
   measurements: BodyMeasurement[];
   foodLogs: FoodLog[];
@@ -51,6 +53,8 @@ export function IndividualProgress({
   goal?: Goal | null;
   days?: number;
   toggle?: ReactNode;
+  /** On the client's own screen, make the key-stat tiles tap through to their log. */
+  clientView?: boolean;
 }) {
   const dates = lastNDates(days);
   const cutoff = dates[0];
@@ -176,12 +180,12 @@ export function IndividualProgress({
         </section>
       ) : null}
 
-      {/* Key stats */}
+      {/* Key stats — on the client's own screen these tap through to their logs */}
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} />
-        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} />
-        <Stat label="Days logged" value={`${logged} / ${days}`} sub={`${Math.round((logged / days) * 100)}%`} />
-        <Stat label="Habits" value={avgCons != null ? `${Math.round(avgCons * 100)}%` : "—"} sub={`best ${bestStreak}d streak`} />
+        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} href={clientView ? "/client/food" : undefined} />
+        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} href={clientView ? "/client/food" : undefined} />
+        <Stat label="Days logged" value={`${logged} / ${days}`} sub={`${Math.round((logged / days) * 100)}%`} href={clientView ? "/client/food" : undefined} />
+        <Stat label="Habits" value={avgCons != null ? `${Math.round(avgCons * 100)}%` : "—"} sub={`best ${bestStreak}d streak`} href={clientView ? "/client/habits" : undefined} />
       </section>
 
       {/* Body fat — only when logged */}
@@ -221,12 +225,18 @@ function Card({ title, note, children }: { title: string; note?: string; childre
   );
 }
 
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-hairline bg-surface p-3.5">
+function Stat({ label, value, sub, href }: { label: string; value: string; sub?: string; href?: string }) {
+  const inner = (
+    <>
       <p className="font-display text-3xl leading-none text-ink">{value}</p>
       <p className="mt-1.5 font-label text-[10px] uppercase tracking-wide text-ink/55">{label}</p>
       {sub ? <p className="mt-0.5 font-body text-[11px] text-ink/40">{sub}</p> : null}
-    </div>
+    </>
+  );
+  const cls = "rounded-xl border border-hairline bg-surface p-3.5";
+  return href ? (
+    <Link href={href} className={`${cls} block transition-colors hover:border-red`}>{inner}</Link>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }

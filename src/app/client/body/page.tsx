@@ -60,6 +60,7 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
         goal={profile?.goal ?? null}
         days={range}
         toggle={<RangeToggle current={range} />}
+        clientView
       />
 
       <div>
