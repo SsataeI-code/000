@@ -18,6 +18,7 @@ import { DayProgress } from "@/components/nutrition/DayProgress";
 import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { RecentFoods } from "@/components/nutrition/RecentFoods";
 import { GoalPicker } from "@/components/nutrition/GoalPicker";
+import { getThisWeekCheckin } from "@/lib/checkin/data";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
@@ -148,6 +149,7 @@ export default async function TodayPage() {
   );
   const todayDone = habitItems.filter((i) => i.doneToday).length;
   const loggingXp = await getLoggingXpCounts(user.id, today);
+  const weekCheckin = await getThisWeekCheckin(user.id, today);
   const gameStats = habitGameStats({
     habits,
     completedByHabit: byHabit,
@@ -323,6 +325,19 @@ export default async function TodayPage() {
       <ReviewNudges showWeeklyReview={showWeeklyReview} showRecalc={showRecalc} />
 
       <GoalPicker goal={profile?.goal ?? "maintain"} />
+
+      {!weekCheckin ? (
+        <Link
+          href="/client/checkin"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-red/40 bg-grad-elevated p-5 text-white shadow-card ring-1 ring-red/20"
+        >
+          <span className="min-w-0">
+            <span className="block font-display text-xl uppercase toon-shadow">Weekly check-in</span>
+            <span className="block font-body text-sm text-white/70">A quick pulse for your coach — weight, energy, a win, one focus.</span>
+          </span>
+          <span aria-hidden className="shrink-0 rounded-full bg-grad-red px-3 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow">Start →</span>
+        </Link>
+      ) : null}
 
       <WeeklyWeighIn latestKg={latestKg} daysSince={daysSinceWeigh} changeKg={weightChangeKg} />
 

@@ -116,6 +116,18 @@ export type JournalEntry = {
   created_at: string;
 };
 
+export type CheckIn = {
+  id: string;
+  client_id: string;
+  week_start: string;
+  weight_kg: number | null;
+  energy: number | null;
+  win: string | null;
+  focus: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type BodyPhoto = {
   id: string;
   client_id: string;
@@ -448,6 +460,12 @@ export type Database = {
         Row: JournalEntry;
         Insert: Partial<JournalEntry> & { client_id: string };
         Update: Partial<JournalEntry>;
+        Relationships: [];
+      };
+      check_ins: {
+        Row: CheckIn;
+        Insert: Partial<CheckIn> & { client_id: string; week_start: string };
+        Update: Partial<CheckIn>;
         Relationships: [];
       };
       coach_prefs: {

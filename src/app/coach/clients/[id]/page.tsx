@@ -23,6 +23,7 @@ import { BodyPhotos } from "@/components/body/BodyPhotos";
 import { WearableSummary } from "@/components/coach/WearableSummary";
 import { getJournalEntries } from "@/lib/journal/data";
 import { Journal } from "@/components/journal/Journal";
+import { getCheckins } from "@/lib/checkin/data";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
@@ -78,6 +79,7 @@ export default async function ClientDeepDive({
   ]);
   const wearableDays = await getWearableDaily(id, 7);
   const journal = await getJournalEntries(id, 30);
+  const checkins = await getCheckins(id, 6);
 
   const totals = totalMacros(logs);
   const byHabit = completedDatesByHabit(habitLogs);
@@ -254,6 +256,28 @@ export default async function ClientDeepDive({
       ) : null}
 
       {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
+
+      {/* Weekly check-ins (read-only) */}
+      {checkins.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-2xl text-ink">Weekly check-ins</h2>
+          <ul className="flex flex-col gap-2">
+            {checkins.map((c) => (
+              <li key={c.id} className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-label text-[11px] uppercase tracking-wide text-ink/50">Week of {c.week_start}</span>
+                  <span className="shrink-0 font-body text-xs text-ink/50">
+                    {c.weight_kg != null ? `${kgToLb(c.weight_kg)} lb` : ""}
+                    {c.energy ? ` · energy ${c.energy}/5` : ""}
+                  </span>
+                </div>
+                {c.win ? <p className="mt-1 font-body text-sm text-ink/85"><span className="text-success">Win:</span> {c.win}</p> : null}
+                {c.focus ? <p className="font-body text-sm text-ink/85"><span className="text-red">Focus:</span> {c.focus}</p> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {/* Journal / food diary (read-only) */}
       {journal.length > 0 ? (
