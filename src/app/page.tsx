@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { homePathForRole } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer, getImageServer } from "@/lib/content/data";
+import { defaultCopy } from "@/lib/content/copy";
 import { SetupNotice } from "@/components/SetupNotice";
 import { IconHabits, IconFood, IconBody } from "@/components/icons";
 
@@ -44,6 +45,12 @@ export default async function LandingPage() {
   const t = await getCopyServer();
   const image = await getImageServer();
   const coachPhoto = image("coach.photo");
+  // Only show "Meet your coach" once the owner has actually added it (photo, name,
+  // or bio set via the CMS) — no bare placeholder on the public page until then.
+  const coachAdded =
+    Boolean(coachPhoto) ||
+    t("landing.coach.name") !== defaultCopy["landing.coach.name"] ||
+    t("landing.coach.bio") !== defaultCopy["landing.coach.bio"];
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[720px] flex-col px-6 py-8">
@@ -112,28 +119,31 @@ export default async function LandingPage() {
         </ul>
       </section>
 
-      {/* Meet your coach — editable from the CMS (copy + photo) */}
-      <section className="flex flex-col gap-4 border-t border-hairline pt-12">
-        <h2 className="text-3xl text-ink">{t("landing.coach.heading")}</h2>
-        <div className="flex flex-col gap-5 rounded-lg border border-hairline bg-surface p-6 sm:flex-row sm:items-center sm:gap-6">
-          {coachPhoto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={coachPhoto}
-              alt={t("landing.coach.name")}
-              className="h-28 w-28 shrink-0 rounded-lg border border-hairline object-cover"
-            />
-          ) : (
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
-              Photo
+      {/* Meet your coach — editable from the CMS (copy + photo). Hidden until the
+          owner adds their details, so there's no bare placeholder on the page. */}
+      {coachAdded ? (
+        <section className="flex flex-col gap-4 border-t border-hairline pt-12">
+          <h2 className="text-3xl text-ink">{t("landing.coach.heading")}</h2>
+          <div className="flex flex-col gap-5 rounded-lg border border-hairline bg-surface p-6 sm:flex-row sm:items-center sm:gap-6">
+            {coachPhoto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={coachPhoto}
+                alt={t("landing.coach.name")}
+                className="h-28 w-28 shrink-0 rounded-lg border border-hairline object-cover"
+              />
+            ) : (
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
+                Photo
+              </div>
+            )}
+            <div>
+              <p className="font-display text-2xl text-ink">{t("landing.coach.name")}</p>
+              <p className="mt-2 max-w-[48ch] font-body text-ink/70">{t("landing.coach.bio")}</p>
             </div>
-          )}
-          <div>
-            <p className="font-display text-2xl text-ink">{t("landing.coach.name")}</p>
-            <p className="mt-2 max-w-[48ch] font-body text-ink/70">{t("landing.coach.bio")}</p>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* Pillars */}
       <section className="flex flex-col gap-4 border-t border-hairline pt-12">
