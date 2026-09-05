@@ -4,6 +4,7 @@
   "buildCommand": "next build",
   "installCommand": "npm install",
   "crons": [
-    { "path": "/api/cron/engagement", "schedule": "0 13 * * *" }
+    { "path": "/api/cron/engagement", "schedule": "0 13 * * *" },
+    { "path": "/api/cron/reminders", "schedule": "0 * * * *" }
   ]
 }
