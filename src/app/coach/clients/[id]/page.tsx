@@ -25,6 +25,7 @@ import { WearableSummary } from "@/components/coach/WearableSummary";
 import { getJournalEntries } from "@/lib/journal/data";
 import { Journal } from "@/components/journal/Journal";
 import { getCheckins } from "@/lib/checkin/data";
+import { detectPlateau } from "@/lib/body/plateau";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
@@ -91,6 +92,7 @@ export default async function ClientDeepDive({
   for (const l of habitLogs) if (l.completed) counts[l.log_date] = (counts[l.log_date] ?? 0) + 1;
   const trend = weightTrend(body);
   const latestWeight = trend[trend.length - 1];
+  const plateau = detectPlateau(trend.map((t) => ({ date: t.date, avgKg: t.avgKg })), profile?.goal ?? "maintain");
 
   // Vitals at a glance — height, current vs. starting weight, net progress.
   const startKg = profile?.weight_kg ?? null;
@@ -149,6 +151,12 @@ export default async function ClientDeepDive({
           }
         />
       </section>
+
+      {plateau.plateaued ? (
+        <p className="rounded-2xl border border-[#ffb03a]/50 bg-[#ffb03a]/10 p-4 font-body text-sm text-ink">
+          <span className="font-600 text-[#ffb03a]">Plateau:</span> weight flat ~{plateau.weeks} weeks toward a {GOAL_LABEL[profile?.goal ?? "maintain"].toLowerCase()} goal. Consider adjusting targets (edit them below, or Auto-generate PN).
+        </p>
+      ) : null}
 
       {/* Nutrition today */}
       {targets ? (

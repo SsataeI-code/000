@@ -19,6 +19,9 @@ import { FoodLogList } from "@/components/nutrition/FoodLogList";
 import { RecentFoods } from "@/components/nutrition/RecentFoods";
 import { GoalPicker } from "@/components/nutrition/GoalPicker";
 import { getThisWeekCheckin } from "@/lib/checkin/data";
+import { weightTrend } from "@/lib/body/trend";
+import { detectPlateau } from "@/lib/body/plateau";
+import { recalcTargetsAction } from "@/lib/nutrition/actions";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
@@ -110,6 +113,10 @@ export default async function TodayPage() {
   const lastHabitUpdate = habits.reduce((max, h) => (h.updated_at > max ? h.updated_at : max), "");
   const showWeeklyReview = habits.length > 0 && daysSince(lastHabitUpdate) >= 7;
   const showRecalc = daysSince(targets.computed_at) >= 35;
+  const plateau = detectPlateau(
+    weightTrend(measurements).map((t) => ({ date: t.date, avgKg: t.avgKg })),
+    profile?.goal ?? "maintain",
+  );
 
   // Today's habits (the star) — those due today, with streaks.
   const byHabit = completedDatesByHabit(habitLogs);
@@ -337,6 +344,16 @@ export default async function TodayPage() {
           </span>
           <span aria-hidden className="shrink-0 rounded-full bg-grad-red px-3 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow">Start →</span>
         </Link>
+      ) : null}
+
+      {plateau.plateaued ? (
+        <form action={recalcTargetsAction} className="flex flex-col gap-2 rounded-2xl border border-[#ffb03a]/50 bg-grad-elevated p-5 text-white shadow-card">
+          <p className="font-display text-xl uppercase toon-shadow">Your weight&apos;s been flat ~{plateau.weeks} weeks</p>
+          <p className="font-body text-sm text-white/80">That&apos;s normal — it just means it&apos;s time to refresh your targets so progress keeps coming.</p>
+          <button type="submit" className="mt-1 min-h-tap self-start rounded-full bg-grad-red px-4 py-2 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow">
+            Recalculate my targets
+          </button>
+        </form>
       ) : null}
 
       <WeeklyWeighIn latestKg={latestKg} daysSince={daysSinceWeigh} changeKg={weightChangeKg} />
