@@ -9,6 +9,7 @@ import {
   getLatestTargets,
   getTodayFoodLogs,
   getFoodLogsSince,
+  getFoodPhotoUrls,
   totalMacros,
 } from "@/lib/nutrition/data";
 import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/data";
@@ -80,6 +81,8 @@ export default async function ClientDeepDive({
   const wearableDays = await getWearableDaily(id, 7);
   const journal = await getJournalEntries(id, 30);
   const checkins = await getCheckins(id, 6);
+  const foodPics = foodHistory.filter((l) => l.photo_path).slice(0, 12);
+  const foodPicUrls = await getFoodPhotoUrls(foodPics);
 
   const totals = totalMacros(logs);
   const byHabit = completedDatesByHabit(habitLogs);
@@ -256,6 +259,29 @@ export default async function ClientDeepDive({
       ) : null}
 
       {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
+
+      {/* Food photos the client logged */}
+      {foodPics.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-2xl text-ink">Food photos</h2>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {foodPics.map((l) => (
+              <li key={l.id} className="overflow-hidden rounded-2xl border border-hairline bg-surface shadow-card">
+                {foodPicUrls[l.id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={foodPicUrls[l.id]} alt={l.name} className="h-32 w-full object-cover" />
+                ) : (
+                  <div className="grid h-32 w-full place-items-center bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">No preview</div>
+                )}
+                <div className="p-2.5">
+                  <p className="truncate font-body text-sm text-ink">{l.name}</p>
+                  <p className="font-body text-xs text-ink/50">{l.log_date} · {l.calories} cal</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {/* Weekly check-ins (read-only) */}
       {checkins.length > 0 ? (
