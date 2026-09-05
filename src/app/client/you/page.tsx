@@ -52,6 +52,17 @@ export default async function ClientYouPage() {
       />
 
       <Link
+        href="/client/journal"
+        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-5 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block text-2xl text-ink">Journal</span>
+          <span className="block font-body text-sm text-ink/60">Snap your food or jot how the day went — your coach sees it</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
+      </Link>
+
+      <Link
         href="/client/report"
         className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-5 hover:border-red"
       >

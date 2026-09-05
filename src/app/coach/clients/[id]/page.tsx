@@ -21,6 +21,8 @@ import { getLifts } from "@/lib/lifts/data";
 import { LiftTracker } from "@/components/lifts/LiftTracker";
 import { BodyPhotos } from "@/components/body/BodyPhotos";
 import { WearableSummary } from "@/components/coach/WearableSummary";
+import { getJournalEntries } from "@/lib/journal/data";
+import { Journal } from "@/components/journal/Journal";
 import { weightTrend, trendChangeKg, kgToLb } from "@/lib/body/trend";
 import { DayProgress } from "@/components/nutrition/DayProgress";
 import { HabitHeatmap } from "@/components/habits/HabitHeatmap";
@@ -75,6 +77,7 @@ export default async function ClientDeepDive({
     getLifts(id, 180),
   ]);
   const wearableDays = await getWearableDaily(id, 7);
+  const journal = await getJournalEntries(id, 30);
 
   const totals = totalMacros(logs);
   const byHabit = completedDatesByHabit(habitLogs);
@@ -251,6 +254,14 @@ export default async function ClientDeepDive({
       ) : null}
 
       {photos.length > 0 ? <BodyPhotos photos={photos} canEdit={false} userId={id} /> : null}
+
+      {/* Journal / food diary (read-only) */}
+      {journal.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-2xl text-ink">Journal</h2>
+          <Journal entries={journal} canEdit={false} userId={id} />
+        </div>
+      ) : null}
 
       {/* Coach plan tools — adjust targets, assign / veto habits */}
       <ClientPlanTools

@@ -40,6 +40,7 @@ const TABLES: { table: string; label: string; fix: string }[] = [
   { table: "wearable_connections", label: "Wearables (connect)", fix: "phase7_wearables.sql (0020)" },
   { table: "wearable_daily", label: "Wearables (data)", fix: "phase7_wearable_daily.sql (0022)" },
   { table: "lift_logs", label: "Lift tracker", fix: "phase-lifts.sql (0026)" },
+  { table: "journal_entries", label: "Journal / food diary", fix: "phase-journal.sql (0027)" },
 ];
 
 /** Important columns added by later migrations (feature-gating fixes). */

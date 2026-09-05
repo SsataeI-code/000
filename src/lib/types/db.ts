@@ -106,6 +106,16 @@ export type LiftLog = {
   created_at: string;
 };
 
+export type JournalEntry = {
+  id: string;
+  client_id: string;
+  entry_date: string;
+  body: string | null;
+  mood: number | null;
+  storage_path: string | null;
+  created_at: string;
+};
+
 export type BodyPhoto = {
   id: string;
   client_id: string;
@@ -432,6 +442,12 @@ export type Database = {
         Row: LiftLog;
         Insert: Partial<LiftLog> & { client_id: string; exercise: string };
         Update: Partial<LiftLog>;
+        Relationships: [];
+      };
+      journal_entries: {
+        Row: JournalEntry;
+        Insert: Partial<JournalEntry> & { client_id: string };
+        Update: Partial<JournalEntry>;
         Relationships: [];
       };
       coach_prefs: {
