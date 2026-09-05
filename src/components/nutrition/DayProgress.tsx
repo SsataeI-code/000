@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Ring } from "@/components/nutrition/Ring";
 import { MacroBar } from "@/components/nutrition/MacroBar";
 import type { Macros } from "@/lib/nutrition/types";
@@ -24,7 +25,11 @@ function encouragement(totals: Macros, targets: Targets): string {
 
 export function DayProgress({ totals, targets }: { totals: Macros; targets: Targets }) {
   return (
-    <section aria-label="Today's progress" className="flex flex-col items-center gap-6 rounded-lg border border-hairline bg-surface p-6">
+    <Link
+      href="/client/food"
+      aria-label="Today's progress — open food logging"
+      className="flex flex-col items-center gap-6 rounded-lg border border-hairline bg-surface p-6 transition-colors hover:border-red"
+    >
       <Ring value={totals.calories} target={targets.calories} label="Calories" unit="kcal" />
 
       <div className="grid w-full max-w-sm grid-cols-1 gap-3">
@@ -34,6 +39,7 @@ export function DayProgress({ totals, targets }: { totals: Macros; targets: Targ
       </div>
 
       <p className="text-center font-body text-sm text-ink/70">{encouragement(totals, targets)}</p>
-    </section>
+      <span aria-hidden className="font-label text-[10px] uppercase tracking-wide text-red">Log food →</span>
+    </Link>
   );
 }

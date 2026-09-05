@@ -79,9 +79,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
       case "snapshot":
         return (
           <section key={id} className="grid grid-cols-3 gap-3">
-            <Stat label="Clients" value={String(roster.length)} />
-            <Stat label="Active today" value={String(roster.filter((c) => c.daysSinceActivity === 0).length)} />
-            <Stat label="Need attention" value={String(needsAttention.length)} />
+            <Stat label="Clients" value={String(roster.length)} href="/coach/roster" />
+            <Stat label="Active today" value={String(roster.filter((c) => c.daysSinceActivity === 0).length)} href="/coach/roster" />
+            <Stat label="Need attention" value={String(needsAttention.length)} href="/coach/report" />
           </section>
         );
       case "needs_attention":
@@ -199,12 +199,18 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-grad-elevated p-4 text-center text-white shadow-card">
+function Stat({ label, value, href }: { label: string; value: string; href?: string }) {
+  const inner = (
+    <>
       <p className="font-display text-3xl toon-shadow">{value}</p>
       <p className="mt-0.5 font-label text-[10px] uppercase tracking-wide text-white/60">{label}</p>
-    </div>
+    </>
+  );
+  const cls = "rounded-2xl border border-white/10 bg-grad-elevated p-4 text-center text-white shadow-card";
+  return href ? (
+    <Link href={href} className={`${cls} block transition-transform hover:border-red active:scale-[0.98]`}>{inner}</Link>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 
