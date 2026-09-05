@@ -15,6 +15,39 @@ import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
+const MENU: { group: string; items: { href: string; title: string; desc: string }[] }[] = [
+  {
+    group: "Progress",
+    items: [
+      { href: "/client/checkin", title: "Weekly check-in", desc: "Your weekly pulse for your coach" },
+      { href: "/client/journal", title: "Journal", desc: "Snap your food or jot how the day went" },
+      { href: "/client/lifts", title: "Lift tracker", desc: "Log lifts, see PRs & estimated 1RM" },
+      { href: "/client/achievements", title: "Badges & levels", desc: "Your XP, level, streaks and badges" },
+      { href: "/client/report", title: "Weekly recap", desc: "Your wins + a couple things to work on" },
+    ],
+  },
+  {
+    group: "Nutrition",
+    items: [
+      { href: "/client/meals", title: "Saved meals", desc: "Build and reuse your go-to meals" },
+      { href: "/client/plate", title: "Plate builder", desc: "Learn balance and log a plate fast" },
+      { href: "/client/assistant", title: "Ask", desc: "Meal ideas & answers on your day" },
+    ],
+  },
+];
+
+function MenuRow({ href, title, desc }: { href: string; title: string; desc: string }) {
+  return (
+    <Link href={href} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3.5 hover:bg-surface-muted">
+      <span className="min-w-0">
+        <span className="block font-body text-base text-ink">{title}</span>
+        <span className="block truncate font-body text-xs text-ink/55">{desc}</span>
+      </span>
+      <span aria-hidden className="shrink-0 font-label text-lg text-ink/40">→</span>
+    </Link>
+  );
+}
+
 export default async function ClientYouPage() {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
@@ -39,52 +72,47 @@ export default async function ClientYouPage() {
 
       <NotificationsList notifications={notifications} />
 
-      <GoalPicker goal={profile?.goal ?? "maintain"} />
+      {/* Everything, grouped and findable */}
+      {MENU.map((g) => (
+        <section key={g.group} className="flex flex-col gap-2">
+          <p className="font-label text-xs uppercase tracking-wide text-ink/50">{g.group}</p>
+          <div className="flex flex-col divide-y divide-hairline overflow-hidden rounded-2xl border border-hairline bg-surface shadow-card">
+            {g.items.map((it) => (
+              <MenuRow key={it.href} {...it} />
+            ))}
+          </div>
+        </section>
+      ))}
 
-      <InvitePanel code={referralCode} origin={origin} stats={referralStats} overrides={overrides} />
+      {/* Devices */}
+      <section className="flex flex-col gap-2">
+        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Devices & friends</p>
+        <div className="flex flex-col divide-y divide-hairline overflow-hidden rounded-2xl border border-hairline bg-surface shadow-card">
+          <MenuRow href="/client/connect" title="Connect a tracker" desc="Auto-sync steps & sleep from Oura, Fitbit, Whoop" />
+        </div>
+      </section>
 
-      <PushToggle />
+      {/* Settings */}
+      <details className="group rounded-2xl border border-hairline bg-surface shadow-card">
+        <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-5 py-4">
+          <span className="text-2xl text-ink">Settings</span>
+          <span aria-hidden className="font-label text-xs uppercase tracking-wide text-ink/40 group-open:hidden">Open</span>
+          <span aria-hidden className="hidden font-label text-xs uppercase tracking-wide text-ink/40 group-open:inline">Close</span>
+        </summary>
+        <div className="flex flex-col gap-6 border-t border-hairline p-5">
+          <GoalPicker goal={profile?.goal ?? "maintain"} />
+          <PushToggle />
+          <QuietHours
+            initialStart={profile?.quiet_start ?? null}
+            initialEnd={profile?.quiet_end ?? null}
+            initialTimezone={profile?.timezone ?? null}
+          />
+          <InvitePanel code={referralCode} origin={origin} stats={referralStats} overrides={overrides} />
+        </div>
+      </details>
 
-      <QuietHours
-        initialStart={profile?.quiet_start ?? null}
-        initialEnd={profile?.quiet_end ?? null}
-        initialTimezone={profile?.timezone ?? null}
-      />
-
-      <Link
-        href="/client/journal"
-        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-5 hover:border-red"
-      >
-        <span className="min-w-0">
-          <span className="block text-2xl text-ink">Journal</span>
-          <span className="block font-body text-sm text-ink/60">Snap your food or jot how the day went — your coach sees it</span>
-        </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
-      </Link>
-
-      <Link
-        href="/client/report"
-        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-5 hover:border-red"
-      >
-        <span className="min-w-0">
-          <span className="block text-2xl text-ink">Weekly recap</span>
-          <span className="block font-body text-sm text-ink/60">Your wins this week + a couple things to work on</span>
-        </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">View →</span>
-      </Link>
-
-      <Link
-        href="/client/connect"
-        className="flex items-center justify-between rounded-lg border border-hairline bg-surface p-5 hover:border-red"
-      >
-        <span className="min-w-0">
-          <span className="block text-2xl text-ink">Connect a tracker</span>
-          <span className="block font-body text-sm text-ink/60">Auto-sync steps &amp; sleep from Oura, Fitbit, Whoop</span>
-        </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Connect →</span>
-      </Link>
-
-      <section className="rounded-lg border border-hairline bg-surface p-5">
+      {/* Your data */}
+      <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
         <h2 className="text-2xl text-ink">Your data</h2>
         <p className="mt-1 font-body text-sm text-ink/60">
           Download everything you&apos;ve logged — habits, food, water, weight, and your targets — as a file you keep.
@@ -97,7 +125,7 @@ export default async function ClientYouPage() {
         </a>
       </section>
 
-      <section className="rounded-lg border border-hairline bg-surface p-5">
+      <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
         <p className="font-body text-sm text-ink/70">{user.email}</p>
         <div className="mt-3">
           <SignOutButton />
