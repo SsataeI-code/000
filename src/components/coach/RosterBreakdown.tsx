@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { RosterClientBreakdown } from "@/lib/coach/data";
+import { computeAdherence, adherenceBand } from "@/lib/coach/adherence";
 
 const GOAL_LABEL: Record<string, string> = {
   lose: "Fat loss", gain: "Muscle gain", maintain: "Maintain", recomp: "Recomp", habits_only: "Habits",
@@ -91,7 +92,10 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
                     <span className="block truncate font-body text-base text-ink">{c.name}</span>
                     <span className="block font-label text-[10px] uppercase tracking-wide text-ink/45">{GOAL_LABEL[c.goal] ?? c.goal}</span>
                   </span>
-                  {shown.has("weight") ? <Weight c={c} /> : null}
+                  <span className="flex shrink-0 items-center gap-3">
+                    <AdherenceBadge c={c} />
+                    {shown.has("weight") ? <Weight c={c} /> : null}
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {shown.has("calories") ? (
@@ -112,6 +116,22 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
       )}
       <p className="font-body text-[11px] text-ink/40">Averages are over the last {days} days, on days the client logged. Tap a client for the full deep-dive.</p>
     </section>
+  );
+}
+
+function AdherenceBadge({ c }: { c: RosterClientBreakdown }) {
+  const score = computeAdherence({
+    habitConsistency: c.habitPct != null ? c.habitPct / 100 : undefined,
+    loggedRate: c.days > 0 ? c.daysLogged / c.days : undefined,
+    proteinOnTarget: c.avgProtein != null && c.proteinTarget ? Math.min(c.avgProtein / c.proteinTarget, 1) : undefined,
+  });
+  if (score == null) return null;
+  const tone = adherenceBand(score).tone;
+  const cls = tone === "success" ? "bg-success/20 text-success" : tone === "risk" ? "bg-red/20 text-red-ink" : "bg-[#ffb03a]/15 text-[#ffb03a]";
+  return (
+    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-sm ${cls}`} title={`Adherence ${score}/100`}>
+      {score}
+    </span>
   );
 }
 

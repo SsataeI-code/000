@@ -16,6 +16,7 @@ import {
   type ChartView,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
+import { computeAdherence, adherenceBand } from "@/lib/coach/adherence";
 
 const GOAL_VERB: Record<string, string> = {
   lose: "fat loss",
@@ -120,6 +121,14 @@ export function IndividualProgress({
   const avgCons = seriesMean(consSeries);
   const bestStreak = habits.reduce((mx, h) => Math.max(mx, longestStreak(completedByHabit.get(h.id) ?? new Set())), 0);
 
+  // Adherence score — one number from habits + logging + protein-on-target.
+  const adherence = computeAdherence({
+    habitConsistency: habits.length > 0 && avgCons != null ? avgCons : undefined,
+    loggedRate: days > 0 ? logged / days : undefined,
+    proteinOnTarget: avgProtein != null && targets?.protein_g ? Math.min(avgProtein / targets.protein_g, 1) : undefined,
+  });
+  const band = adherenceBand(adherence);
+
   const calWeeks = weeklyAverages(calSeries);
   const proteinWeeks = weeklyAverages(proteinSeries);
   const consWeeks = weeklyAverages(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })));
@@ -175,6 +184,20 @@ export function IndividualProgress({
           )}
         </div>
       </section>
+
+      {/* Adherence — one number for "are they doing the work" */}
+      {adherence != null ? (
+        <section className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-grad-elevated p-5 text-white shadow-card">
+          <div>
+            <p className="font-label text-[10px] uppercase tracking-widest text-white/60">Adherence</p>
+            <p className="mt-1 font-display text-5xl leading-none toon-shadow">{adherence}<span className="ml-1 text-2xl text-white/50">/100</span></p>
+            <p className="mt-1.5 font-body text-sm text-white/75">Habits, food logging &amp; protein — combined.</p>
+          </div>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide ${
+            band.tone === "success" ? "bg-success/20 text-success" : band.tone === "risk" ? "bg-red/20 text-red-ink" : "bg-[#ffb03a]/15 text-[#ffb03a]"
+          }`}>{band.label}</span>
+        </section>
+      ) : null}
 
       {/* Key stats */}
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
