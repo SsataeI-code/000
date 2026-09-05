@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getLatestTargets, getClientProfile, getRecentFoodsToRelog } from "@/lib/nutrition/data";
 import { AddFood } from "@/components/food/AddFood";
+import { hasAiConfig } from "@/lib/ai/client";
 import { HandPortions } from "@/components/nutrition/HandPortions";
 import { FoodPreferences } from "@/components/nutrition/FoodPreferences";
 import { RecentFoods } from "@/components/nutrition/RecentFoods";
@@ -33,7 +34,7 @@ export default async function AddFoodPage() {
           Done
         </Link>
       </div>
-      <AddFood userId={user.id} />
+      <AddFood userId={user.id} aiEnabled={hasAiConfig()} />
 
       <RecentFoods foods={recentFoods} />
 

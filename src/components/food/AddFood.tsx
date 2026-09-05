@@ -6,6 +6,7 @@ import { BarcodeScanner } from "@/components/food/BarcodeScanner";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/food/actions";
+import { analyzeFoodPhotoAction } from "@/lib/ai/food-photo";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
 import { createClient } from "@/lib/supabase/client";
 import { PORTION_OPTIONS, gramsForPortion, type PortionUnit } from "@/lib/food/portions";
@@ -97,7 +98,7 @@ function draftFromProduct(product: NormalizedFood): Draft {
   };
 }
 
-export function AddFood({ userId }: { userId: string }) {
+export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabled?: boolean }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("choose");
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -106,6 +107,45 @@ export function AddFood({ userId }: { userId: string }) {
   const [saving, startSave] = useTransition();
   const [justLogged, setJustLogged] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const estimateInputRef = useRef<HTMLInputElement>(null);
+
+  /** Estimate macros from a food photo via AI, then drop into confirm to edit. */
+  async function estimateFromPhoto(f: File) {
+    setError(null);
+    setAnalyzing(true);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error("read failed"));
+        r.readAsDataURL(f);
+      });
+      const res = await analyzeFoodPhotoAction(dataUrl);
+      if (res.error || !res.estimate) {
+        setError(res.error ?? "Couldn't read that photo.");
+        return;
+      }
+      const est = res.estimate;
+      setPhoto(f); // keep the photo on the log
+      setDraft({
+        ...emptyDraft,
+        name: est.name,
+        grams: est.grams != null ? String(est.grams) : "",
+        calories: String(est.calories),
+        proteinG: String(est.proteinG),
+        carbsG: String(est.carbsG),
+        fatG: String(est.fatG),
+        source: "manual",
+        note: `AI estimate (${est.confidence} confidence) — check it`,
+      });
+      setMode("confirm");
+    } catch {
+      setError("Couldn't read that photo — try again.");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
 
   /** Upload the optional photo to the client's private folder; returns its path. */
   async function uploadPhoto(): Promise<string | null> {
@@ -240,7 +280,27 @@ export function AddFood({ userId }: { userId: string }) {
   if (mode === "choose") {
     return (
       <div className="flex flex-col gap-4">
+        {error ? <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}
         <Button onClick={() => setMode("scanning")}>Scan a barcode</Button>
+        {aiEnabled ? (
+          <>
+            <input
+              ref={estimateInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) estimateFromPhoto(f);
+                e.target.value = "";
+              }}
+            />
+            <Button variant="ghost" onClick={() => estimateInputRef.current?.click()} disabled={analyzing}>
+              {analyzing ? "Reading your photo…" : "Estimate from a photo"}
+            </Button>
+          </>
+        ) : null}
         <Button
           variant="ghost"
           onClick={() => {
