@@ -7,8 +7,7 @@ import { RosterCohorts } from "@/components/coach/RosterCohorts";
 import { RosterBreakdown } from "@/components/coach/RosterBreakdown";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { ViewToggle } from "@/components/charts/ViewToggle";
-import { resolveRange, resolveView } from "@/lib/charts/range";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +18,12 @@ const GOAL_LABEL: Record<string, string> = {
 const WEIGHT_THRESHOLD_KG = 0.3; // below this either way = "holding"
 
 /** Full roster with aggregates, trends, and cohort slicing (§9). */
-export default async function RosterPage({ searchParams }: { searchParams: Promise<{ range?: string; view?: string }> }) {
+export default async function RosterPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const sp = await searchParams;
   const range = await resolveRange(sp.range);
-  const view = await resolveView(sp.view);
 
   const owner = { owner: user.role === "owner" };
   const [roster, series, breakdown, archived] = await Promise.all([
@@ -71,7 +69,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
 
           <RosterBreakdown clients={breakdown} days={range} />
 
-          <RosterTrends series={series} days={range} weightSplit={weightSplit} view={view} toggle={<RangeToggle current={range} />} viewToggle={<ViewToggle current={view} />} />
+          <RosterTrends series={series} days={range} weightSplit={weightSplit} toggle={<RangeToggle current={range} />} />
 
           <RosterCohorts clients={roster} />
 

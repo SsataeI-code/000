@@ -36,8 +36,7 @@ import { MealRecommender } from "@/components/coach/MealRecommender";
 import { RemoveClient } from "@/components/coach/RemoveClient";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { ViewToggle } from "@/components/charts/ViewToggle";
-import { resolveRange, resolveView } from "@/lib/charts/range";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +49,7 @@ export default async function ClientDeepDive({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ range?: string; view?: string }>;
+  searchParams: Promise<{ range?: string }>;
 }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
@@ -58,7 +57,6 @@ export default async function ClientDeepDive({
   const { id } = await params;
   const sp = await searchParams;
   const range = await resolveRange(sp.range);
-  const view = await resolveView(sp.view);
 
   // Authorization: the coach must coach this client (owner sees everyone).
   if (user.role !== "owner" && !(await coachHasClient(user.id, id))) notFound();
@@ -251,10 +249,8 @@ export default async function ClientDeepDive({
         habitLogs={habitLogs}
         targets={targets}
         goal={profile?.goal ?? null}
-        view={view}
         days={range}
         toggle={<RangeToggle current={range} />}
-        viewToggle={<ViewToggle current={view} />}
       />
 
       {wearableDays.length > 0 ? <WearableSummary days={wearableDays} /> : null}

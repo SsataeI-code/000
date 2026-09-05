@@ -4,8 +4,11 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { RANGE_OPTIONS, RANGE_COOKIE } from "@/lib/charts/series";
 
+/** Friendly labels for each window — week / month rather than raw day counts. */
+const RANGE_LABEL: Record<number, string> = { 7: "Week", 30: "Month", 60: "2 mo", 90: "3 mo" };
+
 /**
- * Time-range toggle for the graphs (7 / 30 / 60 / 90 days). URL-driven so the
+ * Time-range toggle for the graphs (week / month / 2-3 months). URL-driven so the
  * server components refetch the right window — shareable, back-button friendly,
  * no client-side data fetching — and it writes a cookie on pick so the choice
  * sticks the next time the coach or client opens a graph screen.
@@ -39,7 +42,7 @@ export function RangeToggle({ current }: { current: number }) {
               active ? "border-red bg-red text-white" : "border-hairline bg-surface text-ink/60 hover:border-ink"
             }`}
           >
-            {r}d
+            {RANGE_LABEL[r] ?? `${r}d`}
           </Link>
         );
       })}

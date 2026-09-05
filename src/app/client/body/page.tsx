@@ -9,18 +9,16 @@ import { getHabits, getHabitLogs } from "@/lib/habits/data";
 import { BodyLogForm } from "@/components/body/BodyLogForm";
 import { IndividualProgress } from "@/components/charts/IndividualProgress";
 import { RangeToggle } from "@/components/charts/RangeToggle";
-import { ViewToggle } from "@/components/charts/ViewToggle";
-import { resolveRange, resolveView } from "@/lib/charts/range";
+import { resolveRange } from "@/lib/charts/range";
 
 export const dynamic = "force-dynamic";
 
-export default async function BodyPage({ searchParams }: { searchParams: Promise<{ range?: string; view?: string }> }) {
+export default async function BodyPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   if (!hasSupabaseConfig()) redirect("/");
   const user = await getSessionUser();
   if (!user) redirect("/login");
   const sp = await searchParams;
   const range = await resolveRange(sp.range);
-  const view = await resolveView(sp.view);
 
   const [measurements, foodLogs, habits, habitLogs, targets, photos, profile] = await Promise.all([
     getBodyMeasurements(user.id),
@@ -60,10 +58,8 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
         habitLogs={habitLogs}
         targets={targets}
         goal={profile?.goal ?? null}
-        view={view}
         days={range}
         toggle={<RangeToggle current={range} />}
-        viewToggle={<ViewToggle current={view} />}
       />
 
       <div>

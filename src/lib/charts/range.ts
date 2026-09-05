@@ -1,12 +1,5 @@
 import { cookies } from "next/headers";
-import { parseRange, RANGE_COOKIE, parseView, VIEW_COOKIE, type RangeDays, type ChartView } from "@/lib/charts/series";
-
-/** Resolve the chart granularity (weekly default): `?view=` wins, else cookie. */
-export async function resolveView(spView: string | undefined): Promise<ChartView> {
-  if (spView != null) return parseView(spView);
-  const store = await cookies();
-  return parseView(store.get(VIEW_COOKIE)?.value);
-}
+import { parseRange, RANGE_COOKIE, type RangeDays } from "@/lib/charts/series";
 
 /**
  * Resolve the graph time-range for a request: an explicit `?range=` wins (so a

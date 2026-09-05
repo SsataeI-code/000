@@ -10,10 +10,7 @@ import {
   dailyConsistency,
   seriesMean,
   daysLogged,
-  weeklyAverages,
   type SeriesPoint,
-  type WeekPoint,
-  type ChartView,
 } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
 import { computeAdherence, adherenceBand } from "@/lib/coach/adherence";
@@ -26,17 +23,15 @@ const GOAL_VERB: Record<string, string> = {
   habits_only: "habits",
 };
 
-/** WeekPoint[] → SeriesPoint[] for the line chart (uses the week-start date). */
-const asSeries = (weeks: WeekPoint[]): SeriesPoint[] => weeks.map((w) => ({ date: w.startDate, value: w.value }));
-
 /** Treat a 0 as "no data that day" so a missed day is a gap, not a spike to zero. */
 const gapZero = (s: SeriesPoint[]): SeriesPoint[] => s.map((p) => ({ ...p, value: p.value && p.value > 0 ? p.value : null }));
 
 /**
  * Individual progress (§9). Leads with a weight-vs-goal readout, then the trends
- * a coach actually reads — weekly averages by default (day-to-day noise smoothed
- * into bars), with a Daily toggle for detail. Same component on the coach
- * deep-dive and the client's own screen, so both see identical numbers.
+ * a coach actually reads. Every chart plots real data points day-by-day — no
+ * combining or weekly averaging, so no logged day disappears (owner request).
+ * The range toggle picks the window (week / month / …). Same component on the
+ * coach deep-dive and the client's own screen, so both see identical numbers.
  */
 export function IndividualProgress({
   measurements,
@@ -45,10 +40,8 @@ export function IndividualProgress({
   habitLogs,
   targets,
   goal,
-  view = "weekly",
   days = 30,
   toggle,
-  viewToggle,
 }: {
   measurements: BodyMeasurement[];
   foodLogs: FoodLog[];
@@ -56,12 +49,9 @@ export function IndividualProgress({
   habitLogs: HabitLog[];
   targets: NutritionTargetRow | null;
   goal?: Goal | null;
-  view?: ChartView;
   days?: number;
   toggle?: ReactNode;
-  viewToggle?: ReactNode;
 }) {
-  const weekly = view === "weekly";
   const dates = lastNDates(days);
   const cutoff = dates[0];
   const windowed = measurements.filter((m) => m.log_date >= cutoff);
@@ -89,25 +79,20 @@ export function IndividualProgress({
     paceLabel = paceGood ? "On track" : weightRate === 0 ? "Holding" : "Off pace";
   }
 
-  // Daily weight (lb) aligned to the window, for the weekly roll-up / daily line.
-  const weightByDate = new Map<string, number>();
-  for (const t of trend) weightByDate.set(t.date, kgToLb(t.weightKg));
-  const weightDaily: SeriesPoint[] = dates.map((d) => ({ date: d, value: weightByDate.get(d) ?? null }));
-  const weightWeeks = weeklyAverages(weightDaily);
+  // Every logged weigh-in in the window, one dot per entry (owner: "every point
+  // for every day of entry should be clear"). Unlike the smoothed weekly roll-up,
+  // this never collapses days together — the client sees each weigh-in they made.
+  const weightEntries: SeriesPoint[] = windowed
+    .filter((m) => m.weight_kg != null)
+    .sort((a, b) => a.log_date.localeCompare(b.log_date))
+    .map((m) => ({ date: m.log_date, value: kgToLb(Number(m.weight_kg)) }));
 
-  // Body fat
-  const bfDaily: SeriesPoint[] = dates.map((d) => {
-    const m = windowed.find((x) => x.log_date === d && x.body_fat_pct != null);
-    return { date: d, value: m ? Number(m.body_fat_pct) : null };
-  });
-  const hasBf = bfDaily.filter((p) => p.value != null).length >= 2;
-  // Compact series of just the logged body-fat measurements, in order — so the
-  // daily view connects the measurement dots (like weight) instead of scattering
-  // isolated dots across the empty days between measurements.
+  // Body fat — one dot per logged measurement, in order (never combined).
   const bfMeasured: SeriesPoint[] = windowed
     .filter((m) => m.body_fat_pct != null)
     .sort((a, b) => a.log_date.localeCompare(b.log_date))
     .map((m) => ({ date: m.log_date, value: Number(m.body_fat_pct) }));
+  const hasBf = bfMeasured.length >= 2;
 
   // ---- Nutrition & habits ----
   const calSeries = dailyCalories(foodLogs, dates);
@@ -129,16 +114,11 @@ export function IndividualProgress({
   });
   const band = adherenceBand(adherence);
 
-  const calWeeks = weeklyAverages(calSeries);
-  const proteinWeeks = weeklyAverages(proteinSeries);
-  const consWeeks = weeklyAverages(consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 })));
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-2xl text-ink">Progress</h2>
         <div className="flex items-center gap-2">
-          {viewToggle}
           {toggle}
         </div>
       </div>
@@ -167,21 +147,18 @@ export function IndividualProgress({
           ) : null}
         </div>
         <div className="mt-4">
-          {weekly ? (
-            <LineChart
-              points={asSeries(weightWeeks)}
-              color="#e10600"
-              ariaLabel="Weekly average body weight over time, in pounds"
-              formatValue={(nn) => `${Math.round(nn)} lb`}
-            />
-          ) : (
-            <LineChart
-              points={trend.map((t) => ({ date: t.date, value: kgToLb(t.weightKg) }))}
-              color="#e10600"
-              ariaLabel="Body weight over time, in pounds"
-              formatValue={(nn) => `${Math.round(nn)} lb`}
-            />
-          )}
+          {/* Weight always shows every weigh-in as its own dot — no weekly roll-up,
+              so no logged day disappears (the Weekly/Daily toggle still smooths the
+              noisier calorie/protein/habit charts below). */}
+          <LineChart
+            points={weightEntries}
+            color="#e10600"
+            ariaLabel="Every logged body-weight entry over time, in pounds"
+            formatValue={(nn) => `${Math.round(nn)} lb`}
+          />
+          {weightEntries.length > 1 ? (
+            <p className="mt-1 text-right font-body text-[10px] text-ink/40">{weightEntries.length} weigh-ins · last {days} days</p>
+          ) : null}
         </div>
       </section>
 
@@ -210,39 +187,23 @@ export function IndividualProgress({
       {/* Body fat — only when logged */}
       {hasBf ? (
         <Card title="Body fat %">
-          {weekly ? (
-            <LineChart points={asSeries(weeklyAverages(bfDaily))} ariaLabel="Weekly average body-fat percentage" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
-          ) : (
-            <LineChart points={bfMeasured} ariaLabel="Body-fat percentage over time" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
-          )}
+          <LineChart points={bfMeasured} ariaLabel="Body-fat percentage over time" formatValue={(nn) => `${Math.round(nn * 10) / 10}%`} />
         </Card>
       ) : null}
 
       {/* Calories */}
       <Card title="Calories" note={avgCals != null ? `avg ${Math.round(avgCals)}${targets ? ` · target ${targets.calories}` : ""}` : undefined}>
-        {weekly ? (
-          <LineChart points={asSeries(calWeeks)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Weekly average calories vs target" formatValue={(nn) => String(Math.round(nn))} />
-        ) : (
-          <LineChart points={gapZero(calSeries)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => String(Math.round(nn))} />
-        )}
+        <LineChart points={gapZero(calSeries)} color="#e10600" targetLine={targets?.calories ?? null} ariaLabel="Calories logged each day vs target" formatValue={(nn) => String(Math.round(nn))} />
       </Card>
 
       {/* Protein */}
       <Card title="Protein" note={avgProtein != null ? `avg ${Math.round(avgProtein)} g${targets ? ` · target ${targets.protein_g} g` : ""}` : undefined}>
-        {weekly ? (
-          <LineChart points={asSeries(proteinWeeks)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Weekly average protein vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
-        ) : (
-          <LineChart points={gapZero(proteinSeries)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
-        )}
+        <LineChart points={gapZero(proteinSeries)} color="#34c759" targetLine={targets?.protein_g ?? null} ariaLabel="Protein logged each day vs target" formatValue={(nn) => `${Math.round(nn)}g`} />
       </Card>
 
       {/* Habit consistency */}
       <Card title="Habit consistency" note={avgCons != null ? `avg ${Math.round(avgCons * 100)}%` : "No habits yet"}>
-        {weekly ? (
-          <LineChart points={asSeries(consWeeks)} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Weekly average habit consistency" formatValue={(nn) => `${Math.round(nn)}%`} />
-        ) : (
-          <LineChart points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Percent of due habits completed each day" formatValue={(nn) => `${Math.round(nn)}%`} />
-        )}
+        <LineChart points={consSeries.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }))} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Percent of due habits completed each day" formatValue={(nn) => `${Math.round(nn)}%`} />
       </Card>
     </div>
   );

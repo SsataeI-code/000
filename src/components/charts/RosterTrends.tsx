@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
 import type { RosterSeries } from "@/lib/coach/data";
-import { seriesMean, weeklyAverages, type SeriesPoint, type ChartView } from "@/lib/charts/series";
+import { seriesMean, type SeriesPoint } from "@/lib/charts/series";
 import { LineChart } from "@/components/charts/LineChart";
-
-/** WeekPoint[] → SeriesPoint[] for the dot graph (uses the week-start date). */
-const asSeries = (weeks: { startDate: string; value: number | null }[]): SeriesPoint[] =>
-  weeks.map((w) => ({ date: w.startDate, value: w.value }));
 
 export interface WeightSplit {
   losing: number;
@@ -16,27 +12,23 @@ export interface WeightSplit {
 
 /**
  * Roster-wide trends (§9). Built around what a coach steers by: are clients
- * showing up (logging + habits), and which way is their weight moving. Weekly by
- * default so the momentum is obvious; the raw roster-average calories/protein
- * are kept as small context stats, not headline charts (a coach acts per client,
- * not on a book-wide calorie mean).
+ * showing up (logging + habits), and which way is their weight moving. Every
+ * chart plots day-by-day data points — never combined — with the range toggle
+ * choosing the window. The raw roster-average calories/protein are kept as small
+ * context stats, not headline charts (a coach acts per client, not on a
+ * book-wide calorie mean).
  */
 export function RosterTrends({
   series,
   days,
   weightSplit,
-  view = "weekly",
   toggle,
-  viewToggle,
 }: {
   series: RosterSeries;
   days: number;
   weightSplit: WeightSplit;
-  view?: ChartView;
   toggle?: ReactNode;
-  viewToggle?: ReactNode;
 }) {
-  const weekly = view === "weekly";
   const pct = (s: SeriesPoint[]): SeriesPoint[] => s.map((p) => ({ ...p, value: p.value == null ? null : p.value * 100 }));
   const loggingPct = pct(series.loggingRate);
   const consPct = pct(series.avgConsistency);
@@ -55,7 +47,6 @@ export function RosterTrends({
         <h2 className="text-2xl text-ink">Roster trends</h2>
         <div className="flex items-center gap-2">
           <p className="hidden font-body text-xs text-ink/50 sm:block">last {days}d · {series.clientCount} clients</p>
-          {viewToggle}
           {toggle}
         </div>
       </div>
@@ -93,25 +84,13 @@ export function RosterTrends({
 
       {/* Engagement — the momentum a coach reads */}
       <div>
-        <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">
-          Clients logging food {weekly ? "/ week" : "/ day"}
-        </p>
-        {weekly ? (
-          <LineChart points={asSeries(weeklyAverages(loggingPct))} targetLine={100} targetLabel="all" ariaLabel="Percent of clients logging food, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
-        ) : (
-          <LineChart points={loggingPct} targetLine={100} targetLabel="all" ariaLabel="Percent of clients who logged food each day" formatValue={(n) => `${Math.round(n)}%`} />
-        )}
+        <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Clients logging food / day</p>
+        <LineChart points={loggingPct} targetLine={100} targetLabel="all" ariaLabel="Percent of clients who logged food each day" formatValue={(n) => `${Math.round(n)}%`} />
       </div>
 
       <div>
-        <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">
-          Habit engagement {weekly ? "/ week" : "/ day"}
-        </p>
-        {weekly ? (
-          <LineChart points={asSeries(weeklyAverages(consPct))} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average habit engagement across the roster, weekly average" formatValue={(n) => `${Math.round(n)}%`} />
-        ) : (
-          <LineChart points={consPct} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average share of clients engaging their habits each day" formatValue={(n) => `${Math.round(n)}%`} />
-        )}
+        <p className="mb-2 font-label text-xs uppercase tracking-wide text-ink/50">Habit engagement / day</p>
+        <LineChart points={consPct} color="#34c759" targetLine={100} targetLabel="goal" ariaLabel="Average share of clients engaging their habits each day" formatValue={(n) => `${Math.round(n)}%`} />
       </div>
     </section>
   );
