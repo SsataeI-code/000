@@ -20,6 +20,39 @@ export const PORTION_OPTIONS: Array<{ unit: PortionUnit; label: string }> = [
 
 const G_PER_OZ = 28.35;
 
+/**
+ * Natural count units for count-y foods (owner: let clients log "1 egg" or
+ * "1 slice of toast" instead of grams). Pure. Returns a singular/plural noun
+ * when a food is normally eaten as whole pieces; the per-piece grams come from
+ * the food's own typical serving size, so "1 egg" logs the right weight/macros.
+ * Prepared dishes (scrambled eggs, egg salad, French toast…) are excluded — a
+ * "piece" doesn't mean anything there — so they keep grams/servings.
+ */
+const PIECE_RULES: { test: RegExp; one: string; many: string }[] = [
+  { test: /\beggs?\b/i, one: "egg", many: "eggs" },
+  { test: /\b(bread|toast)\b/i, one: "slice", many: "slices" },
+  { test: /\bbacon\b/i, one: "slice", many: "slices" },
+  { test: /\bbagel\b/i, one: "bagel", many: "bagels" },
+  { test: /\b(roll|bun)\b/i, one: "roll", many: "rolls" },
+  { test: /\b(tortilla|wrap)\b/i, one: "wrap", many: "wraps" },
+  { test: /\bpita\b/i, one: "pita", many: "pitas" },
+  { test: /\bpancakes?\b/i, one: "pancake", many: "pancakes" },
+  { test: /\bwaffles?\b/i, one: "waffle", many: "waffles" },
+  { test: /\b(sausage|hot dog|hotdog|link)\b/i, one: "link", many: "links" },
+  { test: /\bslices?\b/i, one: "slice", many: "slices" },
+  { test: /\bbanana\b/i, one: "banana", many: "bananas" },
+  { test: /\bapple\b/i, one: "apple", many: "apples" },
+  { test: /\borange\b/i, one: "orange", many: "oranges" },
+];
+// Names that describe a prepared dish, where a "piece" count is meaningless.
+const NOT_A_PIECE = /\b(scrambled|fried|boiled|poached|salad|benedict|sandwich|burger|soup|casserole|pudding|omelet|omelette|quiche|frittata|stir[\s-]?fry|french toast|toastie|melt)\b/i;
+
+export function pieceUnitFor(name: string): { one: string; many: string } | null {
+  if (!name || NOT_A_PIECE.test(name)) return null;
+  for (const r of PIECE_RULES) if (r.test.test(name)) return { one: r.one, many: r.many };
+  return null;
+}
+
 /** Grams for `qty` of `unit`, using the product's serving size where relevant. */
 export function gramsForPortion(qty: number, unit: PortionUnit, servingSizeG?: number | null): number {
   const q = Number.isFinite(qty) ? qty : 0;

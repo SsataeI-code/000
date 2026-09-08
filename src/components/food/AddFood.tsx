@@ -9,7 +9,7 @@ import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/foo
 import { analyzeFoodPhotoAction } from "@/lib/ai/food-photo";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
 import { createClient } from "@/lib/supabase/client";
-import { PORTION_OPTIONS, gramsForPortion, type PortionUnit } from "@/lib/food/portions";
+import { PORTION_OPTIONS, gramsForPortion, pieceUnitFor, type PortionUnit } from "@/lib/food/portions";
 
 type Mode = "choose" | "scanning" | "search" | "confirm";
 
@@ -387,6 +387,23 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
     );
   }
 
+  // Natural count unit for this food ("1 egg", "1 slice") — reuses the "serving"
+  // math (qty × per-piece grams) but reads naturally and leads the unit list.
+  const piece = pieceUnitFor(draft.name);
+  const servingG = draft.servingSizeG ?? 0;
+  const naturalPiece = piece != null && servingG > 0;
+  const portionOptions: { unit: PortionUnit; label: string }[] = (() => {
+    const base = PORTION_OPTIONS
+      .filter((o) => !(naturalPiece && o.unit === "piece")) // the natural label replaces generic "pieces"
+      .map((o) =>
+        o.unit === "serving" && naturalPiece
+          ? { unit: "serving" as PortionUnit, label: `${piece!.many} (${servingG} g each)` }
+          : o,
+      );
+    if (naturalPiece) base.sort((a, b) => (a.unit === "serving" ? -1 : b.unit === "serving" ? 1 : 0));
+    return base;
+  })();
+
   // confirm
   return (
     <div className="flex flex-col gap-5">
@@ -404,7 +421,9 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
       <Field label="Food name" name="name" value={draft.name} onChange={(e) => update("name", e.target.value)} required />
       <Field label="Brand (optional)" name="brand" value={draft.brand} onChange={(e) => update("brand", e.target.value)} />
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="portion_qty" className="text-sm text-ink/80">How much did you eat?</label>
+        <label htmlFor="portion_qty" className="text-sm text-ink/80">
+          How much did you eat?{naturalPiece ? ` (e.g. ${draft.qty || 1} ${Number(draft.qty) === 1 ? piece!.one : piece!.many})` : ""}
+        </label>
         <div className="flex gap-2">
           <input
             id="portion_qty"
@@ -423,7 +442,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
             onChange={(e) => setPortion(draft.qty, e.target.value as PortionUnit)}
             className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
           >
-            {PORTION_OPTIONS.map((o) => (
+            {portionOptions.map((o) => (
               <option key={o.unit} value={o.unit}>{o.label}</option>
             ))}
           </select>
