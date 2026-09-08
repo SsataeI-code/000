@@ -27,13 +27,19 @@ export async function getClientCoachId(clientId: string): Promise<string | null>
   return owner?.id ?? null;
 }
 
-/** All messages in one coach↔client thread, oldest first. */
-export async function getThread(coachId: string, clientId: string): Promise<Message[]> {
+/**
+ * All messages in one client's thread, oldest first. Scoped by client_id and
+ * left to RLS — a coach reads only their own client's messages, the owner reads
+ * everyone's. We deliberately do NOT also filter by coach_id: a client message
+ * may be stored under a different coach_id than the viewer (the owner, or after
+ * a reassignment), and hard-filtering on coach_id would silently hide it — the
+ * bug behind "messages aren't showing up on my end". RLS is the real guard.
+ */
+export async function getThread(_coachId: string, clientId: string): Promise<Message[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("messages")
     .select("*")
-    .eq("coach_id", coachId)
     .eq("client_id", clientId)
     .order("created_at", { ascending: true });
   return (data as Message[] | null) ?? [];
@@ -68,14 +74,15 @@ export async function markClientThreadRead(clientId: string): Promise<void> {
 }
 
 /** Mark the other side's messages in this thread as read (best-effort). */
-export async function markThreadRead(coachId: string, clientId: string, readerIsCoach: boolean): Promise<void> {
+export async function markThreadRead(_coachId: string, clientId: string, readerIsCoach: boolean): Promise<void> {
   const supabase = await createClient();
-  // The reader clears messages the *other* participant sent.
+  // The reader clears messages the *other* participant sent. Scoped by client_id
+  // and left to RLS (matches getThread) so the owner can clear a client message
+  // regardless of which coach_id it carries — otherwise the unread badge sticks.
   const senderKind = readerIsCoach ? "client" : "coach";
   await supabase
     .from("messages")
     .update({ read_at: new Date().toISOString() })
-    .eq("coach_id", coachId)
     .eq("client_id", clientId)
     .eq("kind", senderKind)
     .is("read_at", null);
@@ -86,13 +93,19 @@ export async function markThreadRead(coachId: string, clientId: string, readerIs
  * unread count of client messages. Batched: pull this coach's messages once and
  * fold them per client.
  */
-export async function getThreads(coachId: string, clientIds: { id: string; name: string }[]): Promise<ThreadSummary[]> {
+export async function getThreads(_coachId: string, clientIds: { id: string; name: string }[]): Promise<ThreadSummary[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("messages")
-    .select("client_id,body,kind,read_at,created_at")
-    .eq("coach_id", coachId)
-    .order("created_at", { ascending: false });
+  // Scope by the coach's own roster of client ids and rely on RLS, rather than
+  // filtering on coach_id (which hid messages stored under another coach_id — the
+  // owner especially, who sees every client but isn't the coach_id on the row).
+  const ids = clientIds.map((c) => c.id);
+  const { data } = ids.length
+    ? await supabase
+        .from("messages")
+        .select("client_id,body,kind,read_at,created_at")
+        .in("client_id", ids)
+        .order("created_at", { ascending: false })
+    : { data: [] as { client_id: string; body: string; kind: string; read_at: string | null; created_at: string }[] };
   const rows = data ?? [];
 
   const last = new Map<string, { body: string; at: string; kind: Message["kind"] }>();
@@ -124,13 +137,16 @@ export async function getThreads(coachId: string, clientIds: { id: string; name:
   return summaries;
 }
 
-/** Count of unread client messages across all of a coach's threads (nav badge). */
-export async function getCoachUnreadCount(coachId: string): Promise<number> {
+/**
+ * Count of unread client messages the viewer can see (nav badge). Left to RLS
+ * (coach → their clients, owner → everyone) instead of a coach_id filter, so it
+ * agrees with getThreads and never undercounts the owner's inbox.
+ */
+export async function getCoachUnreadCount(_coachId: string): Promise<number> {
   const supabase = await createClient();
   const { count } = await supabase
     .from("messages")
     .select("id", { count: "exact", head: true })
-    .eq("coach_id", coachId)
     .eq("kind", "client")
     .is("read_at", null);
   return count ?? 0;

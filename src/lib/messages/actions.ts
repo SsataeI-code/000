@@ -7,6 +7,8 @@ import { coachHasClient } from "@/lib/coach/data";
 import { getClientCoachId } from "@/lib/messages/data";
 import { notify } from "@/lib/notifications/data";
 import { draftNudge } from "@/lib/coach/slip";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sendNewMessageEmail } from "@/lib/email/send";
 import type { FlagKind } from "@/lib/coach/attention";
 
 export interface SendState {
@@ -121,8 +123,30 @@ export async function sendClientMessageAction(_prev: SendState, formData: FormDa
     body: body.slice(0, 140),
     link: `/coach/messages/${user.id}`,
   });
+  // Also email the coach so a client reaching out never gets missed, even if the
+  // coach isn't in the app and push isn't set up (owner request). Best-effort:
+  // resolving the email needs the service role, and it must never block the send.
+  void emailCoachNewMessage(coachId, user.profile?.display_name ?? "A client", user.id, body);
   revalidatePath("/client/messages");
   revalidatePath(`/coach/messages/${user.id}`);
   revalidatePath("/coach/messages");
   return { ok: true };
+}
+
+/**
+ * Best-effort email to the coach that a client reached out. Needs the service
+ * role to look up the coach's email (clients can't read it under RLS); every
+ * failure is swallowed so it never affects the message send. No-op without a
+ * Resend key (handled inside sendNewMessageEmail).
+ */
+async function emailCoachNewMessage(coachId: string, clientName: string, clientId: string, body: string): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.auth.admin.getUserById(coachId);
+    const to = data?.user?.email;
+    if (!to) return;
+    await sendNewMessageEmail({ to, clientName, preview: body, clientId });
+  } catch {
+    // Never let an email failure surface to the client sending the message.
+  }
 }
