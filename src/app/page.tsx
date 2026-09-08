@@ -133,7 +133,7 @@ export default async function LandingPage() {
                 className="h-28 w-28 shrink-0 rounded-lg border border-hairline object-cover"
               />
             ) : (
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-muted font-label text-[12px] uppercase tracking-wide text-ink/40">
                 Photo
               </div>
             )}
@@ -188,7 +188,7 @@ export default async function LandingPage() {
         </section>
       ) : null}
 
-      <footer className="mt-12 flex items-center justify-between border-t border-hairline pt-6 font-label text-[10px] uppercase tracking-wide text-ink/40">
+      <footer className="mt-12 flex items-center justify-between border-t border-hairline pt-6 font-label text-[12px] uppercase tracking-wide text-ink/40">
         <span>{t("brand.name")}</span>
         <span>Built for the work</span>
       </footer>

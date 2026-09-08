@@ -39,7 +39,7 @@ export function DayProgress({ totals, targets }: { totals: Macros; targets: Targ
       </div>
 
       <p className="text-center font-body text-sm text-ink/70">{encouragement(totals, targets)}</p>
-      <span aria-hidden className="font-label text-[10px] uppercase tracking-wide text-red">Log food →</span>
+      <span aria-hidden className="font-label text-[12px] uppercase tracking-wide text-red">Log food →</span>
     </Link>
   );
 }

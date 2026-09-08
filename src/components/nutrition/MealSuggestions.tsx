@@ -48,11 +48,11 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-xl text-ink">{meal.name}</h3>
         {meal.saved ? (
-          <span className="shrink-0 rounded-full bg-red/15 px-2 py-0.5 font-label text-[10px] uppercase tracking-wide text-red-ink">
+          <span className="shrink-0 rounded-full bg-red/15 px-2 py-0.5 font-label text-[12px] uppercase tracking-wide text-red-ink">
             Your meal
           </span>
         ) : (
-          <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">
+          <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-ink/40">
             {meal.kind}
           </span>
         )}

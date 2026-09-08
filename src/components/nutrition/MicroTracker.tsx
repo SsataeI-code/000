@@ -31,7 +31,7 @@ export function MicroTracker({
         <span className="font-label text-xs uppercase tracking-wide text-ink/70">
           Vitamins &amp; minerals
         </span>
-        <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">
+        <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">
           Goals · tap to expand
         </span>
       </summary>
@@ -39,7 +39,7 @@ export function MicroTracker({
       <div className="flex flex-col gap-5 px-5 pb-5">
         {groups.filter(hasRows).map((g) => (
           <div key={g}>
-            <p className="mb-2 font-label text-[10px] uppercase tracking-wide text-ink/50">{g}</p>
+            <p className="mb-2 font-label text-[12px] uppercase tracking-wide text-ink/50">{g}</p>
             <div className="flex flex-col gap-2.5">
               {rows
                 .filter((r) => r.def.group === g && (g !== "Also tracked" || r.consumed > 0))

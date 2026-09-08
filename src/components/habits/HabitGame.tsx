@@ -76,7 +76,7 @@ export function HabitGame({
         {/* Leveling mascot — evolves from Spark to Legend */}
         <div className="relative shrink-0">
           <LevelAvatar level={state.level} size={64} />
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-1.5 py-0.5 font-label text-[8px] uppercase tracking-widest text-white/90">
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-1.5 py-0.5 font-label text-[10px] uppercase tracking-widest text-white/90">
             Lvl {state.level}
           </span>
         </div>
@@ -95,7 +95,7 @@ export function HabitGame({
               style={{ width: `${Math.max(fill * 100, 4)}%`, transition: "width 800ms cubic-bezier(0.16,1,0.3,1)" }}
             />
           </div>
-          <p className="mt-1 font-body text-[11px] text-white/65">
+          <p className="mt-1 font-body text-[13px] text-white/65">
             {state.nextLevelName ? `${state.xpToNext?.toLocaleString()} XP to ${state.nextLevelName}` : "Top level reached — legend."}
           </p>
         </div>
@@ -113,7 +113,7 @@ export function HabitGame({
         {badgesHref ? (
           <Link
             href={badgesHref}
-            className="inline-flex min-h-tap items-center gap-1.5 rounded-full border border-white/25 bg-black/25 px-3 py-1 font-label text-[11px] uppercase tracking-wide text-white/85 hover:border-[#ffb03a] hover:text-white"
+            className="inline-flex min-h-tap items-center gap-1.5 rounded-full border border-white/25 bg-black/25 px-3 py-1 font-label text-[13px] uppercase tracking-wide text-white/85 hover:border-[#ffb03a] hover:text-white"
           >
             <span className="h-3.5 w-3.5 text-[#ffb03a]"><IconMedal /></span>
             {state.earnedCount} badges →
@@ -150,7 +150,7 @@ export function HabitGame({
               ★ Perfect day
             </span>
           ) : (
-            <p className="font-label text-[10px] uppercase tracking-widest text-white/60">Today&apos;s quests</p>
+            <p className="font-label text-[12px] uppercase tracking-widest text-white/60">Today&apos;s quests</p>
           )}
           <p className="mt-1.5 font-body text-sm text-white/90">{line}</p>
         </div>
@@ -162,7 +162,7 @@ export function HabitGame({
 function Chip({ icon, label, accent, glow }: { icon?: React.ReactNode; label: string; accent?: boolean; glow?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-label text-[11px] uppercase tracking-wide ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-label text-[13px] uppercase tracking-wide ${
         accent
           ? "border-[#ffb03a]/70 bg-[#ffb03a]/15 text-[#ffb03a]"
           : glow

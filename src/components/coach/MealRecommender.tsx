@@ -179,10 +179,10 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
     <div className="flex flex-col gap-1.5 rounded-2xl border border-hairline bg-surface p-3.5">
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-body text-base font-600 text-ink">{m.name}</span>
-        <span className="shrink-0 font-label text-[11px] uppercase tracking-wide text-ink/50">{open ? totals.calories : m.calories} cal · {open ? totals.protein : m.proteinG}g P</span>
+        <span className="shrink-0 font-label text-[13px] uppercase tracking-wide text-ink/50">{open ? totals.calories : m.calories} cal · {open ? totals.protein : m.proteinG}g P</span>
       </div>
       {!open ? <p className="font-body text-xs text-ink/55">{m.ingredients.join(" · ")}</p> : null}
-      {m.richIn.length > 0 && !open ? <p className="font-body text-[11px] text-success">Rich in {m.richIn.join(", ")}</p> : null}
+      {m.richIn.length > 0 && !open ? <p className="font-body text-[13px] text-success">Rich in {m.richIn.join(", ")}</p> : null}
 
       {open ? (
         <div className="mt-1 flex flex-col divide-y divide-hairline rounded-xl border border-hairline bg-surface-input">
@@ -232,10 +232,10 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
       ) : null}
 
       <div className="mt-1 flex flex-wrap items-center gap-2">
-        <button type="button" disabled={pending || sent || (open && items.length === 0)} onClick={() => doSend(open ? customMealText(m.name, items, totals, name) : mealText(m, name))} className="min-h-tap rounded-full bg-grad-red px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-pop-red active:translate-y-[2px] active:shadow-none disabled:opacity-60">
+        <button type="button" disabled={pending || sent || (open && items.length === 0)} onClick={() => doSend(open ? customMealText(m.name, items, totals, name) : mealText(m, name))} className="min-h-tap rounded-full bg-grad-red px-3.5 py-1.5 font-label text-[13px] font-600 uppercase tracking-wide text-white shadow-pop-red active:translate-y-[2px] active:shadow-none disabled:opacity-60">
           {sent ? "Sent ✓" : pending ? "Sending…" : open ? "Send customized" : "Send to client"}
         </button>
-        <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="min-h-tap rounded-full border border-hairline px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
+        <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="min-h-tap rounded-full border border-hairline px-3.5 py-1.5 font-label text-[13px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
           {open ? "Done" : "Customize"}
         </button>
       </div>
@@ -253,10 +253,10 @@ function FoodRow({ f, name, send, onEdit }: { f: FoodPick; name: string; send: (
         <span className="block font-body text-xs text-ink/50">{f.grams}g · {f.proteinG}g protein · {f.calories} cal</span>
       </span>
       <span className="flex shrink-0 items-center gap-2">
-        <button type="button" disabled={pending || sent} onClick={() => start(async () => { if (await send(foodText(f, name))) setSent(true); })} className="min-h-tap rounded-full border border-red px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide text-red hover:bg-red hover:text-white disabled:opacity-60">
+        <button type="button" disabled={pending || sent} onClick={() => start(async () => { if (await send(foodText(f, name))) setSent(true); })} className="min-h-tap rounded-full border border-red px-3 py-1.5 font-label text-[12px] font-600 uppercase tracking-wide text-red hover:bg-red hover:text-white disabled:opacity-60">
           {sent ? "Sent ✓" : "Send"}
         </button>
-        <button type="button" onClick={onEdit} className="min-h-tap rounded-full border border-hairline px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
+        <button type="button" onClick={onEdit} className="min-h-tap rounded-full border border-hairline px-3 py-1.5 font-label text-[12px] font-600 uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
           Edit
         </button>
       </span>

@@ -81,7 +81,7 @@ export function InvitePanel({
         <button
           type="button"
           onClick={copy}
-          className="min-h-tap shrink-0 font-label text-[11px] uppercase tracking-wide text-red hover:text-red-ink"
+          className="min-h-tap shrink-0 font-label text-[13px] uppercase tracking-wide text-red hover:text-red-ink"
         >
           {copied ? t("client.invite.copied") : t("client.invite.copy")}
         </button>
@@ -110,7 +110,7 @@ function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex-1 rounded-lg border border-hairline bg-surface-muted p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
+      <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>
   );
 }

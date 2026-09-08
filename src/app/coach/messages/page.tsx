@@ -42,14 +42,14 @@ export default async function CoachMessagesPage() {
                   <span className="flex items-center gap-2">
                     <span className="truncate font-body text-base text-ink">{t.clientName}</span>
                     {t.unread > 0 ? (
-                      <span className="shrink-0 rounded-full bg-red px-1.5 font-label text-[10px] font-600 text-white">{t.unread}</span>
+                      <span className="shrink-0 rounded-full bg-red px-1.5 font-label text-[12px] font-600 text-white">{t.unread}</span>
                     ) : null}
                   </span>
                   <span className="block truncate font-body text-xs text-ink/50">
                     {t.lastBody ? `${t.lastKind === "client" ? "" : "You: "}${t.lastBody}` : "No messages yet"}
                   </span>
                 </span>
-                <span className="shrink-0 font-body text-[10px] text-ink/40">{ago(t.lastAt)}</span>
+                <span className="shrink-0 font-body text-[12px] text-ink/40">{ago(t.lastAt)}</span>
               </Link>
             </li>
           ))}

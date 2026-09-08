@@ -71,7 +71,7 @@ export default async function CoachReportPage() {
             {digest.needsYou.map((n, i) => (
               <li key={i} className="flex items-center justify-between gap-3 py-2">
                 <span className="font-body text-base text-ink">{n.name}</span>
-                <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">{n.reason}</span>
+                <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">{n.reason}</span>
               </li>
             ))}
           </ul>

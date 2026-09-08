@@ -76,19 +76,19 @@ export function ContentEditor({ fields }: { fields: ContentField[] }) {
               return (
                 <li key={f.key} className="flex flex-col gap-1.5 p-4">
                   <div className="flex items-baseline justify-between gap-3">
-                    <label htmlFor={f.key} className="font-label text-[11px] uppercase tracking-wide text-ink/60">
+                    <label htmlFor={f.key} className="font-label text-[13px] uppercase tracking-wide text-ink/60">
                       {f.label}
                     </label>
                     {overridden ? (
                       <button
                         type="button"
                         onClick={() => setValues((v) => ({ ...v, [f.key]: "" }))}
-                        className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/50 hover:text-red"
+                        className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/50 hover:text-red"
                       >
                         Reset
                       </button>
                     ) : (
-                      <span className="font-label text-[10px] uppercase tracking-wide text-ink/30">Default</span>
+                      <span className="font-label text-[12px] uppercase tracking-wide text-ink/30">Default</span>
                     )}
                   </div>
                   <textarea

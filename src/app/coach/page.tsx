@@ -100,7 +100,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
           <section key={id} className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between">
               <p className="font-label text-xs uppercase tracking-wide text-ink/50">Full roster</p>
-              <Link href="/coach/roster" className="font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
+              <Link href="/coach/roster" className="font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
                 Stats &amp; cohorts
               </Link>
             </div>
@@ -119,9 +119,9 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                       </span>
                     </span>
                     {c.flags.length > 0 ? (
-                      <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-red">{c.flags.length} flag{c.flags.length === 1 ? "" : "s"}</span>
+                      <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-red">{c.flags.length} flag{c.flags.length === 1 ? "" : "s"}</span>
                     ) : (
-                      <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-success">on track</span>
+                      <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-success">on track</span>
                     )}
                   </Link>
                 </li>
@@ -212,7 +212,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
 function TopClientBadge() {
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/15 px-1.5 py-0.5 font-label text-[9px] font-600 uppercase tracking-wide text-[#ffb03a]"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/15 px-1.5 py-0.5 font-label text-[11px] font-600 uppercase tracking-wide text-[#ffb03a]"
       title="#1 client by level"
     >
       ★ #1
@@ -224,7 +224,7 @@ function Stat({ label, value, href }: { label: string; value: string; href?: str
   const inner = (
     <>
       <p className="font-display text-3xl toon-shadow">{value}</p>
-      <p className="mt-0.5 font-label text-[10px] uppercase tracking-wide text-white/60">{label}</p>
+      <p className="mt-0.5 font-label text-[12px] uppercase tracking-wide text-white/60">{label}</p>
     </>
   );
   const cls = "rounded-2xl border border-white/10 bg-grad-elevated p-4 text-center text-white shadow-card";
@@ -242,13 +242,13 @@ function ClientCard({ client }: { client: RosterClient }) {
       <Link href={`/coach/clients/${client.id}`} className="block p-4 pb-2 hover:bg-surface-muted">
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-xl text-ink">{client.name}</span>
-          <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">{GOAL_LABEL[client.goal]}</span>
+          <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-ink/40">{GOAL_LABEL[client.goal]}</span>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {client.flags.map((f) => (
-            <span key={f.kind} className="border border-red px-2 py-0.5 font-label text-[10px] uppercase tracking-wide text-red-ink">{f.label}</span>
+            <span key={f.kind} className="border border-red px-2 py-0.5 font-label text-[12px] uppercase tracking-wide text-red-ink">{f.label}</span>
           ))}
-          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">
+          <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">
             Lv{client.habitLevel} {client.habitLevelName}
             {client.habitCurrentStreak > 0 ? ` · ${client.habitCurrentStreak}d` : ""}
           </span>
@@ -256,13 +256,13 @@ function ClientCard({ client }: { client: RosterClient }) {
       </Link>
       {/* Slip response (§9 hybrid): small slip → one-tap nudge; big slip → escalate. */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-3">
-        <span className="font-body text-[11px] text-ink/55">{decision.reason}</span>
+        <span className="font-body text-[13px] text-ink/55">{decision.reason}</span>
         {decision.level === "nudge" ? (
           <NudgeButton clientId={client.id} primary={decision.primary ?? ""} />
         ) : decision.level === "escalate" ? (
           <Link
             href={`/coach/messages/${client.id}`}
-            className="min-h-tap border border-red px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-red hover:bg-red hover:text-white"
+            className="min-h-tap border border-red px-2.5 py-1 font-label text-[12px] uppercase tracking-wide text-red hover:bg-red hover:text-white"
           >
             Reach out
           </Link>

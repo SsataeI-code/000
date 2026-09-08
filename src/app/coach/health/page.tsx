@@ -70,7 +70,7 @@ function CheckGroup({ title, checks }: { title: string; checks: Check[] }) {
             <div className="min-w-0 flex-1">
               <p className="font-body text-sm text-ink">{c.name}</p>
               <p className="font-body text-xs text-ink/50">{c.detail}</p>
-              {!c.ok && c.fix ? <p className="mt-0.5 font-label text-[11px] uppercase tracking-wide text-red-ink">{c.fix}</p> : null}
+              {!c.ok && c.fix ? <p className="mt-0.5 font-label text-[13px] uppercase tracking-wide text-red-ink">{c.fix}</p> : null}
             </div>
           </li>
         ))}

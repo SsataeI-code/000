@@ -69,7 +69,7 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
                 type="button"
                 onClick={() => toggle(m.key)}
                 aria-pressed={on}
-                className={`min-h-tap border px-2.5 py-1 font-label text-[10px] uppercase tracking-wide ${
+                className={`min-h-tap border px-2.5 py-1 font-label text-[12px] uppercase tracking-wide ${
                   on ? "border-red bg-red text-white" : "border-hairline bg-surface text-ink/50 hover:border-ink"
                 }`}
               >
@@ -90,7 +90,7 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
                 <div className="flex items-center justify-between gap-3">
                   <span className="min-w-0">
                     <span className="block truncate font-body text-base text-ink">{c.name}</span>
-                    <span className="block font-label text-[10px] uppercase tracking-wide text-ink/45">{GOAL_LABEL[c.goal] ?? c.goal}</span>
+                    <span className="block font-label text-[12px] uppercase tracking-wide text-ink/45">{GOAL_LABEL[c.goal] ?? c.goal}</span>
                   </span>
                   <span className="flex shrink-0 items-center gap-3">
                     <AdherenceBadge c={c} />
@@ -114,7 +114,7 @@ export function RosterBreakdown({ clients, days }: { clients: RosterClientBreakd
           ))}
         </ul>
       )}
-      <p className="font-body text-[11px] text-ink/40">Averages are over the last {days} days, on days the client logged. Tap a client for the full deep-dive.</p>
+      <p className="font-body text-[13px] text-ink/40">Averages are over the last {days} days, on days the client logged. Tap a client for the full deep-dive.</p>
     </section>
   );
 }
@@ -138,9 +138,9 @@ function AdherenceBadge({ c }: { c: RosterClientBreakdown }) {
 function Metric({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className="font-label text-[9px] uppercase tracking-wide text-ink/40">{label}</span>
+      <span className="font-label text-[11px] uppercase tracking-wide text-ink/40">{label}</span>
       <span className="font-body text-sm text-ink">{value}</span>
-      {sub ? <span className="font-body text-[10px] text-ink/40">{sub}</span> : null}
+      {sub ? <span className="font-body text-[12px] text-ink/40">{sub}</span> : null}
     </span>
   );
 }
@@ -154,7 +154,7 @@ function Weight({ c }: { c: RosterClientBreakdown }) {
       <span className="text-right">
         <span className="block font-body text-sm text-ink">{c.latestWeightLb != null ? `${c.latestWeightLb} lb` : "—"}</span>
         {c.weightSpark.length >= 2 ? (
-          <span className={`block font-body text-[10px] ${color}`}>{arrow} {Math.abs(c.weightChangeLb)} lb</span>
+          <span className={`block font-body text-[12px] ${color}`}>{arrow} {Math.abs(c.weightChangeLb)} lb</span>
         ) : null}
       </span>
     </span>

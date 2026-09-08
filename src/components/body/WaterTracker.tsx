@@ -33,7 +33,7 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
   return (
     <section aria-label="Water" className={`relative rounded-2xl border border-hairline bg-surface shadow-card p-5 ${pending ? "opacity-80" : ""}`}>
       {burst ? (
-        <span aria-hidden className="animate-xp-burst pointer-events-none absolute right-5 top-4 z-10 whitespace-nowrap rounded-full bg-grad-success px-2 py-0.5 font-label text-[10px] font-600 uppercase tracking-wide text-white shadow-glow-success">
+        <span aria-hidden className="animate-xp-burst pointer-events-none absolute right-5 top-4 z-10 whitespace-nowrap rounded-full bg-grad-success px-2 py-0.5 font-label text-[12px] font-600 uppercase tracking-wide text-white shadow-glow-success">
           Hydrated +5 XP
         </span>
       ) : null}

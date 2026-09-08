@@ -95,7 +95,7 @@ export function LineChart({
         <text x={padL} y={H - 7} textAnchor="start" className="fill-ink/35" style={{ font: "500 9px sans-serif" }}>{fmtDate(dots[0].date)}</text>
         {n >= 2 ? <text x={W - padR} y={H - 7} textAnchor="end" className="fill-ink/35" style={{ font: "500 9px sans-serif" }}>{fmtDate(dots[lastIdx].date)}</text> : null}
       </svg>
-      <figcaption className="mt-1 text-right font-label text-[10px] uppercase tracking-wide text-ink/55">
+      <figcaption className="mt-1 text-right font-label text-[12px] uppercase tracking-wide text-ink/55">
         now {formatValue(dots[lastIdx].value)}
       </figcaption>
     </figure>

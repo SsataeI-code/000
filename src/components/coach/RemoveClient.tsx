@@ -45,7 +45,7 @@ export function RemoveClient({
           Export all data (JSON)
         </a>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">Or CSV:</span>
+          <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">Or CSV:</span>
           {[
             { table: "food_logs", label: "Food" },
             { table: "habit_logs", label: "Habits" },

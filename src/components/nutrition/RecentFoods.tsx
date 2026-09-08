@@ -56,7 +56,7 @@ function RecentChip({ food }: { food: RelogFood }) {
   return (
     <li className="relative">
       {burst ? (
-        <span aria-hidden className="animate-xp-burst pointer-events-none absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad-success px-2 py-0.5 font-label text-[10px] font-600 uppercase tracking-wide text-white shadow-glow-success">
+        <span aria-hidden className="animate-xp-burst pointer-events-none absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad-success px-2 py-0.5 font-label text-[12px] font-600 uppercase tracking-wide text-white shadow-glow-success">
           Logged +15 XP
         </span>
       ) : null}
@@ -75,7 +75,7 @@ function RecentChip({ food }: { food: RelogFood }) {
           {done ? "✓" : "+"}
         </span>
         <span className="min-w-0 max-w-[10rem] truncate font-600">{food.name}</span>
-        <span className="shrink-0 font-label text-[11px] uppercase tracking-wide text-ink/45">{food.calories} cal</span>
+        <span className="shrink-0 font-label text-[13px] uppercase tracking-wide text-ink/45">{food.calories} cal</span>
       </button>
     </li>
   );

@@ -32,7 +32,7 @@ export function BottomTabBar({ items }: { items: TabItem[] }) {
             aria-current={active ? "page" : undefined}
             className={
               "relative flex min-h-tap flex-1 flex-col items-center justify-center gap-1 py-2 " +
-              "font-label text-[10px] uppercase tracking-wide transition-colors " +
+              "font-label text-[12px] uppercase tracking-wide transition-colors " +
               (active ? "text-red" : "text-ink/55 hover:text-ink")
             }
           >

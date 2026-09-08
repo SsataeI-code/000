@@ -91,7 +91,7 @@ export function PushToggle() {
             Turn off
           </button>
         ) : status === "busy" || status === "loading" ? (
-          <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">…</span>
+          <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-ink/40">…</span>
         ) : null}
       </div>
     </section>

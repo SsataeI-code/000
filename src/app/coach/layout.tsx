@@ -38,7 +38,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
         </span>
         <div className="flex items-center gap-3">
           {user.role === "owner" ? (
-            <span className="rounded-full bg-grad-red px-2.5 py-1 font-label text-[10px] font-600 uppercase tracking-wide text-white shadow-glow">
+            <span className="rounded-full bg-grad-red px-2.5 py-1 font-label text-[12px] font-600 uppercase tracking-wide text-white shadow-glow">
               Owner
             </span>
           ) : null}

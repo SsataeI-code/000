@@ -44,7 +44,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">
                     <span className={`truncate font-body text-sm ${unreadRow ? "text-ink" : "text-ink/70"}`}>{n.title}</span>
-                    <span className="shrink-0 font-body text-[10px] text-ink/40">{ago(n.created_at)}</span>
+                    <span className="shrink-0 font-body text-[12px] text-ink/40">{ago(n.created_at)}</span>
                   </span>
                   {n.body ? <span className="mt-0.5 block font-body text-xs text-ink/55 line-clamp-2">{n.body}</span> : null}
                 </span>

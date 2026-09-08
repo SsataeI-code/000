@@ -118,7 +118,7 @@ export function BodyPhotoCamera({ onCapture, onClose }: { onCapture: (blob: Blob
 
       {/* Timer selector */}
       <div className="flex items-center justify-center gap-2">
-        <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">Timer</span>
+        <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">Timer</span>
         {TIMER_OPTIONS.map((t) => (
           <button
             key={t}

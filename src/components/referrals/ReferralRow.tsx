@@ -43,7 +43,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
       </div>
 
       <p
-        className={`mt-1 font-label text-[11px] uppercase tracking-wide ${
+        className={`mt-1 font-label text-[13px] uppercase tracking-wide ${
           referral.status === "rewarded"
             ? "text-success"
             : referral.status === "declined"

@@ -87,15 +87,15 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
                 <p className="font-body text-base text-ink">{p.label}</p>
                 <p className="font-body text-xs text-ink/50">{p.pulls}</p>
                 {staffHint ? (
-                  <p className="mt-1 font-body text-[11px] text-ink/40">{staffHint}</p>
+                  <p className="mt-1 font-body text-[13px] text-ink/40">{staffHint}</p>
                 ) : null}
               </div>
               {connected ? (
                 <form action={disconnectWearableAction.bind(null, p.id)} className="flex items-center gap-3">
-                  <span className="font-label text-[10px] uppercase tracking-wide text-success">Connected</span>
+                  <span className="font-label text-[12px] uppercase tracking-wide text-success">Connected</span>
                   <button
                     type="submit"
-                    className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red"
+                    className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red"
                   >
                     Disconnect
                   </button>
@@ -108,7 +108,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
                   Connect
                 </a>
               ) : (
-                <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">Not available yet</span>
+                <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">Not available yet</span>
               )}
             </li>
           );

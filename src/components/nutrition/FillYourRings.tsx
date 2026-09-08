@@ -23,7 +23,7 @@ export function FillYourRings({ suggestions }: { suggestions: RingSuggestion[] }
                   <span className="min-w-0">
                     <span className="font-body text-sm text-ink">{f.name}</span>
                     {f.familiar ? (
-                      <span className="ml-2 font-label text-[9px] uppercase tracking-wide text-ink/40">You&apos;ve had this</span>
+                      <span className="ml-2 font-label text-[11px] uppercase tracking-wide text-ink/40">You&apos;ve had this</span>
                     ) : null}
                     <span className="block font-body text-xs text-ink/50">
                       {f.amount} · {f.grams}g · {f.calories} cal

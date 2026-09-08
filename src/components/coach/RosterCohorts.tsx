@@ -29,7 +29,7 @@ export function RosterCohorts({ clients }: { clients: CohortClient[] }) {
               role="tab"
               aria-selected={dim === d.key}
               onClick={() => setDim(d.key)}
-              className={`min-h-tap border px-3 font-label text-[11px] uppercase tracking-wide transition-colors ${
+              className={`min-h-tap border px-3 font-label text-[13px] uppercase tracking-wide transition-colors ${
                 dim === d.key
                   ? "border-red bg-red text-white"
                   : "border-hairline bg-surface text-ink/70 hover:border-ink"
@@ -49,7 +49,7 @@ export function RosterCohorts({ clients }: { clients: CohortClient[] }) {
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[32rem] border-collapse font-body text-sm">
             <thead>
-              <tr className="text-left font-label text-[10px] uppercase tracking-wide text-ink/50">
+              <tr className="text-left font-label text-[12px] uppercase tracking-wide text-ink/50">
                 <th className="py-2 pr-3">Segment</th>
                 <th className="py-2 pr-3 text-right">Clients</th>
                 <th className="py-2 pr-3 text-right">Active today</th>

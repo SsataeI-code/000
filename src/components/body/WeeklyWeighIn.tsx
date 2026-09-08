@@ -50,7 +50,7 @@ export function WeeklyWeighIn({
     return (
       <section aria-label="Weight" className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface px-4 py-3">
         <div className="min-w-0">
-          <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
+          <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">Weight</p>
           <p className="font-body text-sm text-ink">
             {latestKg != null ? showWeight(latestKg) : "—"}
             {changeLabel ? <span className="text-ink/50"> · {changeLabel} this week</span> : null}
@@ -61,11 +61,11 @@ export function WeeklyWeighIn({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="min-h-tap font-label text-[10px] uppercase tracking-wide text-red underline underline-offset-4"
+            className="min-h-tap font-label text-[12px] uppercase tracking-wide text-red underline underline-offset-4"
           >
             Weigh in
           </button>
-          <Link href="/client/body" className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
+          <Link href="/client/body" className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
             Trend
           </Link>
         </div>
@@ -77,7 +77,7 @@ export function WeeklyWeighIn({
     <section aria-label="Weekly weigh-in" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-label text-[10px] uppercase tracking-wide text-red">Weekly weigh-in</p>
+          <p className="font-label text-[12px] uppercase tracking-wide text-red">Weekly weigh-in</p>
           <p className="mt-0.5 font-body text-sm text-ink">
             {due
               ? "Time for your weekly weigh-in — log your morning weight."
@@ -118,7 +118,7 @@ export function WeeklyWeighIn({
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="min-h-tap shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red"
+            className="min-h-tap shrink-0 font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red"
           >
             Cancel
           </button>
@@ -129,7 +129,7 @@ export function WeeklyWeighIn({
         <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
 
-      <Link href="/client/body" className="font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
+      <Link href="/client/body" className="font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
         Body fat, measurements &amp; full trend →
       </Link>
     </section>

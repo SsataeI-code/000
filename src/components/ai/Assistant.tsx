@@ -70,7 +70,7 @@ export function Assistant() {
         )}
         {pending ? (
           <li className="justify-start">
-            <span className="font-label text-[11px] uppercase tracking-wide text-ink/40">Thinking…</span>
+            <span className="font-label text-[13px] uppercase tracking-wide text-ink/40">Thinking…</span>
           </li>
         ) : null}
         <div ref={endRef} />

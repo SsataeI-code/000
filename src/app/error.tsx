@@ -44,7 +44,7 @@ export default function Error({
         </Link>
       </div>
       {error.digest ? (
-        <p className="font-label text-[10px] uppercase tracking-wide text-ink/40">
+        <p className="font-label text-[12px] uppercase tracking-wide text-ink/40">
           Ref: {error.digest}
         </p>
       ) : null}

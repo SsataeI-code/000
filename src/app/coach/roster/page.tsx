@@ -85,7 +85,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
                     </span>
                   </span>
                   {c.flags.length > 0 ? (
-                    <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-red">{c.flags.length} flag{c.flags.length === 1 ? "" : "s"}</span>
+                    <span className="shrink-0 font-label text-[12px] uppercase tracking-wide text-red">{c.flags.length} flag{c.flags.length === 1 ? "" : "s"}</span>
                   ) : null}
                 </Link>
               </li>
@@ -101,7 +101,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-hairline bg-surface shadow-card p-4 text-center">
       <p className="font-display text-3xl text-ink">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
+      <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>
   );
 }

@@ -54,10 +54,10 @@ export function Ring({
       </svg>
       <div className="absolute flex flex-col items-center text-center">
         <span className="font-display text-3xl leading-none text-ink">{Math.round(value)}</span>
-        <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">
+        <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">
           / {Math.round(target)} {unit}
         </span>
-        <span className="mt-1 font-label text-[10px] uppercase tracking-wide text-ink/40">{label}</span>
+        <span className="mt-1 font-label text-[12px] uppercase tracking-wide text-ink/40">{label}</span>
       </div>
     </div>
   );

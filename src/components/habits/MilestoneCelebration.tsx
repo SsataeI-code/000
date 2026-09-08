@@ -118,13 +118,13 @@ export function MilestoneCelebration({
           </span>
 
           <span className="block">
-            <span className="block font-label text-[11px] uppercase tracking-[0.18em] text-red-ink">{current.title}</span>
+            <span className="block font-label text-[13px] uppercase tracking-[0.18em] text-red-ink">{current.title}</span>
             <span className="mt-1 block font-display text-3xl uppercase leading-tight text-white">{current.line}</span>
             <span className="mt-2 block font-body text-sm text-white/70">{current.sub}</span>
           </span>
 
           {current.kind === "level" ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 font-label text-[10px] uppercase tracking-wide text-white/80">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 font-label text-[12px] uppercase tracking-wide text-white/80">
               <span className="h-3 w-3 text-[#ffb03a]"><IconBolt /></span>
               Keep the streak alive
             </span>

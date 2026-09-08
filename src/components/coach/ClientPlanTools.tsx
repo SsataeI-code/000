@@ -133,7 +133,7 @@ export function ClientPlanTools({
             type="button"
             onClick={autoGenerate}
             disabled={recalcPending}
-            className="min-h-tap font-label text-[10px] uppercase tracking-wide text-red underline underline-offset-4 hover:text-red-ink disabled:opacity-50"
+            className="min-h-tap font-label text-[12px] uppercase tracking-wide text-red underline underline-offset-4 hover:text-red-ink disabled:opacity-50"
           >
             {recalcPending ? "Recalculating…" : "Auto-generate (PN)"}
           </button>
@@ -157,7 +157,7 @@ export function ClientPlanTools({
           <Field label="Carbs (g)" name="carbs_g" type="number" inputMode="numeric" min={0} value={macros.carbsG} onChange={onMacro("carbsG")} />
           <Field label="Fat (g)" name="fat_g" type="number" inputMode="numeric" min={0} value={macros.fatG} onChange={onMacro("fatG")} />
         </div>
-        <p className="rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2 font-label text-[11px] uppercase tracking-wide text-ink/70">
+        <p className="rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2 font-label text-[13px] uppercase tracking-wide text-ink/70">
           = {macros.calories.toLocaleString()} kcal · {pct.protein}% P / {pct.carbs}% C / {pct.fat}% F
         </p>
         <Button type="submit" disabled={tPending}>
@@ -287,7 +287,7 @@ export function ClientPlanTools({
                   <form action={coachArchiveHabitAction.bind(null, h.id, clientId)}>
                     <button
                       type="submit"
-                      className="min-h-tap shrink-0 font-label text-[10px] uppercase tracking-wide text-red underline underline-offset-4 hover:text-red-ink"
+                      className="min-h-tap shrink-0 font-label text-[12px] uppercase tracking-wide text-red underline underline-offset-4 hover:text-red-ink"
                     >
                       Remove
                     </button>

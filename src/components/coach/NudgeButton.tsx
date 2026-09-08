@@ -14,7 +14,7 @@ export function NudgeButton({ clientId, primary }: { clientId: string; primary: 
   const [err, setErr] = useState<string | null>(null);
 
   if (sent) {
-    return <span className="font-label text-[10px] uppercase tracking-wide text-success">Nudge sent ✓</span>;
+    return <span className="font-label text-[12px] uppercase tracking-wide text-success">Nudge sent ✓</span>;
   }
 
   return (
@@ -30,11 +30,11 @@ export function NudgeButton({ clientId, primary }: { clientId: string; primary: 
             else setSent(true);
           })
         }
-        className="min-h-tap border border-ink px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+        className="min-h-tap border border-ink px-2.5 py-1 font-label text-[12px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
       >
         {pending ? "Sending…" : "Send nudge"}
       </button>
-      {err ? <span className="font-body text-[10px] text-red">{err}</span> : null}
+      {err ? <span className="font-body text-[12px] text-red">{err}</span> : null}
     </span>
   );
 }

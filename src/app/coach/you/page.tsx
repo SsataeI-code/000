@@ -42,7 +42,7 @@ export default async function CoachYouPage() {
       <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
         <p className="font-body text-sm text-ink/70">{user.email}</p>
         {user.role === "owner" ? (
-          <p className="mt-1 font-label text-[10px] uppercase tracking-wide text-red">Owner</p>
+          <p className="mt-1 font-label text-[12px] uppercase tracking-wide text-red">Owner</p>
         ) : null}
         <div className="mt-3">
           <SignOutButton />

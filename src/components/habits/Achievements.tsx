@@ -29,10 +29,10 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
             <span className={`h-7 w-7 ${a.earned ? "text-red" : "text-ink/30"}`}>
               {a.earned ? <IconMedal /> : <IconLock />}
             </span>
-            <span className={`font-label text-[10px] uppercase tracking-wide ${a.earned ? "text-ink" : "text-ink/40"}`}>
+            <span className={`font-label text-[12px] uppercase tracking-wide ${a.earned ? "text-ink" : "text-ink/40"}`}>
               {a.label}
             </span>
-            <span className="font-body text-[10px] leading-tight text-ink/50">{a.description}</span>
+            <span className="font-body text-[12px] leading-tight text-ink/50">{a.description}</span>
           </li>
         ))}
       </ul>

@@ -89,7 +89,7 @@ export function BodyPhotos({
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-2xl text-ink">Progress photos</h2>
         {canEdit ? (
-          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">Private · only you & your coach</span>
+          <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">Private · only you & your coach</span>
         ) : null}
       </div>
 
@@ -121,7 +121,7 @@ export function BodyPhotos({
                     type="button"
                     onClick={() => onDelete(p.id)}
                     disabled={busy}
-                    className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50"
+                    className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50"
                   >
                     Delete
                   </button>

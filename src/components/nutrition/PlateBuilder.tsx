@@ -227,7 +227,7 @@ export function PlateBuilder({
           </svg>
           {/* Fats — the side dish, with its foods. */}
           <div className="flex items-center gap-2">
-            <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">Fats:</span>
+            <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">Fats:</span>
             {grouped.filter((g) => g.food.zone === "fat").length > 0 ? (
               grouped.filter((g) => g.food.zone === "fat").slice(0, 5).map(({ food, count }) => (
                 <span key={food.id} className="flex h-7 w-7 items-center justify-center rounded-full border" style={{ borderColor: ZONE_META.fat.color }}>
@@ -252,7 +252,7 @@ export function PlateBuilder({
             ].map((s) => (
               <div key={s.label} className="rounded-lg border border-hairline bg-surface-muted py-2">
                 <p className="font-display text-2xl text-ink">{s.value}</p>
-                <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{s.label}</p>
+                <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">{s.label}</p>
               </div>
             ))}
           </div>
@@ -274,7 +274,7 @@ export function PlateBuilder({
       {/* What's on the plate — adjust servings with +/− */}
       {grouped.length > 0 ? (
         <div className="flex flex-col gap-2 border-t border-hairline pt-3">
-          <p className="font-label text-[11px] uppercase tracking-wide text-ink/50">On your plate</p>
+          <p className="font-label text-[13px] uppercase tracking-wide text-ink/50">On your plate</p>
           <ul className="flex flex-col gap-1.5">
             {grouped.map(({ food, count }) => (
               <li key={food.id} className="flex items-center gap-3">
@@ -283,10 +283,10 @@ export function PlateBuilder({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block font-body text-sm text-ink">{food.name}</span>
-                  <span className="block font-body text-[11px] text-ink/60">
+                  <span className="block font-body text-[13px] text-ink/60">
                     {count > 1 ? `${count} × ` : ""}{food.portion}
                   </span>
-                  <span className="block font-body text-[11px] text-ink/45">
+                  <span className="block font-body text-[13px] text-ink/45">
                     {food.calories * count} cal · {food.proteinG * count}p · {food.carbsG * count}c · {food.fatG * count}f
                   </span>
                 </span>
@@ -354,7 +354,7 @@ export function PlateBuilder({
                 <span aria-hidden className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: ZONE_META[food.zone].color }} />
                 <span className="min-w-0">
                   <span className="block font-body text-sm text-ink">{food.name}</span>
-                  <span className="block font-body text-[10px] text-ink/45">{ZONE_META[food.zone].label} · {food.portion} · {food.calories} cal</span>
+                  <span className="block font-body text-[12px] text-ink/45">{ZONE_META[food.zone].label} · {food.portion} · {food.calories} cal</span>
                 </span>
               </button>
             ))}
@@ -376,7 +376,7 @@ export function PlateBuilder({
               <div className="flex items-center gap-2">
                 <span aria-hidden className="h-3 w-3 rounded-sm" style={{ backgroundColor: meta.color }} />
                 <span className="font-label text-xs uppercase tracking-wide text-ink">{meta.label}</span>
-                <span className="font-body text-[11px] text-ink/45">{meta.aim}</span>
+                <span className="font-body text-[13px] text-ink/45">{meta.aim}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {foods.map((food) => (
@@ -390,7 +390,7 @@ export function PlateBuilder({
                     <FoodIcon name={food.icon} size={22} className="shrink-0" />
                     <span className="min-w-0">
                       <span className="block font-body text-sm text-ink">{food.name}</span>
-                      <span className="block font-body text-[10px] text-ink/45">{food.portion} · {food.calories} cal</span>
+                      <span className="block font-body text-[12px] text-ink/45">{food.portion} · {food.calories} cal</span>
                     </span>
                   </button>
                 ))}
@@ -403,7 +403,7 @@ export function PlateBuilder({
       {logState === "done" ? (
         <p role="status" className="flex items-center justify-between gap-3 rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">
           Added to today&apos;s food log.
-          <Link href="/client" className="font-label text-[10px] uppercase tracking-wide underline underline-offset-4">
+          <Link href="/client" className="font-label text-[12px] uppercase tracking-wide underline underline-offset-4">
             View today →
           </Link>
         </p>
@@ -417,7 +417,7 @@ export function PlateBuilder({
       {/* Save the plate as a reusable meal */}
       {hasFood ? (
         <div className="flex flex-col gap-2 border-t border-hairline pt-3">
-          <p className="font-label text-[11px] uppercase tracking-wide text-ink/50">Save as a meal</p>
+          <p className="font-label text-[13px] uppercase tracking-wide text-ink/50">Save as a meal</p>
           <div className="flex items-end gap-2">
             <input
               value={mealName}

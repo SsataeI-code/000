@@ -49,7 +49,7 @@ export default async function ClientLayout({ children }: { children: React.React
           {hasCoachPowers(user.role) ? (
             <Link
               href="/coach"
-              className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+              className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
             >
               Coach view
             </Link>

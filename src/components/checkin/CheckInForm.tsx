@@ -51,7 +51,7 @@ export function CheckInForm({ existing }: { existing: CheckIn | null }) {
         <div className="flex flex-wrap gap-2">
           {ENERGY.map((e) => (
             <button key={e.v} type="button" onClick={() => setEnergy((c) => (c === e.v ? null : e.v))} aria-pressed={energy === e.v}
-              className={`min-h-tap rounded-full border px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide transition-transform active:scale-95 ${
+              className={`min-h-tap rounded-full border px-3.5 py-1.5 font-label text-[13px] font-600 uppercase tracking-wide transition-transform active:scale-95 ${
                 energy === e.v ? "border-transparent bg-grad-red text-white shadow-glow" : "border-hairline bg-surface-input text-ink/70 hover:border-red"
               }`}>
               {e.label}

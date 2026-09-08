@@ -105,7 +105,7 @@ export function Journal({ entries, canEdit, userId }: { entries: JournalEntryVie
                 type="button"
                 onClick={() => setMood((cur) => (cur === m.v ? null : m.v))}
                 aria-pressed={mood === m.v}
-                className={`min-h-tap rounded-full border px-3.5 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide transition-transform active:scale-95 ${
+                className={`min-h-tap rounded-full border px-3.5 py-1.5 font-label text-[13px] font-600 uppercase tracking-wide transition-transform active:scale-95 ${
                   mood === m.v ? "border-transparent bg-grad-red text-white shadow-glow" : "border-hairline bg-surface-input text-ink/70 hover:border-red"
                 }`}
               >
@@ -155,11 +155,11 @@ export function Journal({ entries, canEdit, userId }: { entries: JournalEntryVie
               ) : null}
               <div className="flex flex-col gap-1.5 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-label text-[11px] uppercase tracking-wide text-ink/50">{fmt(e.entry_date)}</span>
+                  <span className="font-label text-[13px] uppercase tracking-wide text-ink/50">{fmt(e.entry_date)}</span>
                   <span className="flex items-center gap-3">
-                    {e.mood ? <span className="font-label text-[11px] uppercase tracking-wide text-red">{MOODS.find((m) => m.v === e.mood)?.label}</span> : null}
+                    {e.mood ? <span className="font-label text-[13px] uppercase tracking-wide text-red">{MOODS.find((m) => m.v === e.mood)?.label}</span> : null}
                     {canEdit ? (
-                      <button type="button" onClick={() => remove(e.id)} disabled={busy} className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/40 underline underline-offset-4 hover:text-red disabled:opacity-50">
+                      <button type="button" onClick={() => remove(e.id)} disabled={busy} className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/40 underline underline-offset-4 hover:text-red disabled:opacity-50">
                         Delete
                       </button>
                     ) : null}

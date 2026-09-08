@@ -28,7 +28,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
               <div key={b.exercise} className="rounded-lg border border-hairline bg-surface p-3">
                 <p className="truncate font-body text-sm text-ink">{b.exercise}</p>
                 <p className="mt-1 font-display text-xl text-ink">{b.topWeightLb} lb</p>
-                <p className="font-body text-[11px] text-ink/50">
+                <p className="font-body text-[13px] text-ink/50">
                   best set · ~{b.bestE1rmLb} lb 1RM
                 </p>
               </div>
@@ -49,7 +49,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
               <thead>
                 <tr className="border-b border-hairline">
                   {["Date", "Exercise", "Weight", "Reps", "Sets", "e1RM", ""].map((h) => (
-                    <th key={h} className="px-3 py-2 font-label text-[10px] uppercase tracking-wide text-ink/50">{h}</th>
+                    <th key={h} className="px-3 py-2 font-label text-[12px] uppercase tracking-wide text-ink/50">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -61,7 +61,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
             </table>
           </div>
         )}
-        <p className="font-body text-[11px] text-ink/40">
+        <p className="font-body text-[13px] text-ink/40">
           e1RM is an estimated one-rep max (Epley) from the weight and reps you logged.
         </p>
       </section>
@@ -87,7 +87,7 @@ function LiftRow({ entry, readOnly }: { entry: LiftEntry; readOnly: boolean }) {
             type="button"
             onClick={() => start(async () => { await deleteLiftAction(entry.id); router.refresh(); })}
             aria-label={`Delete ${entry.exercise} on ${entry.log_date}`}
-            className="min-h-tap px-2 font-label text-[10px] uppercase tracking-wide text-ink/40 hover:text-red"
+            className="min-h-tap px-2 font-label text-[12px] uppercase tracking-wide text-ink/40 hover:text-red"
           >
             ✕
           </button>

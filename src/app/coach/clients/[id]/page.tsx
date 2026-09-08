@@ -275,7 +275,7 @@ export default async function ClientDeepDive({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={foodPicUrls[l.id]} alt={l.name} className="h-32 w-full object-cover" />
                 ) : (
-                  <div className="grid h-32 w-full place-items-center bg-surface-muted font-label text-[10px] uppercase tracking-wide text-ink/40">No preview</div>
+                  <div className="grid h-32 w-full place-items-center bg-surface-muted font-label text-[12px] uppercase tracking-wide text-ink/40">No preview</div>
                 )}
                 <div className="p-2.5">
                   <p className="truncate font-body text-sm text-ink">{l.name}</p>
@@ -295,7 +295,7 @@ export default async function ClientDeepDive({
             {checkins.map((c) => (
               <li key={c.id} className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-label text-[11px] uppercase tracking-wide text-ink/50">Week of {c.week_start}</span>
+                  <span className="font-label text-[13px] uppercase tracking-wide text-ink/50">Week of {c.week_start}</span>
                   <span className="shrink-0 font-body text-xs text-ink/50">
                     {c.weight_kg != null ? `${kgToLb(c.weight_kg)} lb` : ""}
                     {c.energy ? ` · energy ${c.energy}/5` : ""}
@@ -354,7 +354,7 @@ function Vital({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-hairline bg-surface shadow-card p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
+      <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">{label}</p>
     </div>
   );
 }

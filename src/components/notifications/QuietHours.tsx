@@ -81,7 +81,7 @@ export function QuietHours({
       {on ? (
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1">
-            <span className="font-label text-[11px] uppercase tracking-wide text-ink/60">From</span>
+            <span className="font-label text-[13px] uppercase tracking-wide text-ink/60">From</span>
             <input
               type="time"
               value={from}
@@ -90,7 +90,7 @@ export function QuietHours({
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-label text-[11px] uppercase tracking-wide text-ink/60">To</span>
+            <span className="font-label text-[13px] uppercase tracking-wide text-ink/60">To</span>
             <input
               type="time"
               value={to}

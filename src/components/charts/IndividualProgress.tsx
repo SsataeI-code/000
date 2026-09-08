@@ -131,7 +131,7 @@ export function IndividualProgress({
       <section className="rounded-lg border border-hairline bg-surface p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">Weight</p>
+            <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">Weight</p>
             <p className="mt-1 font-display text-5xl leading-none text-ink">{latestWeight != null ? `${Math.round(latestWeight)}` : "—"}<span className="ml-1 text-2xl text-ink/50">lb</span></p>
             <p className="mt-1.5 font-body text-sm text-ink/70">
               {weightChange == null
@@ -145,7 +145,7 @@ export function IndividualProgress({
             ) : null}
           </div>
           {paceLabel ? (
-            <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide ${paceGood ? "bg-success/15 text-success" : "bg-red/15 text-red"}`}>
+            <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[12px] font-600 uppercase tracking-wide ${paceGood ? "bg-success/15 text-success" : "bg-red/15 text-red"}`}>
               {paceLabel}
             </span>
           ) : null}
@@ -161,7 +161,7 @@ export function IndividualProgress({
             formatValue={(nn) => `${Math.round(nn)} lb`}
           />
           {weightEntries.length > 1 ? (
-            <p className="mt-1 text-right font-body text-[10px] text-ink/40">{weightEntries.length} weigh-ins · last {days} days</p>
+            <p className="mt-1 text-right font-body text-[12px] text-ink/40">{weightEntries.length} weigh-ins · last {days} days</p>
           ) : null}
         </div>
       </section>
@@ -170,11 +170,11 @@ export function IndividualProgress({
       {adherence != null ? (
         <section className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-grad-elevated p-5 text-white shadow-card">
           <div>
-            <p className="font-label text-[10px] uppercase tracking-widest text-white/60">Adherence</p>
+            <p className="font-label text-[12px] uppercase tracking-widest text-white/60">Adherence</p>
             <p className="mt-1 font-display text-5xl leading-none toon-shadow">{adherence}<span className="ml-1 text-2xl text-white/50">/100</span></p>
             <p className="mt-1.5 font-body text-sm text-white/75">Habits, food logging &amp; protein — combined.</p>
           </div>
-          <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[10px] font-600 uppercase tracking-wide ${
+          <span className={`shrink-0 rounded-full px-3 py-1.5 font-label text-[12px] font-600 uppercase tracking-wide ${
             band.tone === "success" ? "bg-success/20 text-success" : band.tone === "risk" ? "bg-red/20 text-red-ink" : "bg-[#ffb03a]/15 text-[#ffb03a]"
           }`}>{band.label}</span>
         </section>
@@ -229,8 +229,8 @@ function Stat({ label, value, sub, href }: { label: string; value: string; sub?:
   const inner = (
     <>
       <p className="font-display text-3xl leading-none text-ink">{value}</p>
-      <p className="mt-1.5 font-label text-[10px] uppercase tracking-wide text-ink/55">{label}</p>
-      {sub ? <p className="mt-0.5 font-body text-[11px] text-ink/40">{sub}</p> : null}
+      <p className="mt-1.5 font-label text-[12px] uppercase tracking-wide text-ink/55">{label}</p>
+      {sub ? <p className="mt-0.5 font-body text-[13px] text-ink/40">{sub}</p> : null}
     </>
   );
   const cls = "rounded-xl border border-hairline bg-surface p-3.5";

@@ -88,7 +88,7 @@ function ImageRow({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={current} alt={`${label} (current)`} className="h-full w-full object-contain" />
         ) : (
-          <span className="font-label text-[9px] uppercase tracking-wide text-ink/40">Default</span>
+          <span className="font-label text-[11px] uppercase tracking-wide text-ink/40">Default</span>
         )}
       </div>
 
@@ -111,7 +111,7 @@ function ImageRow({
             type="button"
             onClick={onReset}
             disabled={busy}
-            className="min-h-tap font-label text-[10px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50"
+            className="min-h-tap font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50"
           >
             Reset to default
           </button>

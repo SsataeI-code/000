@@ -38,10 +38,10 @@ export function GoalPicker({ goal }: { goal: Goal }) {
     <section aria-label="Your goal" className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-5 shadow-card">
       <div className="flex items-baseline justify-between gap-3">
         <div>
-          <p className="font-label text-[10px] uppercase tracking-widest text-ink/50">Your goal</p>
+          <p className="font-label text-[12px] uppercase tracking-widest text-ink/50">Your goal</p>
           <p className="mt-0.5 font-display text-2xl uppercase text-ink">{current?.label ?? selected}</p>
         </div>
-        {pending ? <span className="font-label text-[10px] uppercase tracking-wide text-ink/50">Saving…</span> : null}
+        {pending ? <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">Saving…</span> : null}
       </div>
       <p className="font-body text-sm text-ink/60">{current?.help} Tap to change — your calories &amp; macros update and your coach is told.</p>
       {error ? <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}

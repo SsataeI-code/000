@@ -353,7 +353,7 @@ export default async function TodayPage() {
             <span className="block font-display text-xl uppercase toon-shadow">Weekly check-in</span>
             <span className="block font-body text-sm text-white/70">A quick pulse for your coach — weight, energy, a win, one focus.</span>
           </span>
-          <span aria-hidden className="shrink-0 rounded-full bg-grad-red px-3 py-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow">Start →</span>
+          <span aria-hidden className="shrink-0 rounded-full bg-grad-red px-3 py-1.5 font-label text-[13px] font-600 uppercase tracking-wide text-white shadow-glow">Start →</span>
         </Link>
       ) : null}
 
@@ -361,7 +361,7 @@ export default async function TodayPage() {
         <form action={recalcTargetsAction} className="flex flex-col gap-2 rounded-2xl border border-[#ffb03a]/50 bg-grad-elevated p-5 text-white shadow-card">
           <p className="font-display text-xl uppercase toon-shadow">Your weight&apos;s been flat ~{plateau.weeks} weeks</p>
           <p className="font-body text-sm text-white/80">That&apos;s normal — it just means it&apos;s time to refresh your targets so progress keeps coming.</p>
-          <button type="submit" className="mt-1 min-h-tap self-start rounded-full bg-grad-red px-4 py-2 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow">
+          <button type="submit" className="mt-1 min-h-tap self-start rounded-full bg-grad-red px-4 py-2 font-label text-[13px] font-600 uppercase tracking-wide text-white shadow-glow">
             Recalculate my targets
           </button>
         </form>

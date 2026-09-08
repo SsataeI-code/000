@@ -100,8 +100,8 @@ function MiniStat({ label, value, sub }: { label: string; value: string; sub?: s
   return (
     <div className="rounded-lg border border-hairline bg-surface-muted p-3 text-center">
       <p className="font-display text-2xl text-ink">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wide text-ink/50">{label}</p>
-      {sub ? <p className="font-body text-[10px] text-ink/40">{sub}</p> : null}
+      <p className="font-label text-[12px] uppercase tracking-wide text-ink/50">{label}</p>
+      {sub ? <p className="font-body text-[12px] text-ink/40">{sub}</p> : null}
     </div>
   );
 }

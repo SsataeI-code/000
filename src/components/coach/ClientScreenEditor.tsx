@@ -71,7 +71,7 @@ export function ClientScreenEditor({ initial }: { initial: ClientSectionPref[] }
                 {def ? <p className="font-body text-xs text-ink/50">{def.description}</p> : null}
               </div>
 
-              <label className="flex shrink-0 cursor-pointer items-center gap-2 font-label text-[10px] uppercase tracking-wide text-ink/60">
+              <label className="flex shrink-0 cursor-pointer items-center gap-2 font-label text-[12px] uppercase tracking-wide text-ink/60">
                 <input
                   type="checkbox"
                   checked={s.visible}

@@ -104,7 +104,7 @@ function HabitTip() {
       <button
         type="button"
         onClick={dismiss}
-        className="min-h-tap shrink-0 font-label text-[10px] uppercase tracking-wide text-white/70 underline underline-offset-4 hover:text-white"
+        className="min-h-tap shrink-0 font-label text-[12px] uppercase tracking-wide text-white/70 underline underline-offset-4 hover:text-white"
       >
         Got it
       </button>
@@ -192,12 +192,12 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
   const status = (
     <span className="flex shrink-0 items-center gap-2">
       {celebrate ? (
-        <span className="animate-red-pulse font-label text-[11px] font-600 uppercase tracking-wide text-red">+10 XP</span>
+        <span className="animate-red-pulse font-label text-[13px] font-600 uppercase tracking-wide text-red">+10 XP</span>
       ) : null}
       {item.frozen && !celebrate ? (
         <span
           title="Streak freeze: a missed day is protecting your chain."
-          className="inline-flex items-center gap-1 font-label text-[11px] uppercase tracking-wide text-[#1f6d8a]"
+          className="inline-flex items-center gap-1 font-label text-[13px] uppercase tracking-wide text-[#1f6d8a]"
         >
           <span className="h-3.5 w-3.5"><IconShield /></span>
           saved
@@ -245,7 +245,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
                 onClick={() => logValue(item.target as number)}
                 disabled={pending}
                 aria-label={`Log ${item.name} — target met`}
-                className="min-h-tap bg-success px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-white disabled:opacity-50"
+                className="min-h-tap bg-success px-2.5 py-1 font-label text-[12px] uppercase tracking-wide text-white disabled:opacity-50"
               >
                 Hit it
               </button>
@@ -254,7 +254,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
               type="button"
               onClick={() => logValue(Number(value) || 0)}
               disabled={pending}
-              className="min-h-tap bg-elevated px-2.5 py-1 font-label text-[10px] uppercase tracking-wide text-white disabled:opacity-50"
+              className="min-h-tap bg-elevated px-2.5 py-1 font-label text-[12px] uppercase tracking-wide text-white disabled:opacity-50"
             >
               Log
             </button>

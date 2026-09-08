@@ -443,7 +443,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
       <details className="rounded-lg border border-hairline bg-surface">
         <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-3 py-2.5">
           <span className="font-label text-xs uppercase tracking-wide text-ink/70">Electrolytes &amp; micros (optional)</span>
-          <span className="font-label text-[10px] uppercase tracking-wide text-ink/40">mg · tap to add</span>
+          <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">mg · tap to add</span>
         </summary>
         <div className="grid grid-cols-2 gap-3 px-3 pb-1">
           {MICRO_INPUTS.map((mi) => (
@@ -461,7 +461,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
             </label>
           ))}
         </div>
-        <p className="px-3 py-3 font-body text-[11px] text-ink/50">
+        <p className="px-3 py-3 font-body text-[13px] text-ink/50">
           Enter what the label lists for this serving. Perfect for electrolyte drinks and supplements the scanner can&apos;t find.
         </p>
       </details>
@@ -481,7 +481,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
 
       <div className="relative">
         {justLogged ? (
-          <span aria-hidden className="animate-xp-burst pointer-events-none absolute -top-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad-success px-2.5 py-0.5 font-label text-[11px] font-600 uppercase tracking-wide text-white shadow-glow-success">
+          <span aria-hidden className="animate-xp-burst pointer-events-none absolute -top-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-grad-success px-2.5 py-0.5 font-label text-[13px] font-600 uppercase tracking-wide text-white shadow-glow-success">
             Logged +15 XP
           </span>
         ) : null}

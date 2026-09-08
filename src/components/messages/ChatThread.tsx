@@ -162,7 +162,7 @@ export function ChatThread({
             type="button"
             onClick={draft}
             disabled={drafting}
-            className="min-h-tap self-start border border-ink px-3 py-1.5 font-label text-[11px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+            className="min-h-tap self-start border border-ink px-3 py-1.5 font-label text-[13px] uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
           >
             {drafting ? "Drafting…" : body.trim() ? "Redraft with AI" : "Draft with AI"}
           </button>
@@ -180,7 +180,7 @@ function Bubble({ m, mine, viewerIsCoach, coachName }: { m: Message; mine: boole
   return (
     <li className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
       {!mine ? (
-        <span className="mb-0.5 font-label text-[10px] uppercase tracking-wide text-ink/45">
+        <span className="mb-0.5 font-label text-[12px] uppercase tracking-wide text-ink/45">
           {from}{isNudge ? " · from the app" : ""}
         </span>
       ) : null}
@@ -195,7 +195,7 @@ function Bubble({ m, mine, viewerIsCoach, coachName }: { m: Message; mine: boole
       >
         <p className="whitespace-pre-wrap break-words">{m.body}</p>
       </div>
-      <span className="mt-0.5 font-body text-[10px] text-ink/40">{timeLabel(m.created_at)}</span>
+      <span className="mt-0.5 font-body text-[12px] text-ink/40">{timeLabel(m.created_at)}</span>
     </li>
   );
 }
