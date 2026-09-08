@@ -25,7 +25,14 @@ export function LevelBar({ game }: { game: ViewerGame }) {
       {/* XP bar + label */}
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate font-label text-[10px] uppercase tracking-wide text-white/85">{state.levelName}</span>
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate font-label text-[10px] uppercase tracking-wide text-white/85">{state.levelName}</span>
+            {game.topClient ? (
+              <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/20 px-1.5 font-label text-[9px] font-600 uppercase tracking-wide text-[#ffb03a]" title="You're the #1 client by level">
+                ★ #1
+              </span>
+            ) : null}
+          </span>
           <span className="inline-flex shrink-0 items-center gap-1 font-label text-[9px] uppercase tracking-wide text-white/55">
             <span className="h-2.5 w-2.5 text-[#ffb03a]"><IconBolt /></span>
             {state.xp.toLocaleString()}

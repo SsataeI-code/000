@@ -69,6 +69,7 @@ export type ClientProfile = {
   strictness: string;
   diet_pattern: string;
   food_avoid: string;
+  is_top_client: boolean;
   created_at: string;
   updated_at: string;
 };

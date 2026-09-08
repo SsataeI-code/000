@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isoDate, addDays } from "@/lib/habits/streaks";
+import { isoDate, addDays, longestStreak } from "@/lib/habits/streaks";
+import { computeXp, levelForXp } from "@/lib/habits/game";
+import { topClientIds, type RankEntry } from "@/lib/coach/top-client";
 import { computeAttention } from "@/lib/coach/attention";
 import { classifySlip, draftNudge } from "@/lib/coach/slip";
 import { decideEngagement, type EngagementState } from "@/lib/engagement/decide";
@@ -53,7 +55,7 @@ export async function runEngagementSweep(): Promise<SweepReport> {
   const [cprofiles, food, habitL, water, habits, body, states, links, ownerRow] = await Promise.all([
     supabase.from("client_profiles").select("id,goal").in("id", ids),
     supabase.from("food_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
-    supabase.from("habit_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
+    supabase.from("habit_logs").select("client_id,habit_id,log_date,completed").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("water_logs").select("client_id,log_date").in("client_id", ids).order("log_date", { ascending: false }),
     supabase.from("habits").select("client_id").in("client_id", ids).eq("active", true),
     supabase.from("body_measurements").select("client_id,log_date,weight_kg").in("client_id", ids).gte("log_date", since).not("weight_kg", "is", null).order("log_date", { ascending: true }),
@@ -188,6 +190,45 @@ export async function runEngagementSweep(): Promise<SweepReport> {
     } catch {
       // Never let one client's failure abort the sweep.
     }
+  }
+
+  // ---- #1 client by level (owner: the top client gets it as part of their level).
+  // Level lives in TS, so we compute each client's XP → level here (service role
+  // reads everyone), pick the #1 per coach, and stamp the flag the client reads.
+  // Best-effort — never abort the sweep. Exact for a normal roster.
+  try {
+    const doneByClientHabit = new Map<string, Map<string, Set<string>>>();
+    for (const l of (habitL.data ?? []) as { client_id: string; habit_id: string; log_date: string; completed: boolean }[]) {
+      if (!l.completed) continue;
+      let byHabit = doneByClientHabit.get(l.client_id);
+      if (!byHabit) { byHabit = new Map(); doneByClientHabit.set(l.client_id, byHabit); }
+      let set = byHabit.get(l.habit_id);
+      if (!set) { set = new Set(); byHabit.set(l.habit_id, set); }
+      set.add(l.log_date);
+    }
+    const foodCount = new Map<string, number>();
+    for (const r of food.data ?? []) foodCount.set(r.client_id, (foodCount.get(r.client_id) ?? 0) + 1);
+    const hydrationDays = new Map<string, Set<string>>();
+    for (const r of water.data ?? []) {
+      let s = hydrationDays.get(r.client_id);
+      if (!s) { s = new Set(); hydrationDays.set(r.client_id, s); }
+      s.add(r.log_date);
+    }
+    const entries: RankEntry[] = ids.map((id) => {
+      const byHabit = doneByClientHabit.get(id);
+      let totalCompletions = 0;
+      const perHabitLongest: number[] = [];
+      if (byHabit) for (const set of byHabit.values()) { totalCompletions += set.size; perHabitLongest.push(longestStreak(set)); }
+      const xp = computeXp({ totalCompletions, perHabitLongest, foodLogs: foodCount.get(id) ?? 0, hydrationDays: hydrationDays.get(id)?.size ?? 0 });
+      return { clientId: id, coachId: coachByClient.get(id) ?? ownerId, level: levelForXp(xp).level, xp };
+    });
+    const top = topClientIds(entries);
+    const topArr = ids.filter((id) => top.has(id));
+    const nonTop = ids.filter((id) => !top.has(id));
+    if (topArr.length) await supabase.from("client_profiles").update({ is_top_client: true }).in("id", topArr);
+    if (nonTop.length) await supabase.from("client_profiles").update({ is_top_client: false }).in("id", nonTop);
+  } catch {
+    // Ranking is best-effort — a failure here never affects the rest of the sweep.
   }
 
   // Coach weekly digest (§12) — once per coach, on the report day. Deduped by a

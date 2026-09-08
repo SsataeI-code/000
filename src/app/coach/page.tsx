@@ -12,6 +12,7 @@ import { resolveRange } from "@/lib/charts/range";
 import { RangeToggle } from "@/components/charts/RangeToggle";
 import { RosterTrends, type WeightSplit } from "@/components/charts/RosterTrends";
 import { NudgeButton } from "@/components/coach/NudgeButton";
+import { topClientIds } from "@/lib/coach/top-client";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,8 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
 
   const needsAttention = roster.filter((c) => c.flags.length > 0);
   const steady = roster.filter((c) => c.flags.length === 0);
+  // The roster's #1 by level (live — matches the client's crown after the sweep).
+  const topSet = topClientIds(roster.map((c) => ({ clientId: c.id, coachId: "roster", level: c.habitLevel, xp: c.habitXp })));
   const tiles = visibleTiles(layout);
 
   // Roster-trends is heavy, so only fetch its series when the tile is on.
@@ -106,7 +109,10 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                 <li key={c.id}>
                   <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
                     <span className="min-w-0">
-                      <span className="block truncate font-body text-base text-ink">{c.name}</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="truncate font-body text-base text-ink">{c.name}</span>
+                        {topSet.has(c.id) ? <TopClientBadge /> : null}
+                      </span>
                       <span className="block font-body text-xs text-ink/50">
                         {GOAL_LABEL[c.goal]} · Lv{c.habitLevel} {c.habitLevelName}
                         {c.habitCurrentStreak > 0 ? ` · ${c.habitCurrentStreak}d streak` : ""} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
@@ -131,7 +137,10 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
               {steady.map((c) => (
                 <li key={c.id}>
                   <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between px-4 py-3 hover:bg-surface-muted">
-                    <span className="font-body text-base text-ink">{c.name}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-body text-base text-ink">{c.name}</span>
+                      {topSet.has(c.id) ? <TopClientBadge /> : null}
+                    </span>
                     <span className="font-body text-xs text-ink/50">
                       Lv{c.habitLevel} {c.habitLevelName} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                     </span>
@@ -196,6 +205,18 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
 
       {tiles.map(renderTile)}
     </div>
+  );
+}
+
+/** Gold "#1" mark for the roster's top client by level. */
+function TopClientBadge() {
+  return (
+    <span
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/15 px-1.5 py-0.5 font-label text-[9px] font-600 uppercase tracking-wide text-[#ffb03a]"
+      title="#1 client by level"
+    >
+      ★ #1
+    </span>
   );
 }
 

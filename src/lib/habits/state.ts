@@ -2,12 +2,15 @@ import { getHabits, getHabitLogs, completedDatesByHabit } from "@/lib/habits/dat
 import { currentStreak, isDueToday, isoDate, FREEZE_BUDGET } from "@/lib/habits/streaks";
 import { habitGameStats, computeGameState, type GameState } from "@/lib/habits/game";
 import { getLoggingXpCounts } from "@/lib/habits/logging-xp";
+import { getClientProfile } from "@/lib/nutrition/data";
 
 export interface ViewerGame {
   state: GameState;
   currentStreak: number;
   todayDone: number;
   todayDue: number;
+  /** This viewer is currently #1 by level for their coach (set by the daily sweep). */
+  topClient: boolean;
 }
 
 /**
@@ -20,10 +23,11 @@ export async function getViewerGame(clientId: string): Promise<ViewerGame | null
   try {
     const now = new Date();
     const todayStr = isoDate(now);
-    const [habits, habitLogs, logging] = await Promise.all([
+    const [habits, habitLogs, logging, profile] = await Promise.all([
       getHabits(clientId),
       getHabitLogs(clientId),
       getLoggingXpCounts(clientId, todayStr),
+      getClientProfile(clientId),
     ]);
     // Show the level bar once there's any progress — habits OR logging.
     if (habits.length === 0 && logging.foodLogs === 0 && logging.hydrationDays === 0) return null;
@@ -53,7 +57,7 @@ export async function getViewerGame(clientId: string): Promise<ViewerGame | null
       hydratedToday: logging.hydratedToday,
     });
     const state = computeGameState(stats);
-    return { state, currentStreak: bestCurrentStreak, todayDone, todayDue };
+    return { state, currentStreak: bestCurrentStreak, todayDone, todayDue, topClient: profile?.is_top_client ?? false };
   } catch {
     return null;
   }
