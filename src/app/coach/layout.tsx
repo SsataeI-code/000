@@ -4,7 +4,7 @@ import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
 import { BrandLogo } from "@/components/BrandLogo";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getSessionUser } from "@/lib/auth/session";
-import { canAccessArea } from "@/lib/auth/roles";
+import { canAccessArea, hasCoachPowers } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer } from "@/lib/content/data";
 import { IconAttention, IconMessages, IconRoster, IconYou } from "@/components/icons";
@@ -31,7 +31,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
     <div className="mx-auto min-h-dvh max-w-[960px] pb-24 md:pb-0">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/90 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
-          <BrandLogo size={22} />
+          <BrandLogo size={22} editable={hasCoachPowers(user.role)} />
           <span className="font-label text-sm uppercase tracking-wide text-ink/70">
             {t("coach.dashboard.title")}
           </span>

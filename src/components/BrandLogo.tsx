@@ -1,12 +1,16 @@
 import { BrandMark } from "@/components/BrandMark";
+import { EditableBrandLogo } from "@/components/EditableBrandLogo";
 import { getImageServer } from "@/lib/content/data";
 
 /**
- * Server wrapper that resolves the owner's custom logo (CMS editable images, §4)
- * and renders the brand mark — the uploaded image if set, else the built-in
- * default. Drop-in replacement for <BrandMark> in server components.
+ * Server wrapper that resolves the custom logo (CMS editable images, §4) and
+ * renders the brand mark — the uploaded image if set, else the built-in default.
+ * When `editable` (a coach/owner viewing), the mark becomes click-to-change in
+ * place, so the logo can be swapped with a single tap right in the header.
  */
-export async function BrandLogo({ size = 28 }: { size?: number }) {
+export async function BrandLogo({ size = 28, editable = false }: { size?: number; editable?: boolean }) {
   const image = await getImageServer();
-  return <BrandMark size={size} src={image("brand.logo")} />;
+  const src = image("brand.logo");
+  if (editable) return <EditableBrandLogo src={src} size={size} editable />;
+  return <BrandMark size={size} src={src} />;
 }

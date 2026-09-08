@@ -40,7 +40,7 @@ export default async function ClientLayout({ children }: { children: React.React
     <div className="mx-auto min-h-dvh max-w-[560px] pb-24">
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
-          <BrandLogo size={22} />
+          <BrandLogo size={22} editable={hasCoachPowers(user.role)} />
           <span className="font-label text-sm uppercase tracking-wide text-ink/70">
             {t("brand.name")}
           </span>

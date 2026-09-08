@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { defaultCopy, type CopyKey } from "@/lib/content/copy";
 import { isImageKey, imageRowKey } from "@/lib/content/images";
+import { hasCoachPowers } from "@/lib/auth/roles";
 
 export interface ContentActionState {
   ok?: boolean;
@@ -19,7 +20,7 @@ export interface ContentActionState {
 export async function saveImageOverrideAction(key: string, url: string): Promise<ContentActionState> {
   const user = await getSessionUser();
   if (!user) return { error: "Please sign in again." };
-  if (user.role !== "owner") return { error: "Only the owner can edit images." };
+  if (!hasCoachPowers(user.role)) return { error: "Only a coach can edit images." };
   if (!isImageKey(key)) return { error: "Unknown image." };
   const value = String(url ?? "").trim();
   if (!/^https?:\/\//i.test(value)) return { error: "Couldn't read that image URL." };
@@ -38,7 +39,7 @@ export async function saveImageOverrideAction(key: string, url: string): Promise
 export async function resetImageOverrideAction(key: string): Promise<ContentActionState> {
   const user = await getSessionUser();
   if (!user) return { error: "Please sign in again." };
-  if (user.role !== "owner") return { error: "Only the owner can edit images." };
+  if (!hasCoachPowers(user.role)) return { error: "Only a coach can edit images." };
   if (!isImageKey(key)) return { error: "Unknown image." };
 
   const supabase = await createClient();
