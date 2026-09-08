@@ -141,7 +141,7 @@ export function IndividualProgress({
                   }`}
             </p>
             {goal && goal !== "habits_only" ? (
-              <p className="mt-0.5 font-body text-xs text-ink/50">Goal: {GOAL_VERB[goal] ?? goal}</p>
+              <p className="mt-0.5 font-body text-sm text-ink/50">Goal: {GOAL_VERB[goal] ?? goal}</p>
             ) : null}
           </div>
           {paceLabel ? (
@@ -218,7 +218,7 @@ function Card({ title, note, children }: { title: string; note?: string; childre
     <section className="rounded-xl border border-hairline bg-surface p-5">
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <p className="font-label text-sm uppercase tracking-wide text-ink">{title}</p>
-        {note ? <p className="font-body text-xs text-ink/55">{note}</p> : null}
+        {note ? <p className="font-body text-sm text-ink/55">{note}</p> : null}
       </div>
       {children}
     </section>

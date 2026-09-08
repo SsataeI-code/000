@@ -27,7 +27,7 @@ export function FoodPreferences({ pattern, avoid }: { pattern: string; avoid: st
       ) : null}
       <form action={action} className="flex flex-col gap-3">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs text-ink/80">Diet</span>
+          <span className="text-sm text-ink/80">Diet</span>
           <select name="diet_pattern" defaultValue={pattern} className={field}>
             {DIET_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -37,7 +37,7 @@ export function FoodPreferences({ pattern, avoid }: { pattern: string; avoid: st
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs text-ink/80">Avoid (optional)</span>
+          <span className="text-sm text-ink/80">Avoid (optional)</span>
           <input name="food_avoid" defaultValue={avoid} placeholder="e.g. shellfish, peanuts, cilantro" className={field} />
         </label>
         <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Save preferences"}</Button>

@@ -83,7 +83,7 @@ export function WeeklyWeighIn({
               ? "Time for your weekly weigh-in — log your morning weight."
               : "Log today's morning weight."}
           </p>
-          <p className="mt-0.5 font-body text-xs text-ink/50">
+          <p className="mt-0.5 font-body text-sm text-ink/50">
             Best first thing: after the bathroom, before eating or drinking.
             {latestKg != null ? ` Last: ${showWeight(latestKg)}${changeLabel ? ` · ${changeLabel} this week` : ""}.` : ""}
           </p>
@@ -110,7 +110,7 @@ export function WeeklyWeighIn({
         <button
           type="submit"
           disabled={pending}
-          className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {pending ? "Saving…" : "Log"}
         </button>
@@ -145,7 +145,7 @@ function UnitToggle({ unit, onChange }: { unit: "lb" | "kg"; onChange: (u: "lb" 
           type="button"
           onClick={() => onChange(u)}
           aria-pressed={unit === u}
-          className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}
+          className={`min-h-tap px-3 font-label text-sm uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}
         >
           {u}
         </button>

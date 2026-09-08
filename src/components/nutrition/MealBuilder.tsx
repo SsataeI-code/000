@@ -114,12 +114,12 @@ export function MealBuilder({
                 onChange={(e) => setGrams(i, Number(e.target.value))}
                 className="min-h-tap w-20 rounded-lg border border-hairline bg-surface px-2 py-1 text-right font-body text-sm"
               />
-              <span className="font-body text-xs text-ink/50">g</span>
+              <span className="font-body text-sm text-ink/50">g</span>
               <button
                 type="button"
                 aria-label={`Remove ${it.name}`}
                 onClick={() => remove(i)}
-                className="min-h-tap min-w-tap font-label text-xs uppercase tracking-wide text-ink/40 hover:text-red"
+                className="min-h-tap min-w-tap font-label text-sm uppercase tracking-wide text-ink/40 hover:text-red"
               >
                 ✕
               </button>
@@ -131,7 +131,7 @@ export function MealBuilder({
       )}
 
       {items.length > 0 ? (
-        <p className="font-body text-xs text-ink/60">
+        <p className="font-body text-sm text-ink/60">
           ≈{Math.round(totals.calories)} cal · {Math.round(totals.protein)}g protein ·{" "}
           {Math.round(totals.carbs)}g carbs · {Math.round(totals.fat)}g fat
         </p>
@@ -146,7 +146,7 @@ export function MealBuilder({
         placeholder="Search foods…"
         autoComplete="off"
       />
-      {searching ? <p className="font-body text-xs text-ink/50">Searching…</p> : null}
+      {searching ? <p className="font-body text-sm text-ink/50">Searching…</p> : null}
       {results.length > 0 ? (
         <ul className="flex flex-col divide-y divide-hairline border border-hairline">
           {results.slice(0, 8).map((r, i) => (
@@ -157,7 +157,7 @@ export function MealBuilder({
                 className="flex w-full min-h-tap items-center justify-between px-3 py-2 text-left hover:bg-surface-muted"
               >
                 <span className="font-body text-sm text-ink">{r.name}</span>
-                <span className="font-body text-xs text-ink/40">
+                <span className="font-body text-sm text-ink/40">
                   {r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal/100g` : ""}
                 </span>
               </button>

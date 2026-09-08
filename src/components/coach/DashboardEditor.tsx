@@ -61,7 +61,7 @@ export function DashboardEditor({ initial }: { initial: DashboardTilePref[] }) {
 
               <div className="min-w-0 flex-1">
                 <p className={`font-body text-base ${t.visible ? "text-ink" : "text-ink/40"}`}>{def?.label ?? t.id}</p>
-                {def ? <p className="font-body text-xs text-ink/50">{def.description}</p> : null}
+                {def ? <p className="font-body text-sm text-ink/50">{def.description}</p> : null}
               </div>
 
               <label className="flex shrink-0 cursor-pointer items-center gap-2 font-label text-[12px] uppercase tracking-wide text-ink/60">

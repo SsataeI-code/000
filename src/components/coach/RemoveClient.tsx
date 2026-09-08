@@ -40,7 +40,7 @@ export function RemoveClient({
       <div className="flex flex-col gap-2">
         <a
           href={`/api/export/${clientId}`}
-          className="min-h-tap self-start rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+          className="min-h-tap self-start rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red"
         >
           Export all data (JSON)
         </a>
@@ -55,7 +55,7 @@ export function RemoveClient({
             <a
               key={t.table}
               href={`/api/export/${clientId}?format=csv&table=${t.table}`}
-              className="min-h-tap inline-flex items-center font-label text-xs uppercase tracking-wide text-ink/70 underline underline-offset-4 hover:text-red"
+              className="min-h-tap inline-flex items-center font-label text-sm uppercase tracking-wide text-ink/70 underline underline-offset-4 hover:text-red"
             >
               {t.label}
             </a>
@@ -72,7 +72,7 @@ export function RemoveClient({
           <button
             type="button"
             onClick={() => setConfirmArchive(true)}
-            className="min-h-tap self-start rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+            className="min-h-tap self-start rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red"
           >
             Archive client
           </button>
@@ -83,7 +83,7 @@ export function RemoveClient({
             <button
               type="button"
               onClick={() => setConfirmArchive(false)}
-              className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-ink"
+              className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-ink"
             >
               Cancel
             </button>
@@ -94,7 +94,7 @@ export function RemoveClient({
       {/* Permanent delete — irreversible */}
       {canDelete ? (
         <div className="mt-1 flex flex-col gap-2 border-t border-hairline pt-4">
-          <p className="font-label text-xs uppercase tracking-wide text-red-ink">Danger zone — permanent</p>
+          <p className="font-label text-sm uppercase tracking-wide text-red-ink">Danger zone — permanent</p>
           <p className="font-body text-sm text-ink/60">
             Permanently delete {clientName} and all their logs, habits, and messages. This cannot be undone.
           </p>
@@ -105,7 +105,7 @@ export function RemoveClient({
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="min-h-tap self-start rounded-lg border border-red bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-red-ink hover:bg-red hover:text-white"
+              className="min-h-tap self-start rounded-lg border border-red bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-red-ink hover:bg-red hover:text-white"
             >
               Delete permanently
             </button>
@@ -115,14 +115,14 @@ export function RemoveClient({
               <button
                 type="submit"
                 disabled={dPending}
-                className="min-h-tap bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+                className="min-h-tap bg-red px-5 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
               >
                 {dPending ? "Deleting…" : "Yes, delete forever"}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-ink"
+                className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-ink"
               >
                 Cancel
               </button>

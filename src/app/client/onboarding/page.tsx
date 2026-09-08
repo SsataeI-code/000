@@ -21,7 +21,7 @@ export default async function OnboardingPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Welcome — glad you&apos;re here</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Welcome — glad you&apos;re here</p>
         <h1 className="mt-1 text-4xl text-ink">Let&apos;s set up your day one</h1>
         <p className="mt-2 font-body text-ink/70">
           Just a few quick things, then your daily targets and starter habits are ready — so you can log

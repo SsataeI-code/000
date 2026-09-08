@@ -34,7 +34,7 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-4xl text-ink">Progress</h1>
-        <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>
@@ -45,9 +45,9 @@ export default async function BodyPage({ searchParams }: { searchParams: Promise
       >
         <span className="min-w-0">
           <span className="block font-body text-base text-ink">Lifts</span>
-          <span className="block font-body text-xs text-ink/50">Track your strength — log sets and watch your numbers climb</span>
+          <span className="block font-body text-sm text-ink/50">Track your strength — log sets and watch your numbers climb</span>
         </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
+        <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Open →</span>
       </Link>
 
       {/* Your graphs — weight, food logging, protein, consistency */}

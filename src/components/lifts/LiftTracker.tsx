@@ -22,7 +22,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
 
       {bests.length > 0 ? (
         <section className="flex flex-col gap-2">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Personal bests</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Personal bests</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {bests.map((b) => (
               <div key={b.exercise} className="rounded-lg border border-hairline bg-surface p-3">
@@ -38,7 +38,7 @@ export function LiftTracker({ entries, readOnly = false }: { entries: LiftEntry[
       ) : null}
 
       <section className="flex flex-col gap-2">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">History</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">History</p>
         {entries.length === 0 ? (
           <p className="rounded-lg border border-hairline bg-surface p-5 font-body text-sm text-ink/60">
             {readOnly ? "No lifts logged yet." : "No lifts yet — log your first set above to start tracking progress."}
@@ -75,7 +75,7 @@ function LiftRow({ entry, readOnly }: { entry: LiftEntry; readOnly: boolean }) {
   const est = e1rm(toLb(entry.weight, entry.unit), entry.reps);
   return (
     <tr className={`border-b border-hairline last:border-0 ${pending ? "opacity-50" : ""}`}>
-      <td className="px-3 py-2 font-body text-xs text-ink/60">{entry.log_date.slice(5)}</td>
+      <td className="px-3 py-2 font-body text-sm text-ink/60">{entry.log_date.slice(5)}</td>
       <td className="px-3 py-2 font-body text-sm text-ink">{entry.exercise}</td>
       <td className="px-3 py-2 font-body text-sm text-ink">{entry.weight} {entry.unit}</td>
       <td className="px-3 py-2 font-body text-sm text-ink/80">{entry.reps}</td>
@@ -115,7 +115,7 @@ function LiftForm({ knownExercises }: { knownExercises: string[] }) {
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
-      <p className="font-label text-xs uppercase tracking-wide text-ink">Log a set</p>
+      <p className="font-label text-sm uppercase tracking-wide text-ink">Log a set</p>
       {state.error ? (
         <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{state.error}</p>
       ) : null}
@@ -138,7 +138,7 @@ function LiftForm({ knownExercises }: { knownExercises: string[] }) {
                 type="button"
                 onClick={() => setUnit(u)}
                 aria-pressed={unit === u}
-                className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}
+                className={`min-h-tap px-3 font-label text-sm uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}
               >
                 {u}
               </button>
@@ -153,7 +153,7 @@ function LiftForm({ knownExercises }: { knownExercises: string[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-tap self-start bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+        className="min-h-tap self-start bg-red px-5 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
       >
         {pending ? "Saving…" : "Log set"}
       </button>

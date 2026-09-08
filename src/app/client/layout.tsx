@@ -41,7 +41,7 @@ export default async function ClientLayout({ children }: { children: React.React
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/95 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
           <BrandLogo size={22} />
-          <span className="font-label text-xs uppercase tracking-wide text-ink/70">
+          <span className="font-label text-sm uppercase tracking-wide text-ink/70">
             {t("brand.name")}
           </span>
         </span>

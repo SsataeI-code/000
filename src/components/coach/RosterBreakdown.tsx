@@ -138,7 +138,7 @@ function AdherenceBadge({ c }: { c: RosterClientBreakdown }) {
 function Metric({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className="font-label text-[11px] uppercase tracking-wide text-ink/40">{label}</span>
+      <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">{label}</span>
       <span className="font-body text-sm text-ink">{value}</span>
       {sub ? <span className="font-body text-[12px] text-ink/40">{sub}</span> : null}
     </span>

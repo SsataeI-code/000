@@ -246,14 +246,14 @@ export default async function TodayPage() {
                   const cal = macroRange(targets.calories);
                   const pro = macroRange(targets.protein_g);
                   return (
-                    <p className="font-body text-xs text-ink/50">
+                    <p className="font-body text-sm text-ink/50">
                       Ranges are fine — around {cal.low.toLocaleString()}–{cal.high.toLocaleString()} cal and {pro.low}–{pro.high}g protein.
                     </p>
                   );
                 })()
               : null}
             {strictness === "protein_cals" ? (
-              <p className="font-body text-xs text-ink/50">Focus on hitting protein and calories — carbs &amp; fat stay flexible.</p>
+              <p className="font-body text-sm text-ink/50">Focus on hitting protein and calories — carbs &amp; fat stay flexible.</p>
             ) : null}
           </div>
         );
@@ -268,9 +268,9 @@ export default async function TodayPage() {
           >
             <span className="min-w-0">
               <span className="block font-body text-base text-ink">Ask</span>
-              <span className="block font-body text-xs text-ink/50">Quick answers from your numbers — calories, protein, water, habits</span>
+              <span className="block font-body text-sm text-ink/50">Quick answers from your numbers — calories, protein, water, habits</span>
             </span>
-            <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Ask →</span>
+            <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Ask →</span>
           </Link>
         );
       case "food":
@@ -280,7 +280,7 @@ export default async function TodayPage() {
               <h2 className="text-2xl text-ink">{t("client.nav.food")}</h2>
               <Link
                 href="/client/food"
-                className="inline-flex min-h-tap items-center rounded-xl bg-grad-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white shadow-pop-red transition-transform active:translate-y-[3px] active:shadow-none"
+                className="inline-flex min-h-tap items-center rounded-xl bg-grad-red px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white shadow-pop-red transition-transform active:translate-y-[3px] active:shadow-none"
               >
                 Add food
               </Link>
@@ -309,7 +309,7 @@ export default async function TodayPage() {
                 <h2 className="text-2xl text-ink">Your meals</h2>
                 <Link
                   href="/client/meals"
-                  className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
+                  className="min-h-tap font-label text-sm uppercase tracking-wide text-red underline underline-offset-4"
                 >
                   Build a meal
                 </Link>
@@ -334,7 +334,7 @@ export default async function TodayPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">
           {t("client.today.title")}
         </p>
         <Greeting name={name} fallback={name ? `Hi, ${name}.` : t("client.today.greeting")} />

@@ -55,7 +55,7 @@ export function GoalPicker({ goal }: { goal: Goal }) {
               onClick={() => choose(g.value)}
               disabled={pending}
               aria-pressed={active}
-              className={`min-h-tap rounded-full border px-4 py-2 font-label text-xs font-600 uppercase tracking-wide transition-transform active:scale-95 disabled:opacity-60 ${
+              className={`min-h-tap rounded-full border px-4 py-2 font-label text-sm font-600 uppercase tracking-wide transition-transform active:scale-95 disabled:opacity-60 ${
                 active
                   ? "border-transparent bg-grad-red text-white shadow-glow"
                   : "border-hairline bg-surface-input text-ink hover:border-red"

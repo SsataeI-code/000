@@ -30,14 +30,14 @@ export default async function CoachThreadPage({ params }: { params: Promise<{ id
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Message</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Message</p>
           <h1 className="mt-1 text-4xl text-ink">{clientName}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <Link href={`/coach/clients/${id}`} className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href={`/coach/clients/${id}`} className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Profile
           </Link>
-          <Link href="/coach/messages" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/coach/messages" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             All
           </Link>
         </div>

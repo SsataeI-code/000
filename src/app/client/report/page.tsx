@@ -69,16 +69,16 @@ export default async function ClientReportPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Your week</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Your week</p>
           <h1 className="mt-1 text-4xl text-ink">Weekly recap</h1>
         </div>
-        <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>
 
       <section aria-label="Wins" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
-        <h2 className="font-label text-xs uppercase tracking-wide text-success">Wins</h2>
+        <h2 className="font-label text-sm uppercase tracking-wide text-success">Wins</h2>
         <ul className="flex flex-col gap-2">
           {recap.wins.map((w, i) => (
             <li key={i} className="flex items-start gap-2 font-body text-base text-ink">
@@ -90,7 +90,7 @@ export default async function ClientReportPage() {
       </section>
 
       <section aria-label="To work on" className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-5">
-        <h2 className="font-label text-xs uppercase tracking-wide text-ink/50">To work on</h2>
+        <h2 className="font-label text-sm uppercase tracking-wide text-ink/50">To work on</h2>
         <ul className="flex flex-col gap-2">
           {recap.focus.map((f, i) => (
             <li key={i} className="flex items-start gap-2 font-body text-base text-ink">

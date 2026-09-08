@@ -12,8 +12,8 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
   return (
     <section aria-label="Achievements" className="rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-baseline justify-between">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Badges</p>
-        <p className="font-body text-xs text-ink/60">{earned} of {achievements.length} earned</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Badges</p>
+        <p className="font-body text-sm text-ink/60">{earned} of {achievements.length} earned</p>
       </div>
 
       <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-3">

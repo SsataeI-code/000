@@ -41,7 +41,7 @@ function MenuRow({ href, title, desc }: { href: string; title: string; desc: str
     <Link href={href} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3.5 hover:bg-surface-muted">
       <span className="min-w-0">
         <span className="block font-body text-base text-ink">{title}</span>
-        <span className="block truncate font-body text-xs text-ink/55">{desc}</span>
+        <span className="block truncate font-body text-sm text-ink/55">{desc}</span>
       </span>
       <span aria-hidden className="shrink-0 font-label text-lg text-ink/40">→</span>
     </Link>
@@ -66,7 +66,7 @@ export default async function ClientYouPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">You</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">You</p>
         <h1 className="mt-1 text-4xl text-ink">{name ?? "Your account"}</h1>
       </div>
 
@@ -75,7 +75,7 @@ export default async function ClientYouPage() {
       {/* Everything, grouped and findable */}
       {MENU.map((g) => (
         <section key={g.group} className="flex flex-col gap-2">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">{g.group}</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">{g.group}</p>
           <div className="flex flex-col divide-y divide-hairline overflow-hidden rounded-2xl border border-hairline bg-surface shadow-card">
             {g.items.map((it) => (
               <MenuRow key={it.href} {...it} />
@@ -86,7 +86,7 @@ export default async function ClientYouPage() {
 
       {/* Devices */}
       <section className="flex flex-col gap-2">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Devices & friends</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Devices & friends</p>
         <div className="flex flex-col divide-y divide-hairline overflow-hidden rounded-2xl border border-hairline bg-surface shadow-card">
           <MenuRow href="/client/connect" title="Connect a tracker" desc="Auto-sync steps & sleep from Oura, Fitbit, Whoop" />
         </div>
@@ -96,8 +96,8 @@ export default async function ClientYouPage() {
       <details className="group rounded-2xl border border-hairline bg-surface shadow-card">
         <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-5 py-4">
           <span className="text-2xl text-ink">Settings</span>
-          <span aria-hidden className="font-label text-xs uppercase tracking-wide text-ink/40 group-open:hidden">Open</span>
-          <span aria-hidden className="hidden font-label text-xs uppercase tracking-wide text-ink/40 group-open:inline">Close</span>
+          <span aria-hidden className="font-label text-sm uppercase tracking-wide text-ink/40 group-open:hidden">Open</span>
+          <span aria-hidden className="hidden font-label text-sm uppercase tracking-wide text-ink/40 group-open:inline">Close</span>
         </summary>
         <div className="flex flex-col gap-6 border-t border-hairline p-5">
           <GoalPicker goal={profile?.goal ?? "maintain"} />
@@ -119,7 +119,7 @@ export default async function ClientYouPage() {
         </p>
         <a
           href={`/api/export/${user.id}`}
-          className="mt-3 inline-flex min-h-tap items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+          className="mt-3 inline-flex min-h-tap items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red"
         >
           Export my data (JSON)
         </a>

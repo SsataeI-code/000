@@ -29,7 +29,7 @@ export default async function AddFoodPage() {
         <h1 className="text-4xl text-ink">Add food</h1>
         <Link
           href="/client"
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Done
         </Link>
@@ -44,9 +44,9 @@ export default async function AddFoodPage() {
       >
         <span className="min-w-0">
           <span className="block font-body text-base text-ink">Build a plate</span>
-          <span className="block font-body text-xs text-ink/50">See what a balanced meal looks like — tap portions, no weighing</span>
+          <span className="block font-body text-sm text-ink/50">See what a balanced meal looks like — tap portions, no weighing</span>
         </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Open →</span>
+        <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Open →</span>
       </Link>
 
       <FoodPreferences pattern={profile?.diet_pattern ?? "anything"} avoid={profile?.food_avoid ?? ""} />

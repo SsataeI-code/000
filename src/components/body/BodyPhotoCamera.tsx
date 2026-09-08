@@ -125,7 +125,7 @@ export function BodyPhotoCamera({ onCapture, onClose }: { onCapture: (blob: Blob
             type="button"
             onClick={() => setTimerSec(t)}
             aria-pressed={timerSec === t}
-            className={`min-h-tap min-w-[44px] border px-3 py-2 font-label text-xs uppercase tracking-wide ${
+            className={`min-h-tap min-w-[44px] border px-3 py-2 font-label text-sm uppercase tracking-wide ${
               timerSec === t ? "border-red bg-red text-white" : "border-hairline text-ink hover:border-red"
             }`}
           >
@@ -138,7 +138,7 @@ export function BodyPhotoCamera({ onCapture, onClose }: { onCapture: (blob: Blob
         <button
           type="button"
           onClick={onClose}
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Cancel
         </button>
@@ -146,7 +146,7 @@ export function BodyPhotoCamera({ onCapture, onClose }: { onCapture: (blob: Blob
           type="button"
           onClick={startCapture}
           disabled={status !== "ready" || countdown !== null}
-          className="min-h-tap bg-red px-6 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap bg-red px-6 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {countdown !== null ? "Get ready…" : timerSec > 0 ? `Start ${timerSec}s timer` : "Capture"}
         </button>

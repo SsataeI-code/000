@@ -49,7 +49,7 @@ function PreviewBlock({ id }: { id: ClientSectionId }) {
   return (
     <div className="rounded rounded-2xl border border-hairline bg-surface-muted/60 p-2">
       <div className="mb-1 flex items-center justify-between">
-        <span className="font-label text-[11px] uppercase tracking-wide text-ink/50">{label}</span>
+        <span className="font-label text-[12px] uppercase tracking-wide text-ink/50">{label}</span>
       </div>
       <Schematic id={id} />
     </div>
@@ -86,7 +86,7 @@ function Schematic({ id }: { id: ClientSectionId }) {
       return (
         <div className="flex items-center justify-between">
           <span className={`${bar} w-16`} />
-          <span className="font-label text-[11px] uppercase tracking-wide text-red">Ask →</span>
+          <span className="font-label text-[12px] uppercase tracking-wide text-red">Ask →</span>
         </div>
       );
     case "food":
@@ -94,7 +94,7 @@ function Schematic({ id }: { id: ClientSectionId }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <span className={`${bar} w-10`} />
-            <span className="rounded bg-red/70 px-2 py-0.5 text-[10px] font-600 uppercase text-white">Add</span>
+            <span className="rounded bg-red/70 px-2 py-0.5 text-[12px] font-600 uppercase text-white">Add</span>
           </div>
           <span className={`${bar} w-full`} />
         </div>

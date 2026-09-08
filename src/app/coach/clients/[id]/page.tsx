@@ -120,10 +120,10 @@ export default async function ClientDeepDive({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Client</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Client</p>
           <h1 className="mt-1 text-4xl text-ink">{name}</h1>
         </div>
-        <Link href="/coach" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/coach" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Back
         </Link>
       </div>
@@ -179,7 +179,7 @@ export default async function ClientDeepDive({
 
       {/* Water */}
       <section className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Water today</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Water today</p>
         <p className="mt-1 font-body text-ink/80">
           {Math.round(waterMl / 29.5735)} / {Math.round((profile?.water_goal_ml ?? 2500) / 29.5735)} oz
         </p>
@@ -211,7 +211,7 @@ export default async function ClientDeepDive({
                 return (
                   <li key={h.id} className="flex items-center justify-between px-4 py-3">
                     <span className="font-body text-base text-ink">{h.name}</span>
-                    <span className="font-body text-xs text-ink/50">
+                    <span className="font-body text-sm text-ink/50">
                       {currentStreak(h, done, today, FREEZE_BUDGET)}d streak · {Math.round(consistency(h, done, today) * 100)}%
                     </span>
                   </li>
@@ -224,7 +224,7 @@ export default async function ClientDeepDive({
 
       {/* Weight */}
       <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weight</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Weight</p>
         {latestWeight ? (
           <>
             <p className="mt-1 font-display text-3xl text-ink">{kgToLb(latestWeight.avgKg)} lb</p>
@@ -279,7 +279,7 @@ export default async function ClientDeepDive({
                 )}
                 <div className="p-2.5">
                   <p className="truncate font-body text-sm text-ink">{l.name}</p>
-                  <p className="font-body text-xs text-ink/50">{l.log_date} · {l.calories} cal</p>
+                  <p className="font-body text-sm text-ink/50">{l.log_date} · {l.calories} cal</p>
                 </div>
               </li>
             ))}
@@ -296,7 +296,7 @@ export default async function ClientDeepDive({
               <li key={c.id} className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="font-label text-[13px] uppercase tracking-wide text-ink/50">Week of {c.week_start}</span>
-                  <span className="shrink-0 font-body text-xs text-ink/50">
+                  <span className="shrink-0 font-body text-sm text-ink/50">
                     {c.weight_kg != null ? `${kgToLb(c.weight_kg)} lb` : ""}
                     {c.energy ? ` · energy ${c.energy}/5` : ""}
                   </span>
@@ -332,9 +332,9 @@ export default async function ClientDeepDive({
       >
         <span className="min-w-0">
           <span className="block font-body text-base text-ink">Customize their Today screen</span>
-          <span className="block font-body text-xs text-ink/50">Reorder or hide sections just for {name}</span>
+          <span className="block font-body text-sm text-ink/50">Reorder or hide sections just for {name}</span>
         </span>
-        <span aria-hidden className="shrink-0 font-label text-xs uppercase tracking-wide text-red">Edit →</span>
+        <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Edit →</span>
       </Link>
 
       <RemoveClient clientId={id} clientName={name} canDelete />

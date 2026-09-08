@@ -20,10 +20,10 @@ export default async function SetupHealthPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Owner</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Owner</p>
           <h1 className="mt-1 text-4xl text-ink">Setup health</h1>
         </div>
-        <Link href="/coach" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/coach" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Dashboard
         </Link>
       </div>
@@ -61,7 +61,7 @@ function CheckGroup({ title, checks }: { title: string; checks: Check[] }) {
           <li key={c.name} className="flex items-start gap-3 py-3">
             <span
               aria-hidden
-              className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full font-label text-xs font-600 ${
+              className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full font-label text-sm font-600 ${
                 c.ok ? "bg-success/20 text-success" : "bg-red/20 text-red-ink"
               }`}
             >
@@ -69,7 +69,7 @@ function CheckGroup({ title, checks }: { title: string; checks: Check[] }) {
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-body text-sm text-ink">{c.name}</p>
-              <p className="font-body text-xs text-ink/50">{c.detail}</p>
+              <p className="font-body text-sm text-ink/50">{c.detail}</p>
               {!c.ok && c.fix ? <p className="mt-0.5 font-label text-[13px] uppercase tracking-wide text-red-ink">{c.fix}</p> : null}
             </div>
           </li>

@@ -31,7 +31,7 @@ export default async function CoachYouPage() {
 
       {coach?.coach_code ? (
         <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Your coach code</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Your coach code</p>
           <p className="mt-2 font-display text-3xl uppercase tracking-widest text-red">{coach.coach_code}</p>
           <p className="mt-2 font-body text-sm text-ink/60">
             Share it, or send a sign-up link: <code className="bg-surface-muted px-1">/signup?coach={coach.coach_code}</code>

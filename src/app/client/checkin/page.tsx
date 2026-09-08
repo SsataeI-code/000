@@ -26,10 +26,10 @@ export default async function ClientCheckinPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Weekly</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Weekly</p>
           <h1 className="mt-1 text-4xl text-ink">Check-in</h1>
         </div>
-        <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">Done</Link>
+        <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">Done</Link>
       </div>
 
       <p className="font-body text-sm text-ink/60">A quick weekly pulse — your weight, how the week felt, a win, and one thing to work on. Your coach reads it to help.</p>
@@ -38,13 +38,13 @@ export default async function ClientCheckinPage() {
 
       {past.length > 0 ? (
         <section className="flex flex-col gap-2">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Past check-ins</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Past check-ins</p>
           <ul className="flex flex-col gap-2">
             {past.map((c) => (
               <li key={c.id} className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="font-label text-[13px] uppercase tracking-wide text-ink/50">Week of {c.week_start}</span>
-                  <span className="shrink-0 font-body text-xs text-ink/50">
+                  <span className="shrink-0 font-body text-sm text-ink/50">
                     {c.weight_kg != null ? `${kgToLb(c.weight_kg)} lb` : ""}
                     {c.energy ? ` · ${ENERGY_LABEL[c.energy]}` : ""}
                   </span>

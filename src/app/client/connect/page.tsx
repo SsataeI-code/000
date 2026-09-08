@@ -36,10 +36,10 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Wearables</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Wearables</p>
           <h1 className="mt-1 text-4xl text-ink">Connect a tracker</h1>
         </div>
-        <Link href="/client/you" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client/you" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>
@@ -55,12 +55,12 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
 
       {anyConnected ? (
         <section className="rounded-lg border border-hairline bg-surface p-4">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Latest sync</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Latest sync</p>
           {latest ? (
             <p className="mt-1 font-body text-base text-ink">
               {latest.steps != null ? `${latest.steps.toLocaleString()} steps` : "No steps"}
               {latest.sleepMinutes != null ? ` · ${Math.floor(latest.sleepMinutes / 60)}h ${latest.sleepMinutes % 60}m sleep` : ""}
-              <span className="font-body text-xs text-ink/50"> · {latest.day}</span>
+              <span className="font-body text-sm text-ink/50"> · {latest.day}</span>
             </p>
           ) : (
             <p className="mt-1 font-body text-sm text-ink/60">Nothing synced yet — data lands after the next daily sync.</p>
@@ -85,7 +85,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
             <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-4">
               <div className="min-w-0 flex-1">
                 <p className="font-body text-base text-ink">{p.label}</p>
-                <p className="font-body text-xs text-ink/50">{p.pulls}</p>
+                <p className="font-body text-sm text-ink/50">{p.pulls}</p>
                 {staffHint ? (
                   <p className="mt-1 font-body text-[13px] text-ink/40">{staffHint}</p>
                 ) : null}
@@ -103,7 +103,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
               ) : configured ? (
                 <a
                   href={`/api/wearables/${p.id}/connect`}
-                  className="min-h-tap inline-flex items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red"
+                  className="min-h-tap inline-flex items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red"
                 >
                   Connect
                 </a>
@@ -123,7 +123,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: Prom
         </p>
         <Link
           href="/client/habits"
-          className="mt-3 inline-flex min-h-tap items-center font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
+          className="mt-3 inline-flex min-h-tap items-center font-label text-sm uppercase tracking-wide text-red underline underline-offset-4"
         >
           Log steps by hand →
         </Link>

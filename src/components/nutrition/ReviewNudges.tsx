@@ -22,7 +22,7 @@ export function ReviewNudges({
           </p>
           <Link
             href="/client/habits"
-            className="shrink-0 min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4"
+            className="shrink-0 min-h-tap font-label text-sm uppercase tracking-wide text-red underline underline-offset-4"
           >
             Review
           </Link>
@@ -36,7 +36,7 @@ export function ReviewNudges({
           </p>
           <button
             type="submit"
-            className="shrink-0 min-h-tap font-label text-xs uppercase tracking-wide text-ink underline underline-offset-4 hover:text-red"
+            className="shrink-0 min-h-tap font-label text-sm uppercase tracking-wide text-ink underline underline-offset-4 hover:text-red"
           >
             Refresh
           </button>

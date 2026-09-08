@@ -7,7 +7,7 @@ export async function SignOutButton() {
     <form action="/auth/signout" method="post">
       <button
         type="submit"
-        className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/70 underline underline-offset-4 hover:text-red"
+        className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/70 underline underline-offset-4 hover:text-red"
       >
         {t("common.signout")}
       </button>

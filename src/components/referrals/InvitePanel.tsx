@@ -90,7 +90,7 @@ export function InvitePanel({
       <button
         type="button"
         onClick={share}
-        className="mt-3 inline-flex min-h-tap items-center gap-2 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
+        className="mt-3 inline-flex min-h-tap items-center gap-2 bg-red px-4 py-2.5 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink"
       >
         <span aria-hidden className="h-4 w-4"><IconMessages /></span>
         {t("client.invite.share")}

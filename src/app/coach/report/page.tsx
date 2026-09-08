@@ -29,10 +29,10 @@ export default async function CoachReportPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">This week</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">This week</p>
           <h1 className="mt-1 text-4xl text-ink">Roster digest</h1>
         </div>
-        <Link href="/coach" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/coach" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Dashboard
         </Link>
       </div>
@@ -40,16 +40,16 @@ export default async function CoachReportPage() {
       <section className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
           <p className="font-display text-4xl text-ink">{digest.total}</p>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Clients</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Clients</p>
         </div>
         <div className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
           <p className="font-display text-4xl text-ink">{digest.activeThisWeek}</p>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Active this week</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Active this week</p>
         </div>
       </section>
 
       <section aria-label="Wins to celebrate" className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface shadow-card p-5">
-        <h2 className="font-label text-xs uppercase tracking-wide text-success">Celebrate</h2>
+        <h2 className="font-label text-sm uppercase tracking-wide text-success">Celebrate</h2>
         {digest.celebrate.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {digest.celebrate.map((c, i) => (
@@ -65,7 +65,7 @@ export default async function CoachReportPage() {
       </section>
 
       <section aria-label="Who needs you" className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface shadow-card p-5">
-        <h2 className="font-label text-xs uppercase tracking-wide text-red-ink">Needs you Monday</h2>
+        <h2 className="font-label text-sm uppercase tracking-wide text-red-ink">Needs you Monday</h2>
         {digest.needsYou.length > 0 ? (
           <ul className="flex flex-col divide-y divide-hairline">
             {digest.needsYou.map((n, i) => (

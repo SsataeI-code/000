@@ -21,7 +21,7 @@ export default function Error({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center gap-6 px-6 py-12">
-      <p className="font-label text-xs uppercase tracking-wide text-red">
+      <p className="font-label text-sm uppercase tracking-wide text-red">
         Something hiccuped
       </p>
       <h1 className="text-4xl text-ink">We&apos;ll get you back on track.</h1>

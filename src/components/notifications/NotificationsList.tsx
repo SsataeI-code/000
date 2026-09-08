@@ -23,7 +23,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
         </h2>
         {unread > 0 ? (
           <form action={markAllNotificationsReadAction}>
-            <button type="submit" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            <button type="submit" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
               Mark all read
             </button>
           </form>
@@ -46,7 +46,7 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                     <span className={`truncate font-body text-sm ${unreadRow ? "text-ink" : "text-ink/70"}`}>{n.title}</span>
                     <span className="shrink-0 font-body text-[12px] text-ink/40">{ago(n.created_at)}</span>
                   </span>
-                  {n.body ? <span className="mt-0.5 block font-body text-xs text-ink/55 line-clamp-2">{n.body}</span> : null}
+                  {n.body ? <span className="mt-0.5 block font-body text-sm text-ink/55 line-clamp-2">{n.body}</span> : null}
                 </span>
               </span>
             );

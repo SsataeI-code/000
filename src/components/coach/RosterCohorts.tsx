@@ -20,7 +20,7 @@ export function RosterCohorts({ clients }: { clients: CohortClient[] }) {
   return (
     <section className="rounded-2xl border border-hairline bg-surface shadow-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Segment by</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Segment by</p>
         <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Segment roster by">
           {COHORT_DIMENSIONS.map((d) => (
             <button

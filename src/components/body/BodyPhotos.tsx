@@ -111,11 +111,11 @@ export function BodyPhotos({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={p.url} alt={`Progress photo from ${fmt(p.taken_on)}`} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="flex h-full items-center justify-center font-body text-xs text-ink/40">Unavailable</span>
+                  <span className="flex h-full items-center justify-center font-body text-sm text-ink/40">Unavailable</span>
                 )}
               </div>
               <div className="flex items-center justify-between gap-2">
-                <span className="font-body text-xs text-ink/50">{fmt(p.taken_on)}</span>
+                <span className="font-body text-sm text-ink/50">{fmt(p.taken_on)}</span>
                 {canEdit ? (
                   <button
                     type="button"
@@ -152,7 +152,7 @@ export function BodyPhotos({
             />
             <label
               htmlFor="body-photo-input"
-              className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
+              className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
             >
               {busy ? "Uploading…" : "Add a photo"}
             </label>
@@ -163,7 +163,7 @@ export function BodyPhotos({
                 setCamera(true);
               }}
               disabled={busy}
-              className="inline-flex min-h-tap items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+              className="inline-flex min-h-tap items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
             >
               Take with timer
             </button>

@@ -102,14 +102,14 @@ export function QuietHours({
             type="button"
             onClick={() => save(true)}
             disabled={pending}
-            className="min-h-tap bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+            className="min-h-tap bg-red px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save"}
           </button>
         </div>
       ) : null}
 
-      <p aria-live="polite" className="mt-3 font-body text-xs text-ink/50">
+      <p aria-live="polite" className="mt-3 font-body text-sm text-ink/50">
         {error ? <span className="text-red-ink">{error}</span> : status ? status : tz ? `Your timezone: ${tz}` : null}
       </p>
     </section>

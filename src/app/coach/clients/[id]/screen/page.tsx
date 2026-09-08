@@ -27,12 +27,12 @@ export default async function ClientScreenOverridePage({ params }: { params: Pro
     <div className="flex flex-col gap-6">
       <div className="flex items-baseline justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Customize · {name}</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Customize · {name}</p>
           <h1 className="mt-1 text-4xl text-ink">Their screen</h1>
         </div>
         <Link
           href={`/coach/clients/${id}`}
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Back
         </Link>

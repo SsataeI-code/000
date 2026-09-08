@@ -79,15 +79,15 @@ export function PushToggle() {
     <section className="rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Push notifications</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Push notifications</p>
           <p className="mt-1 font-body text-sm text-ink/70">{message(status)}</p>
         </div>
         {status === "off" ? (
-          <button type="button" onClick={enable} className="min-h-tap shrink-0 bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink">
+          <button type="button" onClick={enable} className="min-h-tap shrink-0 bg-red px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink">
             Turn on
           </button>
         ) : status === "on" ? (
-          <button type="button" onClick={disable} className="min-h-tap shrink-0 border border-hairline px-4 py-2 font-label text-xs uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
+          <button type="button" onClick={disable} className="min-h-tap shrink-0 border border-hairline px-4 py-2 font-label text-sm uppercase tracking-wide text-ink/70 hover:border-red hover:text-red">
             Turn off
           </button>
         ) : status === "busy" || status === "loading" ? (

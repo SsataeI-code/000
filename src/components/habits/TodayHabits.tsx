@@ -44,7 +44,7 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
       <section aria-label="Today's habits" className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl text-ink">Habits</h2>
-          <Link href="/client/habits" className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4">
+          <Link href="/client/habits" className="min-h-tap font-label text-sm uppercase tracking-wide text-red underline underline-offset-4">
             Build a habit
           </Link>
         </div>
@@ -59,7 +59,7 @@ export function TodayHabits({ items }: { items: TodayHabitItem[] }) {
     <section aria-label="Today's habits" className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl text-ink">Habits</h2>
-        <Link href="/client/habits" className="min-h-tap font-label text-xs uppercase tracking-wide text-red underline underline-offset-4">
+        <Link href="/client/habits" className="min-h-tap font-label text-sm uppercase tracking-wide text-red underline underline-offset-4">
           Manage
         </Link>
       </div>
@@ -180,11 +180,11 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
     <div className="min-w-0 flex-1">
       <span className={`block font-body text-base ${done ? "text-ink/50 line-through" : "text-ink"}`}>{item.name}</span>
       {isCounter && item.target ? (
-        <span className="block font-body text-xs text-ink/50">
+        <span className="block font-body text-sm text-ink/50">
           {loggedValue || 0} / {item.target} {item.unit ?? ""}
         </span>
       ) : item.why && !done ? (
-        <span className="block font-body text-xs text-ink/50">{item.why}</span>
+        <span className="block font-body text-sm text-ink/50">{item.why}</span>
       ) : null}
     </div>
   );
@@ -204,7 +204,7 @@ function HabitRow({ item }: { item: TodayHabitItem }) {
         </span>
       ) : null}
       {shownStreak > 0 ? (
-        <span className={`inline-flex items-center gap-1 font-label text-xs uppercase tracking-wide ${isMilestone ? "text-red" : "text-ink/60"}`}>
+        <span className={`inline-flex items-center gap-1 font-label text-sm uppercase tracking-wide ${isMilestone ? "text-red" : "text-ink/60"}`}>
           <span className="h-3.5 w-3.5 text-red"><IconFlame /></span>
           {shownStreak}d
         </span>

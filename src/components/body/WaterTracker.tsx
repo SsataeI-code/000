@@ -38,7 +38,7 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
         </span>
       ) : null}
       <div className="flex items-baseline justify-between">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Water</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Water</p>
         <p className="font-body text-sm text-ink/70">
           {oz} / {goalOz} oz
           <span className="text-ink/40"> · {bottles} bottles</span>
@@ -54,16 +54,16 @@ export function WaterTracker({ consumedMl, goalMl }: { consumedMl: number; goalM
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" onClick={() => add(BOTTLE_ML)} disabled={pending}
-          className="min-h-tap bg-elevated px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:opacity-90 disabled:opacity-50">
+          className="min-h-tap bg-elevated px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:opacity-90 disabled:opacity-50">
           +1 bottle (16.9 oz)
         </button>
         <button type="button" onClick={() => add(240)} disabled={pending}
-          className="min-h-tap border border-ink px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-ink hover:bg-surface-muted disabled:opacity-50">
+          className="min-h-tap border border-ink px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-ink hover:bg-surface-muted disabled:opacity-50">
           +1 cup (8 oz)
         </button>
         {consumedMl > 0 ? (
           <button type="button" onClick={() => add(-BOTTLE_ML)} disabled={pending}
-            className="min-h-tap px-3 py-2 font-label text-xs uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50">
+            className="min-h-tap px-3 py-2 font-label text-sm uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red disabled:opacity-50">
             Undo bottle
           </button>
         ) : null}

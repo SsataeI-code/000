@@ -115,7 +115,7 @@ export function Journal({ entries, canEdit, userId }: { entries: JournalEntryVie
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="journal_photo" className="text-xs text-ink/80">Add a food photo (optional)</label>
+            <label htmlFor="journal_photo" className="text-sm text-ink/80">Add a food photo (optional)</label>
             <input
               id="journal_photo"
               ref={fileRef}
@@ -123,9 +123,9 @@ export function Journal({ entries, canEdit, userId }: { entries: JournalEntryVie
               accept="image/*"
               capture="environment"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="min-h-tap w-full rounded-lg border border-hairline bg-surface-input px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:rounded-full file:border-0 file:bg-grad-red file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-white"
+              className="min-h-tap w-full rounded-lg border border-hairline bg-surface-input px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:rounded-full file:border-0 file:bg-grad-red file:px-3 file:py-1.5 file:font-label file:text-sm file:uppercase file:text-white"
             />
-            {file ? <p className="font-body text-xs text-ink/50">{file.name} attached</p> : null}
+            {file ? <p className="font-body text-sm text-ink/50">{file.name} attached</p> : null}
           </div>
 
           {error ? <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{error}</p> : null}

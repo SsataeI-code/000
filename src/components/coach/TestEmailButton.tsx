@@ -11,7 +11,7 @@ export function TestEmailButton({ defaultEmail }: { defaultEmail?: string }) {
 
   return (
     <section className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
-      <p className="font-label text-xs uppercase tracking-wide text-ink/50">Email delivery</p>
+      <p className="font-label text-sm uppercase tracking-wide text-ink/50">Email delivery</p>
       <p className="mt-1 font-body text-sm text-ink/70">Send a sample re-engagement email to check it arrives.</p>
       <div className="mt-3 flex items-end gap-2">
         <div className="flex-1">
@@ -29,7 +29,7 @@ export function TestEmailButton({ defaultEmail }: { defaultEmail?: string }) {
           type="button"
           disabled={pending}
           onClick={() => start(async () => setResult(await sendTestEmailAction(to)))}
-          className="min-h-tap shrink-0 border border-ink px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+          className="min-h-tap shrink-0 border border-ink px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
         >
           {pending ? "Sending…" : "Send test"}
         </button>

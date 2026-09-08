@@ -39,7 +39,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
           <span className="text-ink/50"> referred </span>
           <span className="text-ink">{referral.referredName}</span>
         </p>
-        <span className="shrink-0 font-body text-xs text-ink/40">{dateLabel(referral.created_at)}</span>
+        <span className="shrink-0 font-body text-sm text-ink/40">{dateLabel(referral.created_at)}</span>
       </div>
 
       <p
@@ -72,7 +72,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
               type="button"
               disabled={pending}
               onClick={() => act("rewarded")}
-              className="min-h-tap flex-1 bg-red px-3 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+              className="min-h-tap flex-1 bg-red px-3 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
             >
               Mark rewarded
             </button>
@@ -80,7 +80,7 @@ export function ReferralRow({ referral }: { referral: CoachReferral }) {
               type="button"
               disabled={pending}
               onClick={() => act("declined")}
-              className="min-h-tap flex-1 border border-hairline px-3 py-2 font-label text-xs uppercase tracking-wide text-ink/70 hover:border-red disabled:opacity-50"
+              className="min-h-tap flex-1 border border-hairline px-3 py-2 font-label text-sm uppercase tracking-wide text-ink/70 hover:border-red disabled:opacity-50"
             >
               Waive
             </button>

@@ -32,7 +32,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-hairline bg-surface/90 px-5 py-3 backdrop-blur">
         <span className="flex items-center gap-2">
           <BrandLogo size={22} />
-          <span className="font-label text-xs uppercase tracking-wide text-ink/70">
+          <span className="font-label text-sm uppercase tracking-wide text-ink/70">
             {t("coach.dashboard.title")}
           </span>
         </span>

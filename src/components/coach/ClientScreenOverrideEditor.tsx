@@ -93,7 +93,7 @@ export function ClientScreenOverrideEditor({
 
               <div className="min-w-0 flex-1">
                 <p className={`font-body text-base ${s.visible ? "text-ink" : "text-ink/40"}`}>{def?.label ?? s.id}</p>
-                {def ? <p className="font-body text-xs text-ink/50">{def.description}</p> : null}
+                {def ? <p className="font-body text-sm text-ink/50">{def.description}</p> : null}
               </div>
 
               <label className="flex shrink-0 cursor-pointer items-center gap-2 font-label text-[12px] uppercase tracking-wide text-ink/60">
@@ -116,7 +116,7 @@ export function ClientScreenOverrideEditor({
       </div>
 
       {allHidden ? (
-        <p className="font-body text-xs text-red-ink">
+        <p className="font-body text-sm text-red-ink">
           Everything is hidden — turn at least one section on so {clientName}&apos;s screen isn&apos;t empty.
         </p>
       ) : null}
@@ -136,7 +136,7 @@ export function ClientScreenOverrideEditor({
             <button
               type="submit"
               disabled={resetting}
-              className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-50"
+              className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-50"
             >
               {resetting ? "Resetting…" : "Reset to roster default"}
             </button>

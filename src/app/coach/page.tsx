@@ -99,7 +99,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
         return (
           <section key={id} className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between">
-              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Full roster</p>
+              <p className="font-label text-sm uppercase tracking-wide text-ink/50">Full roster</p>
               <Link href="/coach/roster" className="font-label text-[12px] uppercase tracking-wide text-ink/50 underline underline-offset-4 hover:text-red">
                 Stats &amp; cohorts
               </Link>
@@ -113,7 +113,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                         <span className="truncate font-body text-base text-ink">{c.name}</span>
                         {topSet.has(c.id) ? <TopClientBadge /> : null}
                       </span>
-                      <span className="block font-body text-xs text-ink/50">
+                      <span className="block font-body text-sm text-ink/50">
                         {GOAL_LABEL[c.goal]} · Lv{c.habitLevel} {c.habitLevelName}
                         {c.habitCurrentStreak > 0 ? ` · ${c.habitCurrentStreak}d streak` : ""} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                       </span>
@@ -132,7 +132,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
       case "steady":
         return steady.length > 0 ? (
           <section key={id} className="flex flex-col gap-3">
-            <p className="font-label text-xs uppercase tracking-wide text-ink/50">Steady</p>
+            <p className="font-label text-sm uppercase tracking-wide text-ink/50">Steady</p>
             <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
               {steady.map((c) => (
                 <li key={c.id}>
@@ -141,7 +141,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
                       <span className="font-body text-base text-ink">{c.name}</span>
                       {topSet.has(c.id) ? <TopClientBadge /> : null}
                     </span>
-                    <span className="font-body text-xs text-ink/50">
+                    <span className="font-body text-sm text-ink/50">
                       Lv{c.habitLevel} {c.habitLevelName} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                     </span>
                   </Link>
@@ -157,7 +157,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
       case "coach_code":
         return coach?.coach_code ? (
           <section key={id} className="rounded-2xl border border-hairline bg-surface shadow-card p-5">
-            <p className="font-label text-xs uppercase tracking-wide text-ink/50">Your coach code</p>
+            <p className="font-label text-sm uppercase tracking-wide text-ink/50">Your coach code</p>
             <p className="mt-2 font-display text-3xl uppercase tracking-widest text-red">{coach.coach_code}</p>
             <p className="mt-2 font-body text-sm text-ink/60">Share it to bring in your next client.</p>
           </section>
@@ -169,35 +169,35 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">{t("coach.dashboard.needsAttention")}</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">{t("coach.dashboard.needsAttention")}</p>
           <h1 className="mt-1 text-4xl text-ink">
             {needsAttention.length === 0 ? "All steady" : `${needsAttention.length} need${needsAttention.length === 1 ? "s" : ""} you`}
           </h1>
         </div>
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
-          <Link href="/coach/referrals" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/coach/referrals" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Referrals{pendingReferrals > 0 ? ` (${pendingReferrals})` : ""}
           </Link>
           {isOwner ? (
-            <Link href="/coach/content" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            <Link href="/coach/content" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
               Edit copy
             </Link>
           ) : null}
           {isOwner ? (
-            <Link href="/coach/health" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+            <Link href="/coach/health" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
               Setup health
             </Link>
           ) : null}
-          <Link href="/coach/report" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/coach/report" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Weekly digest
           </Link>
-          <Link href="/coach/client-screen" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/coach/client-screen" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Client screen
           </Link>
-          <Link href="/coach/dashboard" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/coach/dashboard" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Customize
           </Link>
-          <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+          <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
             Use the app
           </Link>
         </div>
@@ -212,7 +212,7 @@ export default async function CoachDashboardPage({ searchParams }: { searchParam
 function TopClientBadge() {
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/15 px-1.5 py-0.5 font-label text-[11px] font-600 uppercase tracking-wide text-[#ffb03a]"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/15 px-1.5 py-0.5 font-label text-[12px] font-600 uppercase tracking-wide text-[#ffb03a]"
       title="#1 client by level"
     >
       ★ #1

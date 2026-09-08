@@ -152,7 +152,7 @@ export function ChatThread({
           <button
             type="submit"
             disabled={pending}
-            className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+            className="min-h-tap shrink-0 bg-red px-4 py-2.5 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
           >
             {pending ? "Sending…" : "Send"}
           </button>

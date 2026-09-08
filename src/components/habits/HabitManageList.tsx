@@ -31,7 +31,7 @@ function Row({ item }: { item: ManageItem }) {
     <li className={`flex items-center justify-between gap-3 px-4 py-3 ${pending ? "opacity-50" : ""}`}>
       <div className="min-w-0">
         <p className="truncate font-body text-base text-ink">{item.name}</p>
-        <p className="font-body text-xs text-ink/50">
+        <p className="font-body text-sm text-ink/50">
           {item.cadenceLabel} · {item.streak}d streak · {item.consistencyPct}% consistent
         </p>
       </div>
@@ -39,7 +39,7 @@ function Row({ item }: { item: ManageItem }) {
         type="button"
         onClick={() => start(() => deleteHabitAction(item.id))}
         disabled={pending}
-        className="min-h-tap shrink-0 font-label text-xs uppercase tracking-wide text-ink/40 hover:text-red"
+        className="min-h-tap shrink-0 font-label text-sm uppercase tracking-wide text-ink/40 hover:text-red"
       >
         Archive
       </button>

@@ -62,7 +62,7 @@ export default async function LandingPage() {
         {configured ? (
           <Link
             href="/login"
-            className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+            className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
           >
             {t("auth.login.submit")}
           </Link>
@@ -71,7 +71,7 @@ export default async function LandingPage() {
 
       {/* Hero */}
       <section className="rise py-16 md:py-20">
-        <p className="font-label text-xs uppercase tracking-wide text-red">For people who want to see results</p>
+        <p className="font-label text-sm uppercase tracking-wide text-red">For people who want to see results</p>
         <h1 className="mt-4 text-5xl leading-[0.95] text-ink md:text-6xl">
           Build the habits.
           <br />
@@ -90,7 +90,7 @@ export default async function LandingPage() {
             <Link href="/login">
               <Button variant="ghost">{t("auth.login.submit")}</Button>
             </Link>
-            <p className="font-body text-xs text-ink/40">No app to download — it runs right in your browser.</p>
+            <p className="font-body text-sm text-ink/40">No app to download — it runs right in your browser.</p>
           </div>
         ) : (
           <div className="mt-10">

@@ -22,7 +22,7 @@ export default async function MealsPage() {
         <h1 className="text-4xl text-ink">Your meals</h1>
         <Link
           href="/client"
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Done
         </Link>

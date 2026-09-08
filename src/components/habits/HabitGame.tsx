@@ -76,14 +76,14 @@ export function HabitGame({
         {/* Leveling mascot — evolves from Spark to Legend */}
         <div className="relative shrink-0">
           <LevelAvatar level={state.level} size={64} />
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-1.5 py-0.5 font-label text-[10px] uppercase tracking-widest text-white/90">
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-1.5 py-0.5 font-label text-[12px] uppercase tracking-widest text-white/90">
             Lvl {state.level}
           </span>
         </div>
 
         <div className="min-w-0 flex-1">
           <p className="font-display text-2xl uppercase leading-none tracking-wide text-white toon-shadow">{state.levelName}</p>
-          <span className="mt-1 inline-flex items-center gap-1.5 font-label text-xs uppercase tracking-wide text-white/85">
+          <span className="mt-1 inline-flex items-center gap-1.5 font-label text-sm uppercase tracking-wide text-white/85">
             <span className="h-4 w-4 text-[#ffb03a]"><IconBolt /></span>
             {state.xp.toLocaleString()} XP
           </span>

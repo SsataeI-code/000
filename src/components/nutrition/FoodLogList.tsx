@@ -35,7 +35,7 @@ function FoodLogRow({ log, photoUrl }: { log: FoodLog; photoUrl?: string }) {
         ) : null}
         <div className="min-w-0">
         <p className="truncate font-body text-sm font-500 text-ink">{log.name}</p>
-        <p className="font-body text-xs text-ink/50">
+        <p className="font-body text-sm text-ink/50">
           {log.calories} kcal · P{Math.round(Number(log.protein_g))} C{Math.round(Number(log.carbs_g))} F
           {Math.round(Number(log.fat_g))}
           {log.brand ? ` · ${log.brand}` : ""}
@@ -47,7 +47,7 @@ function FoodLogRow({ log, photoUrl }: { log: FoodLog; photoUrl?: string }) {
         aria-label={`Remove ${log.name}`}
         disabled={pending}
         onClick={() => start(() => deleteFoodLogAction(log.id))}
-        className="min-h-tap min-w-tap shrink-0 font-label text-xs uppercase tracking-wide text-ink/40 hover:text-red"
+        className="min-h-tap min-w-tap shrink-0 font-label text-sm uppercase tracking-wide text-ink/40 hover:text-red"
       >
         Remove
       </button>

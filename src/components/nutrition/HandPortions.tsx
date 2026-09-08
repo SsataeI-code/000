@@ -31,7 +31,7 @@ export function HandPortions({ targets }: { targets: HandTargets }) {
               <span className="block font-body text-base text-ink">
                 {counts[r.key] === 1 ? r.hand : `${r.hand}s`} of {r.macro.toLowerCase()}
               </span>
-              <span className="block font-body text-xs text-ink/50">{r.note}</span>
+              <span className="block font-body text-sm text-ink/50">{r.note}</span>
             </span>
           </li>
         ))}
@@ -39,12 +39,12 @@ export function HandPortions({ targets }: { targets: HandTargets }) {
           <span className="w-10 shrink-0 font-display text-3xl text-ink/70">2–4</span>
           <span className="min-w-0 flex-1">
             <span className="block font-body text-base text-ink">Fists of veggies</span>
-            <span className="block font-body text-xs text-ink/50">fill the rest of the plate — the more color, the better</span>
+            <span className="block font-body text-sm text-ink/50">fill the rest of the plate — the more color, the better</span>
           </span>
         </li>
       </ul>
 
-      <p className="font-body text-xs text-ink/40">
+      <p className="font-body text-sm text-ink/40">
         A rough guide from your own targets, not an exact count. Your palm ≈ a protein serving, cupped hand ≈ carbs, thumb ≈ fats.
       </p>
     </section>

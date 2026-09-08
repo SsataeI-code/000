@@ -24,10 +24,10 @@ export default async function PlatePage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Learn</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Learn</p>
           <h1 className="mt-1 text-4xl text-ink">Plate builder</h1>
         </div>
-        <Link href="/client/food" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client/food" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>

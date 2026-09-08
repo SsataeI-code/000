@@ -20,12 +20,12 @@ export default async function ArchivedPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-baseline justify-between gap-3">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Roster</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Roster</p>
           <h1 className="mt-1 text-4xl text-ink">Archived</h1>
         </div>
         <Link
           href="/coach/roster"
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Roster
         </Link>

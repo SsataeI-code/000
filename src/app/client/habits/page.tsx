@@ -92,7 +92,7 @@ export default async function HabitsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-4xl text-ink">Habits</h1>
-        <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>
@@ -111,8 +111,8 @@ export default async function HabitsPage() {
 
           <section className="rounded-lg border border-hairline bg-surface p-5">
             <div className="flex items-baseline justify-between">
-              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Consistency</p>
-              <p className="font-body text-xs text-ink/60">Best streak: {bestStreak}d</p>
+              <p className="font-label text-sm uppercase tracking-wide text-ink/50">Consistency</p>
+              <p className="font-body text-sm text-ink/60">Best streak: {bestStreak}d</p>
             </div>
             <div className="mt-3">
               <HabitHeatmap counts={counts} max={Math.max(1, habits.length)} />
@@ -129,7 +129,7 @@ export default async function HabitsPage() {
           </p>
           <button
             type="submit"
-            className="mt-3 inline-flex min-h-tap items-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink"
+            className="mt-3 inline-flex min-h-tap items-center bg-red px-5 py-2.5 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink"
           >
             Add my starter habits
           </button>

@@ -45,7 +45,7 @@ export default async function CoachMessagesPage() {
                       <span className="shrink-0 rounded-full bg-red px-1.5 font-label text-[12px] font-600 text-white">{t.unread}</span>
                     ) : null}
                   </span>
-                  <span className="block truncate font-body text-xs text-ink/50">
+                  <span className="block truncate font-body text-sm text-ink/50">
                     {t.lastBody ? `${t.lastKind === "client" ? "" : "You: "}${t.lastBody}` : "No messages yet"}
                   </span>
                 </span>

@@ -28,12 +28,12 @@ export function LevelBar({ game }: { game: ViewerGame }) {
           <span className="flex min-w-0 items-center gap-1.5">
             <span className="truncate font-label text-[12px] uppercase tracking-wide text-white/85">{state.levelName}</span>
             {game.topClient ? (
-              <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/20 px-1.5 font-label text-[11px] font-600 uppercase tracking-wide text-[#ffb03a]" title="You're the #1 client by level">
+              <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#ffb03a]/20 px-1.5 font-label text-[12px] font-600 uppercase tracking-wide text-[#ffb03a]" title="You're the #1 client by level">
                 ★ #1
               </span>
             ) : null}
           </span>
-          <span className="inline-flex shrink-0 items-center gap-1 font-label text-[11px] uppercase tracking-wide text-white/55">
+          <span className="inline-flex shrink-0 items-center gap-1 font-label text-[12px] uppercase tracking-wide text-white/55">
             <span className="h-2.5 w-2.5 text-[#ffb03a]"><IconBolt /></span>
             {state.xp.toLocaleString()}
           </span>

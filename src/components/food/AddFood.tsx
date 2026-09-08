@@ -355,7 +355,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
                 className="flex w-full min-h-tap flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-surface-muted"
               >
                 <span className="font-body text-sm font-500 text-ink">{r.name}</span>
-                <span className="font-body text-xs text-ink/50">
+                <span className="font-body text-sm text-ink/50">
                   {r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal / 100g` : ""}
                   {r.brand ? ` · ${r.brand}` : ""}
                 </span>
@@ -367,7 +367,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
         <button
           type="button"
           onClick={() => setMode("choose")}
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Back
         </button>
@@ -404,7 +404,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
       <Field label="Food name" name="name" value={draft.name} onChange={(e) => update("name", e.target.value)} required />
       <Field label="Brand (optional)" name="brand" value={draft.brand} onChange={(e) => update("brand", e.target.value)} />
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="portion_qty" className="text-xs text-ink/80">How much did you eat?</label>
+        <label htmlFor="portion_qty" className="text-sm text-ink/80">How much did you eat?</label>
         <div className="flex gap-2">
           <input
             id="portion_qty"
@@ -428,7 +428,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
             ))}
           </select>
         </div>
-        <p className="font-body text-xs text-ink/50">
+        <p className="font-body text-sm text-ink/50">
           ≈ {draft.grams || 0} g{draft.per100g ? " · macros update automatically" : ""}
         </p>
       </div>
@@ -442,12 +442,12 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
 
       <details className="rounded-lg border border-hairline bg-surface">
         <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-3 py-2.5">
-          <span className="font-label text-xs uppercase tracking-wide text-ink/70">Electrolytes &amp; micros (optional)</span>
+          <span className="font-label text-sm uppercase tracking-wide text-ink/70">Electrolytes &amp; micros (optional)</span>
           <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">mg · tap to add</span>
         </summary>
         <div className="grid grid-cols-2 gap-3 px-3 pb-1">
           {MICRO_INPUTS.map((mi) => (
-            <label key={mi.key} className="flex flex-col gap-1 text-xs text-ink/80">
+            <label key={mi.key} className="flex flex-col gap-1 text-sm text-ink/80">
               {mi.label} (mg)
               <input
                 type="number"
@@ -467,16 +467,16 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
       </details>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="food_photo" className="text-xs text-ink/80">Add a photo (optional)</label>
+        <label htmlFor="food_photo" className="text-sm text-ink/80">Add a photo (optional)</label>
         <input
           id="food_photo"
           type="file"
           accept="image/*"
           capture="environment"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-          className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-elevated file:px-3 file:py-1.5 file:font-label file:text-xs file:uppercase file:text-white"
+          className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-body text-sm text-ink/70 file:mr-3 file:border-0 file:bg-elevated file:px-3 file:py-1.5 file:font-label file:text-sm file:uppercase file:text-white"
         />
-        {photo ? <p className="font-body text-xs text-ink/50">{photo.name} attached</p> : null}
+        {photo ? <p className="font-body text-sm text-ink/50">{photo.name} attached</p> : null}
       </div>
 
       <div className="relative">
@@ -492,7 +492,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
       <button
         type="button"
         onClick={() => setMode("choose")}
-        className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+        className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
       >
         Back
       </button>

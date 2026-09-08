@@ -236,7 +236,7 @@ export function PlateBuilder({
                 </span>
               ))
             ) : (
-              <span className="font-body text-xs text-ink/50">a thumb on the side</span>
+              <span className="font-body text-sm text-ink/50">a thumb on the side</span>
             )}
           </div>
         </div>
@@ -257,16 +257,16 @@ export function PlateBuilder({
             ))}
           </div>
           {targets ? (
-            <p className="font-body text-xs text-ink/50">
+            <p className="font-body text-sm text-ink/50">
               Your day: about {targets.calories.toLocaleString()} cal · {targets.proteinG}g protein — this plate is ~
               {targets.calories > 0 ? Math.round((totals.calories / targets.calories) * 100) : 0}% of your calories
               {targets.proteinG > 0 ? `, ${Math.round((totals.proteinG / targets.proteinG) * 100)}% of your protein` : ""}.
             </p>
           ) : null}
           {hint ? (
-            <p className="rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-xs text-ink/70">{hint}</p>
+            <p className="rounded-lg border border-hairline bg-surface-muted px-3 py-2 font-body text-sm text-ink/70">{hint}</p>
           ) : (
-            <p className="rounded-lg border border-success bg-surface px-3 py-2 font-body text-xs text-success">Nicely balanced plate — half veggies, protein and carbs in place.</p>
+            <p className="rounded-lg border border-success bg-surface px-3 py-2 font-body text-sm text-success">Nicely balanced plate — half veggies, protein and carbs in place.</p>
           )}
         </div>
       </div>
@@ -317,7 +317,7 @@ export function PlateBuilder({
 
       {/* Search any food */}
       <div className="flex flex-col gap-2 border-t border-hairline pt-4">
-        <p className="font-label text-xs uppercase tracking-wide text-ink">Add any food</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink">Add any food</p>
         <div className="flex items-end gap-2">
           <input
             value={query}
@@ -336,7 +336,7 @@ export function PlateBuilder({
             type="button"
             onClick={runSearch}
             disabled={searching || query.trim().length < 2}
-            className="min-h-tap shrink-0 rounded-lg border border-hairline bg-surface px-4 py-2.5 font-label text-xs uppercase tracking-wide text-ink hover:border-red disabled:opacity-40"
+            className="min-h-tap shrink-0 rounded-lg border border-hairline bg-surface px-4 py-2.5 font-label text-sm uppercase tracking-wide text-ink hover:border-red disabled:opacity-40"
           >
             {searching ? "…" : "Search"}
           </button>
@@ -360,13 +360,13 @@ export function PlateBuilder({
             ))}
           </div>
         ) : query.trim().length >= 2 && !searching ? (
-          <p className="font-body text-xs text-ink/40">Press Search to find “{query.trim()}”.</p>
+          <p className="font-body text-sm text-ink/40">Press Search to find “{query.trim()}”.</p>
         ) : null}
       </div>
 
       {/* Quick-pick palette, grouped by zone */}
       <div className="flex flex-col gap-4 border-t border-hairline pt-4">
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Common foods</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Common foods</p>
         {PLATE_ZONES.map((zone) => {
           const foods = foodsByZone(zone, palette);
           if (foods.length === 0) return null;
@@ -375,7 +375,7 @@ export function PlateBuilder({
             <div key={zone} className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span aria-hidden className="h-3 w-3 rounded-sm" style={{ backgroundColor: meta.color }} />
-                <span className="font-label text-xs uppercase tracking-wide text-ink">{meta.label}</span>
+                <span className="font-label text-sm uppercase tracking-wide text-ink">{meta.label}</span>
                 <span className="font-body text-[13px] text-ink/45">{meta.aim}</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -433,18 +433,18 @@ export function PlateBuilder({
               type="button"
               onClick={saveMeal}
               disabled={!mealName.trim() || saveState === "saving" || saveState === "saved"}
-              className="min-h-tap shrink-0 border border-ink px-4 py-2.5 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-40"
+              className="min-h-tap shrink-0 border border-ink px-4 py-2.5 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-40"
             >
               {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved ✓" : "Save meal"}
             </button>
           </div>
           {saveState === "saved" ? (
-            <p role="status" className="font-body text-xs text-success">
+            <p role="status" className="font-body text-sm text-success">
               Saved to Your meals — log it in one tap anytime.
             </p>
           ) : null}
           {saveState === "error" ? (
-            <p role="alert" className="font-body text-xs text-red-ink">Couldn&apos;t save that — try again.</p>
+            <p role="alert" className="font-body text-sm text-red-ink">Couldn&apos;t save that — try again.</p>
           ) : null}
         </div>
       ) : null}
@@ -454,7 +454,7 @@ export function PlateBuilder({
           type="button"
           onClick={logPlate}
           disabled={!hasFood || logState === "saving"}
-          className="min-h-tap bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-40"
+          className="min-h-tap bg-red px-5 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-40"
         >
           {logState === "saving" ? "Logging…" : "Log this plate"}
         </button>
@@ -467,12 +467,12 @@ export function PlateBuilder({
             setMealName("");
           }}
           disabled={!hasFood}
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-40"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red disabled:opacity-40"
         >
           Clear
         </button>
       </div>
-      <p className="font-body text-xs text-ink/40">
+      <p className="font-body text-sm text-ink/40">
         Portions are an estimate — logging saves these approximate macros to today.
       </p>
     </section>

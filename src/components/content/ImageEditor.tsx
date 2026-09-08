@@ -88,21 +88,21 @@ function ImageRow({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={current} alt={`${label} (current)`} className="h-full w-full object-contain" />
         ) : (
-          <span className="font-label text-[11px] uppercase tracking-wide text-ink/40">Default</span>
+          <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">Default</span>
         )}
       </div>
 
       <div className="min-w-0 flex-1">
         <p className="font-body text-base text-ink">{label}</p>
-        <p className="font-body text-xs text-ink/50">{description}</p>
-        {error ? <p role="alert" className="mt-1 font-body text-xs text-red-ink">{error}</p> : null}
+        <p className="font-body text-sm text-ink/50">{description}</p>
+        {error ? <p role="alert" className="mt-1 font-body text-sm text-red-ink">{error}</p> : null}
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1">
         <input ref={inputRef} id={`img-${imgKey}`} type="file" accept="image/*" onChange={onPick} disabled={busy} className="sr-only" />
         <label
           htmlFor={`img-${imgKey}`}
-          className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
+          className={`inline-flex min-h-tap cursor-pointer items-center rounded-lg border border-hairline bg-surface px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red ${busy ? "opacity-50" : ""}`}
         >
           {busy ? "Working…" : current ? "Replace" : "Upload"}
         </label>

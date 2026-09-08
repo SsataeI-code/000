@@ -33,9 +33,9 @@ function SavedMealCard({ meal, showDelete }: { meal: Meal; showDelete: boolean }
     <div className="rounded-lg border border-hairline bg-surface p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-lg text-ink">{meal.name}</h3>
-        <span className="shrink-0 font-body text-xs text-ink/50">≈{mealCalories(meal)} cal</span>
+        <span className="shrink-0 font-body text-sm text-ink/50">≈{mealCalories(meal)} cal</span>
       </div>
-      <p className="mt-1 font-body text-xs text-ink/50">
+      <p className="mt-1 font-body text-sm text-ink/50">
         {meal.items.map((it) => it.name).join(", ")}
       </p>
       <div className="mt-3 flex items-center gap-3">
@@ -51,7 +51,7 @@ function SavedMealCard({ meal, showDelete }: { meal: Meal; showDelete: boolean }
             })
           }
           disabled={logging || logged}
-          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="inline-flex min-h-tap items-center bg-red px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {logged ? "Logged ✓" : logging ? "Logging…" : "Log meal"}
         </button>
@@ -60,7 +60,7 @@ function SavedMealCard({ meal, showDelete }: { meal: Meal; showDelete: boolean }
             type="button"
             onClick={() => startRemove(() => deleteMealAction(meal.id))}
             disabled={removing}
-            className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/40 hover:text-red"
+            className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/40 hover:text-red"
           >
             Delete
           </button>

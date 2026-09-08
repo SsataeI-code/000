@@ -18,10 +18,10 @@ export default async function ClientJournalPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Food & feelings</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Food & feelings</p>
           <h1 className="mt-1 text-4xl text-ink">Journal</h1>
         </div>
-        <Link href="/client" className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        <Link href="/client" className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
           Done
         </Link>
       </div>

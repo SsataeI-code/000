@@ -97,7 +97,7 @@ export function HelpLauncher() {
           onClick={openDrawer}
           aria-label="Ask the helper"
           aria-haspopup="dialog"
-          className="fixed bottom-20 right-4 z-40 inline-flex min-h-tap items-center gap-2 bg-red px-4 py-3 font-label text-xs font-600 uppercase tracking-wide text-white shadow-lg hover:bg-red-ink md:bottom-6"
+          className="fixed bottom-20 right-4 z-40 inline-flex min-h-tap items-center gap-2 bg-red px-4 py-3 font-label text-sm font-600 uppercase tracking-wide text-white shadow-lg hover:bg-red-ink md:bottom-6"
         >
           <span aria-hidden className="h-5 w-5"><IconMessages /></span>
           Ask
@@ -122,7 +122,7 @@ export function HelpLauncher() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-label text-xs uppercase tracking-wide text-ink/50">Quick answers</p>
+                <p className="font-label text-sm uppercase tracking-wide text-ink/50">Quick answers</p>
                 <h2 className="mt-1 text-2xl text-ink">Ask</h2>
               </div>
               <button
@@ -144,7 +144,7 @@ export function HelpLauncher() {
                 <button
                   type="button"
                   onClick={load}
-                  className="min-h-tap self-center border border-hairline px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red"
+                  className="min-h-tap self-center border border-hairline px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red"
                 >
                   Try again
                 </button>

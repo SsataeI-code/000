@@ -108,14 +108,14 @@ export function ContentEditor({ fields }: { fields: ContentField[] }) {
 
       {/* Sticky save bar */}
       <div className="sticky bottom-20 z-10 flex items-center justify-between gap-3 rounded-lg border border-hairline bg-elevated p-3 md:bottom-4">
-        <span aria-live="polite" className="font-body text-xs text-white/80">
+        <span aria-live="polite" className="font-body text-sm text-white/80">
           {error ? <span className="text-red-ink">{error}</span> : status ? status : dirty ? "Unsaved changes" : "All saved"}
         </span>
         <button
           type="button"
           onClick={save}
           disabled={pending || !dirty}
-          className="min-h-tap shrink-0 bg-red px-5 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap shrink-0 bg-red px-5 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save copy"}
         </button>

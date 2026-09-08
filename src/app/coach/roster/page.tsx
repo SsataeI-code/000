@@ -49,7 +49,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
         <h1 className="text-4xl text-ink">Roster</h1>
         <Link
           href="/coach/archived"
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           Archived{archived.length > 0 ? ` · ${archived.length}` : ""}
         </Link>
@@ -79,7 +79,7 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
                 <Link href={`/coach/clients/${c.id}`} className="flex min-h-tap items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
                   <span className="min-w-0">
                     <span className="block truncate font-body text-base text-ink">{c.name}</span>
-                    <span className="block font-body text-xs text-ink/50">
+                    <span className="block font-body text-sm text-ink/50">
                       {GOAL_LABEL[c.goal]} · Lv{c.habitLevel} {c.habitLevelName}
                       {c.habitCurrentStreak > 0 ? ` · ${c.habitCurrentStreak}d streak` : ""} · active {c.daysSinceActivity === 0 ? "today" : `${c.daysSinceActivity}d ago`}
                     </span>

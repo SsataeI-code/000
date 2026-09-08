@@ -31,7 +31,7 @@ export function SuggestedHabit({ name, category, why }: { name: string; category
 
   return (
     <section className="rounded-lg border border-hairline bg-surface p-5">
-      <p className="font-label text-xs uppercase tracking-wide text-ink/50">Ready for your next habit?</p>
+      <p className="font-label text-sm uppercase tracking-wide text-ink/50">Ready for your next habit?</p>
       <div className="mt-2 flex items-center gap-2">
         <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: CATEGORY_DOT[category] }} />
         <p className="font-body text-lg text-ink">{name}</p>
@@ -53,11 +53,11 @@ export function SuggestedHabit({ name, category, why }: { name: string; category
               }
             })
           }
-          className="min-h-tap bg-red px-4 py-2 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="min-h-tap bg-red px-4 py-2 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {pending ? "Adding…" : "Add this habit"}
         </button>
-        <span className="font-body text-xs text-ink/40">Only suggested once your current habits are sticking.</span>
+        <span className="font-body text-sm text-ink/40">Only suggested once your current habits are sticking.</span>
       </div>
     </section>
   );

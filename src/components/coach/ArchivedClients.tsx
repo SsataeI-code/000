@@ -14,14 +14,14 @@ function ArchivedRow({ client }: { client: ArchivedClient }) {
       <div className="min-w-0 flex-1">
         <p className="font-body text-base text-ink">{client.name}</p>
         {state.error ? (
-          <p role="alert" className="mt-1 font-body text-xs text-red-ink">{state.error}</p>
+          <p role="alert" className="mt-1 font-body text-sm text-red-ink">{state.error}</p>
         ) : null}
       </div>
       <form action={action}>
         <button
           type="submit"
           disabled={pending}
-          className="min-h-tap rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-xs uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
+          className="min-h-tap rounded-2xl border border-hairline bg-surface shadow-card px-4 py-2 font-label text-sm uppercase tracking-wide text-ink hover:border-red hover:text-red disabled:opacity-50"
         >
           {pending ? "Restoring…" : "Restore"}
         </button>

@@ -5,7 +5,7 @@
 export function SetupNotice() {
   return (
     <div className="mt-10 rounded-lg border border-hairline bg-surface p-5">
-      <p className="font-label text-xs uppercase tracking-wide text-red">
+      <p className="font-label text-sm uppercase tracking-wide text-red">
         Setup needed
       </p>
       <p className="mt-2 font-body text-sm text-ink/80">

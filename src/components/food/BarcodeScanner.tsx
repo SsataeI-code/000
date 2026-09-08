@@ -127,13 +127,13 @@ export function BarcodeScanner({
         ) : null}
         <canvas ref={canvasRef} className="hidden" />
       </div>
-      <p className="text-center font-body text-xs text-ink/60">
+      <p className="text-center font-body text-sm text-ink/60">
         Point at the barcode. Good light helps.
       </p>
       <button
         type="button"
         onClick={onClose}
-        className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+        className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
       >
         Cancel
       </button>

@@ -26,8 +26,8 @@ export function MacroBar({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between">
-        <span className="font-label text-xs uppercase tracking-wide text-ink/70">{label}</span>
-        <span className="font-body text-xs text-ink/60">
+        <span className="font-label text-sm uppercase tracking-wide text-ink/70">{label}</span>
+        <span className="font-body text-sm text-ink/60">
           {Math.round(value)} / {Math.round(target)}
           {unit}
         </span>

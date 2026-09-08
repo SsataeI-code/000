@@ -66,7 +66,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
         ))}
       </ul>
 
-      <p className="mt-3 font-body text-xs text-ink/60">
+      <p className="mt-3 font-body text-sm text-ink/60">
         ≈{meal.calories} cal · {meal.proteinG}g protein · {meal.fiberG}g fiber
         {meal.richIn.length ? ` · rich in ${meal.richIn.join(", ")}` : ""}
       </p>
@@ -82,7 +82,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
           type="button"
           onClick={logIt}
           disabled={pending || logged}
-          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-xs font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
+          className="inline-flex min-h-tap items-center justify-center bg-red px-5 py-2.5 font-label text-sm font-600 uppercase tracking-wide text-white hover:bg-red-ink disabled:opacity-50"
         >
           {logged ? "Logged ✓" : pending ? "Logging…" : "Log this meal"}
         </button>
@@ -90,7 +90,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
           type="button"
           onClick={() => setEditing((v) => !v)}
           aria-expanded={editing}
-          className="min-h-tap font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
+          className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red"
         >
           {editing ? "Close" : "Customize"}
         </button>
@@ -98,7 +98,7 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
 
       {editing ? (
         <div className="mt-4">
-          <p className="mb-2 font-body text-xs text-ink/50">
+          <p className="mb-2 font-body text-sm text-ink/50">
             Tweak the amounts, swap or add ingredients, then log or save it as your own.
           </p>
           <MealBuilder initialName={meal.name} initialItems={meal.items} />

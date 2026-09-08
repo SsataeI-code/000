@@ -21,7 +21,7 @@ import type { Goal, Habit, HabitCadence, HabitType } from "@/lib/types/db";
 const initial: PlanState = {};
 const selectClass =
   "min-h-tap w-full rounded-2xl border border-hairline bg-surface shadow-card px-3 py-2.5 font-body text-base text-ink focus:border-ink";
-const labelClass = "text-xs text-ink/80";
+const labelClass = "text-sm text-ink/80";
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 interface Targets {
@@ -108,7 +108,7 @@ export function ClientPlanTools({
 
       {/* Goal */}
       <form action={gAction} className="flex flex-col gap-3" noValidate>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Goal</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Goal</p>
         {gState.error ? (
           <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{gState.error}</p>
         ) : null}
@@ -128,7 +128,7 @@ export function ClientPlanTools({
       {/* Adjust targets — live macro calculator */}
       <form action={tAction} className="flex flex-col gap-4" noValidate>
         <div className="flex items-center justify-between gap-3">
-          <p className="font-label text-xs uppercase tracking-wide text-ink/50">Adjust targets</p>
+          <p className="font-label text-sm uppercase tracking-wide text-ink/50">Adjust targets</p>
           <button
             type="button"
             onClick={autoGenerate}
@@ -169,7 +169,7 @@ export function ClientPlanTools({
 
       {/* Nutrition strictness (§B) */}
       <form action={sAction} className="flex flex-col gap-3" noValidate>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Nutrition strictness</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Nutrition strictness</p>
         {sState.error ? (
           <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">{sState.error}</p>
         ) : null}
@@ -196,7 +196,7 @@ export function ClientPlanTools({
 
       {/* Assign a habit — full builder */}
       <form action={hAction} className="flex flex-col gap-4" noValidate>
-        <p className="font-label text-xs uppercase tracking-wide text-ink/50">Build a habit for this client</p>
+        <p className="font-label text-sm uppercase tracking-wide text-ink/50">Build a habit for this client</p>
         {hState.error ? (
           <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
             {hState.error}
@@ -279,7 +279,7 @@ export function ClientPlanTools({
         <>
           <hr className="border-hairline" />
           <div className="flex flex-col gap-2">
-            <p className="font-label text-xs uppercase tracking-wide text-ink/50">Remove a habit</p>
+            <p className="font-label text-sm uppercase tracking-wide text-ink/50">Remove a habit</p>
             <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface shadow-card">
               {habits.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-3 px-4 py-2.5">

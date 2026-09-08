@@ -11,7 +11,7 @@ const initial: OnboardingState = {};
 
 const selectClass =
   "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
-const labelClass = "text-xs text-ink/80";
+const labelClass = "text-sm text-ink/80";
 
 export function OnboardingForm() {
   const [state, formAction, pending] = useActionState(saveOnboardingAction, initial);
@@ -184,7 +184,7 @@ export function OnboardingForm() {
           placeholder="e.g. shellfish, peanuts, cilantro"
           className="min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink"
         />
-        <p className="font-body text-xs text-ink/50">Comma-separated. We&apos;ll keep these out of your suggestions.</p>
+        <p className="font-body text-sm text-ink/50">Comma-separated. We&apos;ll keep these out of your suggestions.</p>
       </div>
 
       {/* Your first habit — the heart of the app (§5A). Required, and taught. */}
@@ -198,7 +198,7 @@ export function OnboardingForm() {
           anchor it.
         </p>
 
-        <div className="mt-1 flex flex-col gap-1 rounded-lg border border-hairline bg-surface p-3 font-body text-xs text-ink/60">
+        <div className="mt-1 flex flex-col gap-1 rounded-lg border border-hairline bg-surface p-3 font-body text-sm text-ink/60">
           <p><span className="font-600 text-ink">How to pick:</span> choose one small enough to do almost every day — “drink water,” not “run a marathon.”</p>
           <p><span className="font-600 text-ink">How it helps:</span> repeating it builds the routine your goal is made of.</p>
           <p><span className="font-600 text-ink">How you track it:</span> tap it done each day on your Today screen — watch your streak grow and your calendar fill in.</p>
@@ -255,7 +255,7 @@ function UnitToggle({
           type="button"
           onClick={() => onChange(val)}
           aria-pressed={value === val}
-          className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${
+          className={`min-h-tap px-3 font-label text-sm uppercase tracking-wide ${
             value === val ? "bg-elevated text-white" : "bg-surface text-ink/60"
           }`}
         >

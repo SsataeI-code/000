@@ -29,11 +29,11 @@ export function BodyLogForm() {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-ink/80">Weight</span>
+          <span className="text-sm text-ink/80">Weight</span>
           <div className="flex border border-hairline" role="group" aria-label="Units">
             {(["lb", "kg"] as const).map((u) => (
               <button key={u} type="button" onClick={() => setUnit(u)} aria-pressed={unit === u}
-                className={`min-h-tap px-3 font-label text-xs uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}>
+                className={`min-h-tap px-3 font-label text-sm uppercase tracking-wide ${unit === u ? "bg-elevated text-white" : "bg-surface text-ink/60"}`}>
                 {u}
               </button>
             ))}
@@ -46,7 +46,7 @@ export function BodyLogForm() {
       </div>
 
       <button type="button" onClick={() => setShowMore((v) => !v)}
-        className="min-h-tap self-start font-label text-xs uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
+        className="min-h-tap self-start font-label text-sm uppercase tracking-wide text-ink/60 underline underline-offset-4 hover:text-red">
         {showMore ? "Fewer fields" : "Add body-fat % / measurements"}
       </button>
 

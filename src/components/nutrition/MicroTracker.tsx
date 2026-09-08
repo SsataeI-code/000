@@ -28,7 +28,7 @@ export function MicroTracker({
   return (
     <details className="rounded-lg border border-hairline bg-surface">
       <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-5 py-3">
-        <span className="font-label text-xs uppercase tracking-wide text-ink/70">
+        <span className="font-label text-sm uppercase tracking-wide text-ink/70">
           Vitamins &amp; minerals
         </span>
         <span className="font-label text-[12px] uppercase tracking-wide text-ink/40">
@@ -49,7 +49,7 @@ export function MicroTracker({
             </div>
           </div>
         ))}
-        <p className="font-body text-xs text-ink/40">
+        <p className="font-body text-sm text-ink/40">
           Goals use the standard 2,000-calorie Daily Values. A nutrient reads 0
           until you log foods we have data for — scanning products fills it in.
         </p>
@@ -72,7 +72,7 @@ function MicroRow({ row }: { row: MicroGoalRow }) {
     return (
       <div className="flex items-baseline justify-between">
         <span className="font-body text-sm text-ink/80">{def.label}</span>
-        <span className="font-body text-xs text-ink/60">{fmt(consumed, def.unit)} {def.unit}</span>
+        <span className="font-body text-sm text-ink/60">{fmt(consumed, def.unit)} {def.unit}</span>
       </div>
     );
   }
@@ -86,7 +86,7 @@ function MicroRow({ row }: { row: MicroGoalRow }) {
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between">
         <span className="font-body text-sm text-ink/80">{def.label}</span>
-        <span className={`font-body text-xs ${over && kind === "limit" ? "text-red" : "text-ink/60"}`}>
+        <span className={`font-body text-sm ${over && kind === "limit" ? "text-red" : "text-ink/60"}`}>
           {fmt(consumed, def.unit)} / {kind === "limit" ? "≤" : ""}
           {fmt(goal, def.unit)} {def.unit}
         </span>

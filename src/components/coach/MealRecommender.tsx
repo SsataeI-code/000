@@ -89,7 +89,7 @@ export function MealRecommender({
 
           {result.meals.length > 0 ? (
             <div className="flex flex-col gap-2">
-              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Meals — tap Customize to tweak</p>
+              <p className="font-label text-sm uppercase tracking-wide text-ink/50">Meals — tap Customize to tweak</p>
               {result.meals.map((m, i) => (
                 <MealRow key={`m${i}`} m={m} name={first} send={send} />
               ))}
@@ -98,7 +98,7 @@ export function MealRecommender({
 
           {result.foods.length > 0 ? (
             <div className="flex flex-col gap-2">
-              <p className="font-label text-xs uppercase tracking-wide text-ink/50">Single foods</p>
+              <p className="font-label text-sm uppercase tracking-wide text-ink/50">Single foods</p>
               <div className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
                 {result.foods.map((f, i) => (
                   <FoodRow key={`f${i}`} f={f} name={first} send={send} onEdit={() => setCustom(foodText(f, first))} />
@@ -111,7 +111,7 @@ export function MealRecommender({
 
       {/* Write your own */}
       <div className="flex flex-col gap-2 border-t border-hairline pt-4">
-        <label htmlFor="rec_custom" className="font-label text-xs uppercase tracking-wide text-ink/50">Write or edit a recommendation</label>
+        <label htmlFor="rec_custom" className="font-label text-sm uppercase tracking-wide text-ink/50">Write or edit a recommendation</label>
         <textarea
           id="rec_custom"
           rows={2}
@@ -181,7 +181,7 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
         <span className="font-body text-base font-600 text-ink">{m.name}</span>
         <span className="shrink-0 font-label text-[13px] uppercase tracking-wide text-ink/50">{open ? totals.calories : m.calories} cal · {open ? totals.protein : m.proteinG}g P</span>
       </div>
-      {!open ? <p className="font-body text-xs text-ink/55">{m.ingredients.join(" · ")}</p> : null}
+      {!open ? <p className="font-body text-sm text-ink/55">{m.ingredients.join(" · ")}</p> : null}
       {m.richIn.length > 0 && !open ? <p className="font-body text-[13px] text-success">Rich in {m.richIn.join(", ")}</p> : null}
 
       {open ? (
@@ -197,11 +197,11 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
                 onChange={(e) => { setGrams(i, Number(e.target.value)); setSent(false); }}
                 className="min-h-tap w-16 rounded-lg border border-hairline bg-surface px-2 py-1 text-right font-body text-sm text-ink"
               />
-              <span className="font-body text-xs text-ink/50">g</span>
-              <button type="button" aria-label={`Remove ${it.name}`} onClick={() => { remove(i); setSent(false); }} className="min-h-tap min-w-tap font-label text-xs text-ink/40 hover:text-red">✕</button>
+              <span className="font-body text-sm text-ink/50">g</span>
+              <button type="button" aria-label={`Remove ${it.name}`} onClick={() => { remove(i); setSent(false); }} className="min-h-tap min-w-tap font-label text-sm text-ink/40 hover:text-red">✕</button>
             </div>
           ))}
-          {items.length === 0 ? <p className="px-3 py-2 font-body text-xs text-ink/50">All ingredients removed — add one below.</p> : null}
+          {items.length === 0 ? <p className="px-3 py-2 font-body text-sm text-ink/50">All ingredients removed — add one below.</p> : null}
         </div>
       ) : null}
 
@@ -215,14 +215,14 @@ function MealRow({ m, name, send }: { m: MealSuggestion; name: string; send: (t:
             autoComplete="off"
             className="min-h-tap w-full rounded-lg border border-hairline bg-surface-input px-3 py-2 font-body text-sm text-ink placeholder:text-ink/40 outline-none focus:border-red focus:ring-2 focus:ring-red/30"
           />
-          {searching ? <p className="font-body text-xs text-ink/50">Searching…</p> : null}
+          {searching ? <p className="font-body text-sm text-ink/50">Searching…</p> : null}
           {results.length > 0 ? (
             <ul className="flex flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface">
               {results.slice(0, 8).map((r, i) => (
                 <li key={`${r.barcode}-${i}`}>
                   <button type="button" onClick={() => addFood(r)} className="flex w-full min-h-tap items-center justify-between gap-2 px-3 py-2 text-left hover:bg-surface-muted">
                     <span className="min-w-0 truncate font-body text-sm text-ink">{r.name}</span>
-                    <span className="shrink-0 font-body text-xs text-ink/40">{r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal/100g` : "add"}</span>
+                    <span className="shrink-0 font-body text-sm text-ink/40">{r.per100g.calories != null ? `${Math.round(r.per100g.calories)} kcal/100g` : "add"}</span>
                   </button>
                 </li>
               ))}
@@ -250,7 +250,7 @@ function FoodRow({ f, name, send, onEdit }: { f: FoodPick; name: string; send: (
     <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
       <span className="min-w-0">
         <span className="block truncate font-body text-sm text-ink">{f.name}</span>
-        <span className="block font-body text-xs text-ink/50">{f.grams}g · {f.proteinG}g protein · {f.calories} cal</span>
+        <span className="block font-body text-sm text-ink/50">{f.grams}g · {f.proteinG}g protein · {f.calories} cal</span>
       </span>
       <span className="flex shrink-0 items-center gap-2">
         <button type="button" disabled={pending || sent} onClick={() => start(async () => { if (await send(foodText(f, name))) setSent(true); })} className="min-h-tap rounded-full border border-red px-3 py-1.5 font-label text-[12px] font-600 uppercase tracking-wide text-red hover:bg-red hover:text-white disabled:opacity-60">

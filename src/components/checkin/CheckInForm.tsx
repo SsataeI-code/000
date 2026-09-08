@@ -32,7 +32,7 @@ export function CheckInForm({ existing }: { existing: CheckIn | null }) {
 
       {/* Weight */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="ci_weight" className="text-xs text-ink/80">This week&apos;s weight (morning)</label>
+        <label htmlFor="ci_weight" className="text-sm text-ink/80">This week&apos;s weight (morning)</label>
         <div className="flex gap-2">
           <input id="ci_weight" name="weight" type="number" inputMode="decimal" step="0.1" min={0} defaultValue={existingWeight}
             className="min-h-tap flex-1 rounded-lg border border-hairline bg-surface-input px-3.5 py-2.5 font-body text-base text-ink outline-none focus:border-red focus:ring-2 focus:ring-red/30" />
@@ -46,7 +46,7 @@ export function CheckInForm({ existing }: { existing: CheckIn | null }) {
 
       {/* Energy */}
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs text-ink/80">Energy this week</span>
+        <span className="text-sm text-ink/80">Energy this week</span>
         <input type="hidden" name="energy" value={energy ?? ""} />
         <div className="flex flex-wrap gap-2">
           {ENERGY.map((e) => (
@@ -62,12 +62,12 @@ export function CheckInForm({ existing }: { existing: CheckIn | null }) {
 
       {/* Win + focus */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="ci_win" className="text-xs text-ink/80">A win this week</label>
+        <label htmlFor="ci_win" className="text-sm text-ink/80">A win this week</label>
         <textarea id="ci_win" name="win" rows={2} defaultValue={existing?.win ?? ""} placeholder="e.g. Hit my steps every day"
           className="w-full resize-none rounded-lg border border-hairline bg-surface-input px-3.5 py-2.5 font-body text-base text-ink placeholder:text-ink/40 outline-none focus:border-red focus:ring-2 focus:ring-red/30" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="ci_focus" className="text-xs text-ink/80">One thing to work on</label>
+        <label htmlFor="ci_focus" className="text-sm text-ink/80">One thing to work on</label>
         <textarea id="ci_focus" name="focus" rows={2} defaultValue={existing?.focus ?? ""} placeholder="e.g. More protein at breakfast"
           className="w-full resize-none rounded-lg border border-hairline bg-surface-input px-3.5 py-2.5 font-body text-base text-ink placeholder:text-ink/40 outline-none focus:border-red focus:ring-2 focus:ring-red/30" />
       </div>

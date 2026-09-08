@@ -134,7 +134,7 @@ export function MilestoneCelebration({
             type="button"
             onClick={dismiss}
             autoFocus
-            className="mt-1 min-h-tap w-full rounded-xl bg-grad-red px-5 py-3 font-label text-xs uppercase tracking-wide text-white shadow-pop-red transition-transform active:translate-y-[3px]"
+            className="mt-1 min-h-tap w-full rounded-xl bg-grad-red px-5 py-3 font-label text-sm uppercase tracking-wide text-white shadow-pop-red transition-transform active:translate-y-[3px]"
           >
             {queue.length > 1 ? `Nice — next (${queue.length - 1})` : "Let's go"}
           </button>

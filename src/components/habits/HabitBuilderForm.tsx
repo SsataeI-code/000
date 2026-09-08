@@ -8,7 +8,7 @@ import type { HabitCadence, HabitType } from "@/lib/types/db";
 
 const initial: HabitFormState = {};
 const selectClass = "min-h-tap w-full rounded-lg border border-hairline bg-surface px-3 py-2.5 font-body text-base text-ink focus:border-ink";
-const labelClass = "text-xs text-ink/80";
+const labelClass = "text-sm text-ink/80";
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function HabitBuilderForm() {
