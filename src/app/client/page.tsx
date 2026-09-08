@@ -25,6 +25,7 @@ import { recalcTargetsAction } from "@/lib/nutrition/actions";
 import { MicroTracker } from "@/components/nutrition/MicroTracker";
 import { FillYourRings } from "@/components/nutrition/FillYourRings";
 import { MealSuggestions } from "@/components/nutrition/MealSuggestions";
+import { PlateBuilder } from "@/components/nutrition/PlateBuilder";
 import { SavedMealsList } from "@/components/nutrition/SavedMealsList";
 import { ReviewNudges } from "@/components/nutrition/ReviewNudges";
 import { TodayHabits, type TodayHabitItem } from "@/components/habits/TodayHabits";
@@ -286,6 +287,15 @@ export default async function TodayPage() {
             <RecentFoods foods={relogFoods} />
             <FoodLogList logs={logs} photoUrls={photoUrls} />
           </div>
+        );
+      case "plate":
+        if (strictness === "habits_only") return null;
+        return (
+          <PlateBuilder
+            key={id}
+            targets={{ calories: targets.calories, proteinG: targets.protein_g }}
+            diet={diet}
+          />
         );
       case "fill_rings":
         if (strictness === "habits_only") return null;

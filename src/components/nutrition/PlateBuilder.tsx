@@ -38,10 +38,11 @@ const ZONE_ARC: Record<Exclude<PlateZone, "fat">, [number, number]> = {
 };
 
 // Where a zone's food icons cluster on the plate, and how wide the grid is.
+// Pulled toward the center so the rim-side proportion labels stay clear.
 const ZONE_LAYOUT: Record<Exclude<PlateZone, "fat">, { cx: number; cy: number; cols: number }> = {
-  protein: { cx: 132, cy: 68, cols: 2 },
-  carb: { cx: 132, cy: 132, cols: 2 },
-  veggie: { cx: 52, cy: 100, cols: 3 },
+  protein: { cx: 128, cy: 74, cols: 2 },
+  carb: { cx: 128, cy: 126, cols: 2 },
+  veggie: { cx: 58, cy: 100, cols: 2 },
 };
 
 /** Grid positions centered on (cx, cy) for n icons. */
@@ -167,26 +168,37 @@ export function PlateBuilder({
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
         {/* The reference plate — fills in as foods are added, zone by zone. */}
         <div className="flex shrink-0 flex-col items-center gap-2">
-          <svg viewBox="0 0 200 200" width="220" height="220" role="img" aria-label="Your plate with the foods you added" className="shrink-0">
-            <circle cx="100" cy="100" r="94" fill="#0c0c0d" stroke="#2c2c31" strokeWidth="3" />
-            {/* Zone wedges — faint when empty, tinted when they hold food. */}
+          <svg viewBox="0 0 200 200" width="240" height="240" role="img" aria-label="Your plate: half veggies, a quarter protein, a quarter carbs" className="shrink-0">
+            {/* Plate: outer rim + inner face so it reads as a real plate. */}
+            <circle cx="100" cy="100" r="96" fill="#141418" stroke="#3a3a42" strokeWidth="2" />
+            <circle cx="100" cy="100" r="90" fill="#0c0c0d" stroke="#2c2c31" strokeWidth="2" />
+            {/* Zone wedges — the fraction guide is ALWAYS labeled so the method stays
+                visible even once food is on the plate. */}
             {(Object.keys(ZONE_ARC) as (keyof typeof ZONE_ARC)[]).map((zone) => {
               const [a, b] = ZONE_ARC[zone];
               const active = counts[zone] > 0;
               const meta = ZONE_META[zone];
               const mid = (a + b) / 2;
               const ang = mid * 2 * Math.PI - Math.PI / 2;
-              const lx = 100 + 78 * Math.cos(ang);
-              const ly = 100 + 78 * Math.sin(ang);
+              // Labels ride near the rim so the icon cluster (inward) never covers them.
+              const lx = 100 + 74 * Math.cos(ang);
+              const ly = 100 + 74 * Math.sin(ang);
+              const frac = zone === "veggie" ? "½" : "¼";
               return (
                 <g key={zone}>
-                  <path d={wedge(100, 100, 90, a, b)} fill={meta.color} fillOpacity={active ? 0.22 : 0.1} stroke="#0c0c0d" strokeWidth="2" />
-                  {!active ? (
-                    <text x={lx} y={ly} textAnchor="middle" className="fill-white/70" style={{ font: "700 9px sans-serif" }}>
-                      {meta.label}
-                    </text>
-                  ) : null}
+                  <path d={wedge(100, 100, 90, a, b)} fill={meta.color} fillOpacity={active ? 0.3 : 0.16} stroke="#0c0c0d" strokeWidth="2" />
+                  <text x={lx} y={ly - 3} textAnchor="middle" fill={meta.color} style={{ font: "800 16px sans-serif" }}>{frac}</text>
+                  <text x={lx} y={ly + 9} textAnchor="middle" className="fill-white/85" style={{ font: "700 8px sans-serif", letterSpacing: "0.04em" }}>
+                    {meta.label.toUpperCase()}
+                  </text>
                 </g>
+              );
+            })}
+            {/* Crisp dividers between the halves/quarters. */}
+            {[0, 0.25, 0.5].map((f) => {
+              const ang = f * 2 * Math.PI - Math.PI / 2;
+              return (
+                <line key={f} x1={100} y1={100} x2={100 + 90 * Math.cos(ang)} y2={100 + 90 * Math.sin(ang)} stroke="#2c2c31" strokeWidth="2" />
               );
             })}
             {/* The foods themselves, clustered in their zone. */}

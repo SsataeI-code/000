@@ -16,6 +16,7 @@ export type ClientSectionId =
   | "water"
   | "ask"
   | "food"
+  | "plate"
   | "fill_rings"
   | "meals"
   | "micros";
@@ -34,6 +35,7 @@ export const CLIENT_SECTIONS: ClientSectionDef[] = [
   { id: "water", label: "Water", description: "The daily hydration ring with one-tap add.", defaultVisible: true },
   { id: "ask", label: "Ask helper", description: "A shortcut card to the instant answer helper.", defaultVisible: true },
   { id: "food", label: "Food log", description: "Add food and the day's logged items.", defaultVisible: true },
+  { id: "plate", label: "Plate builder", description: "Build a balanced plate from real foods — teaches proportions, logs in a tap.", defaultVisible: true },
   { id: "fill_rings", label: "Fill your rings", description: "Smart suggestions for what's still short today.", defaultVisible: true },
   { id: "meals", label: "Meal ideas", description: "Saved meals and meal suggestions.", defaultVisible: true },
   { id: "micros", label: "Micronutrients", description: "The vitamins & minerals tracker.", defaultVisible: true },
