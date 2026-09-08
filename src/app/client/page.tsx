@@ -197,6 +197,7 @@ export default async function TodayPage() {
     remainingCalories: targets.calories - totals.calories,
     shortMicroKeys: shortMicroKeys(microTotals, targets.calories, profile?.sex ?? null),
     diet,
+    savedMeals,
   });
 
   // Each configurable Today section (§4 — the coach arranges these). The greeting

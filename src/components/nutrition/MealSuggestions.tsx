@@ -47,9 +47,15 @@ function MealCard({ meal }: { meal: MealSuggestion }) {
     <div className="rounded-lg border border-hairline bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-xl text-ink">{meal.name}</h3>
-        <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">
-          {meal.kind}
-        </span>
+        {meal.saved ? (
+          <span className="shrink-0 rounded-full bg-red/15 px-2 py-0.5 font-label text-[10px] uppercase tracking-wide text-red-ink">
+            Your meal
+          </span>
+        ) : (
+          <span className="shrink-0 font-label text-[10px] uppercase tracking-wide text-ink/40">
+            {meal.kind}
+          </span>
+        )}
       </div>
 
       <ul className="mt-2 flex flex-col gap-0.5">

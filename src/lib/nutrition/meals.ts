@@ -2,7 +2,7 @@ import type { NormalizedFood } from "@/lib/food/off";
 import { recommendableFoods } from "@/lib/food/generic-foods";
 import { allowedByDiet, type DietFilter } from "@/lib/food/diet";
 import { ESSENTIAL_MICROS } from "@/lib/nutrition/micros";
-import type { Sex } from "@/lib/types/db";
+import type { Sex, Meal } from "@/lib/types/db";
 
 /**
  * Simple, balanced meal combinations built from catalog foods (§5B, precursor to
@@ -129,6 +129,8 @@ export interface MealSuggestion {
   ingredients: string[];
   /** Everything needed to log the meal in one tap. */
   items: MealLogItem[];
+  /** True when this is one of the client's own saved meals (surfaced as familiar). */
+  saved?: boolean;
 }
 
 function catalogMap(): Map<string, NormalizedFood> {
@@ -139,6 +141,68 @@ function catalogMap(): Map<string, NormalizedFood> {
 
 interface ComputedMeal extends MealSuggestion {
   microsGrams: Record<string, number>;
+  /** True for a meal the client saved themselves — surfaced first (familiar). */
+  saved?: boolean;
+}
+
+/** "Rich in" = essential micros a meal delivers at ≥25% of the 2000-cal DV. */
+function richInFrom(microsGrams: Record<string, number>): string[] {
+  return ESSENTIAL_MICROS.filter((def) => {
+    if (def.kind !== "goal" || typeof def.dv !== "number") return false;
+    const provided = (microsGrams[def.key] ?? 0) * def.factor;
+    return provided >= def.dv * 0.25;
+  })
+    .sort(
+      (a, b) =>
+        (microsGrams[b.key] ?? 0) * b.factor / (b.dv as number) -
+        (microsGrams[a.key] ?? 0) * a.factor / (a.dv as number),
+    )
+    .slice(0, 3)
+    .map((d) => d.label);
+}
+
+/**
+ * Compute a client's own saved meal into the same shape as a template meal, so
+ * the recommender can surface meals they've actually built before ("remember
+ * meals so recommendations match previously input"). Defensive — a malformed
+ * saved meal is skipped, never thrown.
+ */
+function computeSavedMeal(meal: Meal): ComputedMeal | null {
+  if (!meal || !Array.isArray(meal.items) || meal.items.length === 0) return null;
+  let calories = 0;
+  let proteinG = 0;
+  let fiberG = 0;
+  const microsGrams: Record<string, number> = {};
+  const items: MealLogItem[] = [];
+  const ingredients: string[] = [];
+
+  for (const item of meal.items) {
+    const n = item?.nutrimentsPer100g ?? {};
+    const f = (Number(item?.grams) || 0) / 100;
+    calories += (Number(n.energy_kcal) || 0) * f;
+    proteinG += (Number(n.proteins) || 0) * f;
+    fiberG += (Number(n.fiber) || 0) * f;
+    for (const [k, v] of Object.entries(n)) {
+      if (["energy_kcal", "proteins", "carbohydrates", "fat"].includes(k)) continue;
+      microsGrams[k] = (microsGrams[k] ?? 0) + (Number(v) || 0) * f;
+    }
+    items.push({ name: item.name, grams: Number(item?.grams) || 0, nutrimentsPer100g: n });
+    ingredients.push(`${item.name} · ${Math.round(Number(item?.grams) || 0)}g`);
+  }
+  if (calories <= 0 && proteinG <= 0) return null;
+
+  return {
+    name: meal.name,
+    kind: "Your meal",
+    calories: Math.round(calories),
+    proteinG: Math.round(proteinG),
+    fiberG: Math.round(fiberG),
+    richIn: richInFrom(microsGrams),
+    ingredients,
+    items,
+    microsGrams,
+    saved: true,
+  };
 }
 
 function computeMeal(t: MealTemplate, map: Map<string, NormalizedFood>): ComputedMeal | null {
@@ -165,27 +229,13 @@ function computeMeal(t: MealTemplate, map: Map<string, NormalizedFood>): Compute
     ingredients.push(`${item.name} · ${item.grams}g`);
   }
 
-  // "Rich in" = essential micros the meal delivers at >= 25% of the 2000-cal DV.
-  const richIn: string[] = ESSENTIAL_MICROS.filter((def) => {
-    if (def.kind !== "goal" || typeof def.dv !== "number") return false;
-    const provided = (microsGrams[def.key] ?? 0) * def.factor;
-    return provided >= def.dv * 0.25;
-  })
-    .sort(
-      (a, b) =>
-        (microsGrams[b.key] ?? 0) * b.factor / (b.dv as number) -
-        (microsGrams[a.key] ?? 0) * a.factor / (a.dv as number),
-    )
-    .slice(0, 3)
-    .map((d) => d.label);
-
   return {
     name: t.name,
     kind: t.kind,
     calories: Math.round(calories),
     proteinG: Math.round(proteinG),
     fiberG: Math.round(fiberG),
-    richIn,
+    richIn: richInFrom(microsGrams),
     ingredients,
     items,
     microsGrams,
@@ -199,7 +249,12 @@ export interface MealInput {
   shortMicroKeys: string[];
   /** Optional diet pattern + avoid list — only meals whose every item fits are suggested. */
   diet?: DietFilter;
+  /** The client's own saved meals — folded in and preferred so recommendations match what they actually eat. */
+  savedMeals?: Meal[];
 }
+
+/** One-time familiarity boost so a client's own saved meal surfaces over a generic template. */
+const SAVED_MEAL_BOOST = 30;
 
 /** Rank meals by how well they close today's biggest gaps. */
 export function suggestMeals(input: MealInput, max = 2): MealSuggestion[] {
@@ -207,9 +262,19 @@ export function suggestMeals(input: MealInput, max = 2): MealSuggestion[] {
   const short = new Set(input.shortMicroKeys);
   const diet = input.diet;
 
-  const scored = MEAL_TEMPLATES.map((t) => computeMeal(t, map))
+  // The client's saved meals lead (they built them, so they fit their diet);
+  // template meals fill in behind them, skipping any duplicate name.
+  const savedComputed = (input.savedMeals ?? [])
+    .map(computeSavedMeal)
+    .filter((m): m is ComputedMeal => m !== null);
+  const savedNames = new Set(savedComputed.map((m) => m.name.trim().toLowerCase()));
+
+  const templateComputed = MEAL_TEMPLATES.map((t) => computeMeal(t, map))
     .filter((m): m is ComputedMeal => m !== null)
     .filter((m) => !diet || m.items.every((it) => allowedByDiet(it.name, diet)))
+    .filter((m) => !savedNames.has(m.name.trim().toLowerCase()));
+
+  const scored = [...savedComputed, ...templateComputed]
     .map((m) => {
       const proteinFill = Math.min(m.proteinG, Math.max(0, input.remainingProteinG));
       const fiberFill = Math.min(m.fiberG, Math.max(0, input.remainingFiberG));
@@ -221,7 +286,7 @@ export function suggestMeals(input: MealInput, max = 2): MealSuggestion[] {
       // Nudge away from meals that blow the remaining calorie budget.
       const over =
         input.remainingCalories > 0 ? Math.max(0, m.calories - input.remainingCalories) : 0;
-      const score = proteinFill * 1.5 + fiberFill * 3 + microMatches * 12 - over * 0.03;
+      const score = proteinFill * 1.5 + fiberFill * 3 + microMatches * 12 - over * 0.03 + (m.saved ? SAVED_MEAL_BOOST : 0);
       return { m, score };
     })
     .sort((a, b) => b.score - a.score)

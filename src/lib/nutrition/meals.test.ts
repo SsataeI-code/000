@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { suggestMeals, shortMicroKeys } from "@/lib/nutrition/meals";
+import type { Meal } from "@/lib/types/db";
 
 describe("meal suggestions", () => {
   it("returns loggable meals matched to gaps", () => {
@@ -41,6 +42,47 @@ describe("meal suggestions", () => {
       2,
     );
     expect(meals.length).toBeLessThanOrEqual(2);
+  });
+
+  it("surfaces the client's own saved meals first (remembers what they eat)", () => {
+    const savedMeal: Meal = {
+      id: "m1",
+      owner_id: "u1",
+      name: "My go-to breakfast",
+      created_at: "",
+      updated_at: "",
+      items: [
+        { name: "Eggs", grams: 100, nutrimentsPer100g: { energy_kcal: 156, proteins: 13, fat: 11, fiber: 0 } },
+        { name: "Oats", grams: 80, nutrimentsPer100g: { energy_kcal: 380, proteins: 13, carbohydrates: 67, fiber: 10 } },
+      ],
+    };
+    const meals = suggestMeals({
+      remainingProteinG: 40,
+      remainingFiberG: 15,
+      remainingCalories: 1500,
+      shortMicroKeys: [],
+      savedMeals: [savedMeal],
+    });
+    const mine = meals.find((m) => m.name === "My go-to breakfast");
+    expect(mine).toBeTruthy();
+    expect(mine!.saved).toBe(true);
+    // Familiar meal wins the top slot over generic templates.
+    expect(meals[0].name).toBe("My go-to breakfast");
+    // Its nutrition is summed from the scaled items (eggs 100g + oats 80g).
+    expect(mine!.proteinG).toBeGreaterThan(20);
+  });
+
+  it("ignores a malformed saved meal without throwing", () => {
+    const meals = suggestMeals({
+      remainingProteinG: 40,
+      remainingFiberG: 15,
+      remainingCalories: 1500,
+      shortMicroKeys: [],
+      // @ts-expect-error — deliberately malformed to prove defensiveness
+      savedMeals: [{ id: "x", name: "broken", items: null }, { id: "y", name: "empty", items: [] }],
+    });
+    expect(meals.length).toBeGreaterThan(0); // still returns template meals
+    expect(meals.find((m) => m.name === "broken")).toBeFalsy();
   });
 
   it("flags micros below 60% of goal as short", () => {
