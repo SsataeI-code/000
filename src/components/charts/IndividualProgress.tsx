@@ -44,6 +44,7 @@ export function IndividualProgress({
   days = 30,
   toggle,
   clientView = false,
+  coachClientId,
 }: {
   measurements: BodyMeasurement[];
   foodLogs: FoodLog[];
@@ -55,6 +56,8 @@ export function IndividualProgress({
   toggle?: ReactNode;
   /** On the client's own screen, make the key-stat tiles tap through to their log. */
   clientView?: boolean;
+  /** On the coach deep-dive, make the macro tiles open that client's full food log. */
+  coachClientId?: string;
 }) {
   const dates = lastNDates(days);
   const cutoff = dates[0];
@@ -180,11 +183,13 @@ export function IndividualProgress({
         </section>
       ) : null}
 
-      {/* Key stats — on the client's own screen these tap through to their logs */}
+      {/* Key stats — tap through to the food log. On the coach deep-dive each macro
+          opens that client's full food log sorted by the macro (owner request);
+          on the client's own screen they open their food/habits. */}
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} href={clientView ? "/client/food" : undefined} />
-        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} href={clientView ? "/client/food" : undefined} />
-        <Stat label="Days logged" value={`${logged} / ${days}`} sub={`${Math.round((logged / days) * 100)}%`} href={clientView ? "/client/food" : undefined} />
+        <Stat label="Avg calories" value={avgCals != null ? String(Math.round(avgCals)) : "—"} sub={targets ? `/ ${targets.calories}` : undefined} href={coachClientId ? `/coach/clients/${coachClientId}/food?sort=calories` : clientView ? "/client/food" : undefined} />
+        <Stat label="Avg protein" value={avgProtein != null ? `${Math.round(avgProtein)} g` : "—"} sub={targets ? `/ ${targets.protein_g} g` : undefined} href={coachClientId ? `/coach/clients/${coachClientId}/food?sort=protein_g` : clientView ? "/client/food" : undefined} />
+        <Stat label="Days logged" value={`${logged} / ${days}`} sub={`${Math.round((logged / days) * 100)}%`} href={coachClientId ? `/coach/clients/${coachClientId}/food?sort=log_date` : clientView ? "/client/food" : undefined} />
         <Stat label="Habits" value={avgCons != null ? `${Math.round(avgCons * 100)}%` : "—"} sub={`best ${bestStreak}d streak`} href={clientView ? "/client/habits" : undefined} />
       </section>
 

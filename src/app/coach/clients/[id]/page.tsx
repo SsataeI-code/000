@@ -251,7 +251,19 @@ export default async function ClientDeepDive({
         goal={profile?.goal ?? null}
         days={range}
         toggle={<RangeToggle current={range} />}
+        coachClientId={id}
       />
+
+      <Link
+        href={`/coach/clients/${id}/food`}
+        className="flex items-center justify-between rounded-2xl border border-hairline bg-surface shadow-card p-4 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block font-body text-base text-ink">View all food logged</span>
+          <span className="block font-body text-sm text-ink/50">Every item they entered — sort by calories or any macro to see the values</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Open →</span>
+      </Link>
 
       {wearableDays.length > 0 ? <WearableSummary days={wearableDays} /> : null}
 
