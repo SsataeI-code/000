@@ -188,9 +188,12 @@ export default async function LandingPage() {
         </section>
       ) : null}
 
-      <footer className="mt-12 flex items-center justify-between border-t border-hairline pt-6 font-label text-[12px] uppercase tracking-wide text-ink/40">
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-6 font-label text-[12px] uppercase tracking-wide text-ink/40">
         <span>{t("brand.name")}</span>
-        <span>Built for the work</span>
+        <span className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:text-red">Privacy</Link>
+          <Link href="/terms" className="hover:text-red">Terms</Link>
+        </span>
       </footer>
     </main>
   );
