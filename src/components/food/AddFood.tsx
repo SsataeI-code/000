@@ -9,6 +9,7 @@ import { lookupProductAction, logFoodAction, searchFoodsAction } from "@/lib/foo
 import { analyzeFoodPhotoAction } from "@/lib/ai/food-photo";
 import { macrosForGrams, type NormalizedFood } from "@/lib/food/off";
 import { createClient } from "@/lib/supabase/client";
+import { useScrollToError } from "@/lib/ui/useScrollToError";
 import { PORTION_OPTIONS, gramsForPortion, pieceUnitFor, type PortionUnit } from "@/lib/food/portions";
 
 type Mode = "choose" | "scanning" | "search" | "confirm";
@@ -109,6 +110,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
   const [photo, setPhoto] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const estimateInputRef = useRef<HTMLInputElement>(null);
+  const errorRef = useScrollToError(error);
 
   /** Estimate macros from a food photo via AI, then drop into confirm to edit. */
   async function estimateFromPhoto(f: File) {
@@ -413,7 +415,7 @@ export function AddFood({ userId, aiEnabled = false }: { userId: string; aiEnabl
         </p>
       ) : null}
       {error ? (
-        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p ref={errorRef as React.RefObject<HTMLParagraphElement>} tabIndex={-1} role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink outline-none">
           {error}
         </p>
       ) : null}

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { saveOnboardingAction, type OnboardingState } from "@/lib/nutrition/actions";
+import { useScrollToError } from "@/lib/ui/useScrollToError";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { HABIT_IDEAS, categoryForIdea } from "@/lib/habits/ideas";
@@ -18,11 +19,12 @@ export function OnboardingForm() {
   const [heightUnit, setHeightUnit] = useState<"ftin" | "cm">("ftin");
   const [weightUnit, setWeightUnit] = useState<"lb" | "kg">("lb");
   const [ownHabit, setOwnHabit] = useState("");
+  const errorRef = useScrollToError(state.error);
 
   return (
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       {state.error ? (
-        <p role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink">
+        <p ref={errorRef as React.RefObject<HTMLParagraphElement>} tabIndex={-1} role="alert" className="rounded-lg border border-red bg-surface px-3 py-2 text-sm text-red-ink outline-none">
           {state.error}
         </p>
       ) : null}
