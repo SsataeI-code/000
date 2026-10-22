@@ -3,6 +3,7 @@ import { BottomTabBar, type TabItem } from "@/components/BottomTabBar";
 import { BrandLogo } from "@/components/BrandLogo";
 import { HelpLauncher } from "@/components/help/HelpLauncher";
 import { TimezoneSync } from "@/components/client/TimezoneSync";
+import { InstallPrompt } from "@/components/client/InstallPrompt";
 import { SignOutButton } from "@/components/SignOutButton";
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
@@ -74,7 +75,11 @@ export default async function ClientLayout({ children }: { children: React.React
         />
       ) : null}
 
-      <div className="rise px-5 py-6">{children}</div>
+      <div className="rise px-5 py-6">
+        {/* Nudge clients to install the PWA (free home-screen app). Self-hides once installed/dismissed. */}
+        <InstallPrompt />
+        {children}
+      </div>
 
       {/* Report the browser timezone so daily stats reset at the client's midnight. */}
       <TimezoneSync />
