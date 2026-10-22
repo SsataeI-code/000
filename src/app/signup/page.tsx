@@ -27,7 +27,7 @@ export default async function SignupPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-6 py-12">
-      <Link href="/" className="mb-6 flex items-center justify-center gap-2.5">
+      <Link href="/" className="mb-6 flex min-h-tap items-center justify-center gap-2.5">
         <BrandLogo size={30} />
         <span className="font-label text-sm uppercase tracking-wide text-ink">
           {getCopy("brand.name", overrides)}
@@ -37,7 +37,7 @@ export default async function SignupPage({
       <div className="rise rounded-xl border border-hairline bg-surface p-6 sm:p-8">
         <h1 className="text-3xl text-ink">{getCopy("auth.signup.title", overrides)}</h1>
         <p className="mt-2 font-body text-ink/60">{getCopy("auth.signup.subtitle", overrides)}</p>
-        <p className="mt-3 font-label text-[13px] uppercase tracking-wide text-red/80">
+        <p className="mt-3 font-label text-[13px] uppercase tracking-wide text-red-ink">
           {getCopy("auth.signup.reassure", overrides)}
         </p>
 

@@ -12,7 +12,7 @@ export default async function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-6 py-12">
-      <Link href="/" className="mb-6 flex items-center justify-center gap-2.5">
+      <Link href="/" className="mb-6 flex min-h-tap items-center justify-center gap-2.5">
         <BrandLogo size={30} />
         <span className="font-label text-sm uppercase tracking-wide text-ink">
           {getCopy("brand.name", overrides)}

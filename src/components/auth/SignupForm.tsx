@@ -77,7 +77,7 @@ export function SignupForm({
         {pending ? t("common.loading") : t("auth.signup.submit")}
       </Button>
 
-      <Link href="/login" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
+      <Link href="/login" className="inline-flex min-h-tap items-center justify-center text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
         {t("auth.signup.toLogin")}
       </Link>
     </form>

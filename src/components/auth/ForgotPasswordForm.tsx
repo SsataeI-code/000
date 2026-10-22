@@ -17,7 +17,7 @@ export function ForgotPasswordForm({ overrides = {} }: { overrides?: CopyOverrid
     return (
       <div className="flex flex-col gap-5">
         <p role="status" className="rounded-lg border border-success bg-surface px-3 py-2 text-sm text-success">{state.notice}</p>
-        <Link href="/login" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
+        <Link href="/login" className="inline-flex min-h-tap items-center justify-center text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
           {t("auth.forgot.toLogin")}
         </Link>
       </div>
@@ -36,7 +36,7 @@ export function ForgotPasswordForm({ overrides = {} }: { overrides?: CopyOverrid
         {pending ? t("common.loading") : t("auth.forgot.submit")}
       </Button>
 
-      <Link href="/login" className="text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
+      <Link href="/login" className="inline-flex min-h-tap items-center justify-center text-center font-body text-sm text-ink/70 underline underline-offset-4 hover:text-red">
         {t("auth.forgot.toLogin")}
       </Link>
     </form>
