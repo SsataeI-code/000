@@ -46,6 +46,12 @@ export const IconYou = (p: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const IconTrain = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M6.5 6.5v11M3.5 9v6M17.5 6.5v11M20.5 9v6M6.5 12h11" />
+  </svg>
+);
+
 export const IconRoster = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base} {...p}>
     <circle cx="9" cy="8" r="3" />

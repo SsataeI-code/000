@@ -13,7 +13,7 @@ import { getCopyServer } from "@/lib/content/data";
 import { getViewerGame } from "@/lib/habits/state";
 import { LevelBar } from "@/components/habits/LevelBar";
 import { MilestoneCelebration } from "@/components/habits/MilestoneCelebration";
-import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou } from "@/components/icons";
+import { IconBody, IconFood, IconHabits, IconMessages, IconToday, IconYou, IconTrain } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
 export const dynamic = "force-dynamic";
@@ -32,6 +32,7 @@ export default async function ClientLayout({ children }: { children: React.React
     { href: "/client", label: t("client.nav.today"), icon: <IconToday /> },
     { href: "/client/habits", label: t("client.nav.habits"), icon: <IconHabits /> },
     { href: "/client/food", label: t("client.nav.food"), icon: <IconFood /> },
+    { href: "/client/train", label: t("client.nav.train"), icon: <IconTrain /> },
     { href: "/client/body", label: t("client.nav.body"), icon: <IconBody /> },
     { href: "/client/messages", label: t("client.nav.coach"), icon: <IconMessages /> },
     { href: "/client/you", label: t("client.nav.you"), icon: <IconYou /> },

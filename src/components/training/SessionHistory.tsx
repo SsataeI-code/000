@@ -45,8 +45,8 @@ function byExercise(sets: (SessionSet & { exerciseName: string })[]) {
   return groups;
 }
 
-/** Read-only workout history; coaches/owner get a delete control per session. */
-export function SessionHistory({ sessions, clientId, canDelete = false }: { sessions: SessionWithSets[]; clientId: string; canDelete?: boolean }) {
+/** Read-only workout history; a delete control shows where the viewer can delete. */
+export function SessionHistory({ sessions, clientId, canDelete = false, viewerIsCoach = false }: { sessions: SessionWithSets[]; clientId: string; canDelete?: boolean; viewerIsCoach?: boolean }) {
   const router = useRouter();
   const [pending, start] = useTransition();
 
@@ -74,7 +74,7 @@ export function SessionHistory({ sessions, clientId, canDelete = false }: { sess
                 <span className="font-label text-sm uppercase tracking-wide text-ink/45">
                   {s.source === "client" ? "Client-logged" : "Coach"} · {totalSets} set{totalSets === 1 ? "" : "s"}
                 </span>
-                {canDelete ? (
+                {canDelete && (viewerIsCoach || s.source === "client") ? (
                   <button type="button" onClick={() => del(s.id)} disabled={pending} className="min-h-tap font-label text-sm uppercase tracking-wide text-ink/40 hover:text-red disabled:opacity-40">Delete</button>
                 ) : null}
               </span>

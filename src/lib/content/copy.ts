@@ -71,6 +71,7 @@ export const defaultCopy = {
   "client.nav.body": "Progress",
   "client.nav.coach": "Coach",
   "client.nav.you": "You",
+  "client.nav.train": "Train",
 
   "client.invite.title": "Invite a friend",
   "client.invite.body":
@@ -94,6 +95,7 @@ export const defaultCopy = {
   "coach.nav.attention": "Attention",
   "coach.nav.messages": "Messages",
   "coach.nav.you": "You",
+  "coach.nav.train": "Train",
 
   "common.signout": "Sign out",
   "common.loading": "One sec…",

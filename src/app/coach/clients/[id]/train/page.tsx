@@ -45,7 +45,7 @@ export default async function ClientTrainPage({ params }: { params: Promise<{ id
 
       <section className="flex flex-col gap-3">
         <h2 className="text-2xl text-ink">History</h2>
-        <SessionHistory sessions={sessions} clientId={id} canDelete />
+        <SessionHistory sessions={sessions} clientId={id} canDelete viewerIsCoach />
       </section>
     </div>
   );

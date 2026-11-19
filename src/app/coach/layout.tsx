@@ -7,7 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { canAccessArea, hasCoachPowers } from "@/lib/auth/roles";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { getCopyServer } from "@/lib/content/data";
-import { IconAttention, IconMessages, IconRoster, IconYou } from "@/components/icons";
+import { IconAttention, IconMessages, IconRoster, IconYou, IconTrain } from "@/components/icons";
 
 // Per-user, auth-gated surface — never statically cached (§2 reliability).
 export const dynamic = "force-dynamic";
@@ -23,6 +23,7 @@ export default async function CoachLayout({ children }: { children: React.ReactN
   const tabs: TabItem[] = [
     { href: "/coach", label: t("coach.nav.attention"), icon: <IconAttention /> },
     { href: "/coach/roster", label: t("coach.nav.roster"), icon: <IconRoster /> },
+    { href: "/coach/train", label: t("coach.nav.train"), icon: <IconTrain /> },
     { href: "/coach/messages", label: t("coach.nav.messages"), icon: <IconMessages /> },
     { href: "/coach/you", label: t("coach.nav.you"), icon: <IconYou /> },
   ];

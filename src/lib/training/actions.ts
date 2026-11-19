@@ -49,8 +49,8 @@ export async function logWorkoutAction(input: LogWorkoutInput): Promise<Training
   // Who may log for whom, and under which source.
   let source: "coach" | "client";
   let coachId: string | null;
-  if (user.role === "client") {
-    if (clientId !== user.id) return { error: "You can only log your own workouts." };
+  if (clientId === user.id) {
+    // Logging your own workout (any role dogfooding their own Train screen).
     source = "client";
     coachId = null;
   } else if (user.role === "coach" || user.role === "owner") {
@@ -60,7 +60,7 @@ export async function logWorkoutAction(input: LogWorkoutInput): Promise<Training
     source = "coach";
     coachId = user.id;
   } else {
-    return { error: "Not allowed." };
+    return { error: "You can only log your own workouts." };
   }
 
   // Keep only sets that carry at least one real value.
