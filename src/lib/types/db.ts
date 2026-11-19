@@ -70,6 +70,9 @@ export type ClientProfile = {
   diet_pattern: string;
   food_avoid: string;
   is_top_client: boolean;
+  injuries: string | null;
+  equipment: string | null;
+  training_unit: "lb" | "kg";
   created_at: string;
   updated_at: string;
 };
@@ -105,6 +108,121 @@ export type LiftLog = {
   sets: number;
   note: string | null;
   created_at: string;
+};
+
+// --- Training module (exercises, templates, programs, sessions, PRs) ---
+
+export type TrainingTrackingType = "weight_reps" | "bodyweight_reps" | "time" | "distance_time" | "reps";
+export type SessionSource = "coach" | "client";
+export type SessionStatus = "in_progress" | "completed" | "abandoned";
+export type PrType = "weight" | "reps" | "e1rm" | "time" | "distance";
+
+export type Exercise = {
+  id: string;
+  name: string;
+  muscle_groups: string[];
+  pattern: string | null;
+  equipment: string | null;
+  tracking_type: TrainingTrackingType;
+  cues: string | null;
+  video_url: string | null;
+  created_by: string | null;
+  is_global: boolean;
+  created_at: string;
+};
+
+export type WorkoutTemplate = {
+  id: string;
+  coach_id: string;
+  name: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TemplateExercise = {
+  id: string;
+  template_id: string;
+  exercise_id: string;
+  order_no: number;
+  superset_group: string | null;
+  target_sets: number | null;
+  target_reps: string | null;
+  target_load: string | null;
+  rest_sec: number | null;
+  notes: string | null;
+};
+
+export type Program = {
+  id: string;
+  coach_id: string;
+  name: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProgramWeek = {
+  id: string;
+  program_id: string;
+  week_no: number;
+};
+
+export type ProgramDay = {
+  id: string;
+  program_week_id: string;
+  day_no: number;
+  template_id: string | null;
+  title: string | null;
+};
+
+export type ClientProgram = {
+  id: string;
+  client_id: string;
+  program_id: string;
+  start_date: string;
+  overrides: Record<string, unknown>;
+  created_at: string;
+};
+
+export type WorkoutSession = {
+  id: string;
+  client_id: string;
+  coach_id: string | null;
+  log_date: string;
+  source: SessionSource;
+  status: SessionStatus;
+  notes: string | null;
+  client_note: string | null;
+  duration_sec: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SessionSet = {
+  id: string;
+  session_id: string;
+  exercise_id: string;
+  set_no: number;
+  weight: number | null;
+  reps: number | null;
+  time_sec: number | null;
+  distance: number | null;
+  rpe: number | null;
+  completed: boolean;
+  is_pr: boolean;
+  created_at: string;
+};
+
+export type PersonalRecord = {
+  id: string;
+  client_id: string;
+  exercise_id: string;
+  type: PrType;
+  value: number;
+  unit: string | null;
+  set_id: string | null;
+  achieved_at: string;
 };
 
 export type JournalEntry = {
@@ -469,6 +587,66 @@ export type Database = {
         Update: Partial<CheckIn>;
         Relationships: [];
       };
+      exercises: {
+        Row: Exercise;
+        Insert: Partial<Exercise> & { name: string };
+        Update: Partial<Exercise>;
+        Relationships: [];
+      };
+      workout_templates: {
+        Row: WorkoutTemplate;
+        Insert: Partial<WorkoutTemplate> & { coach_id: string; name: string };
+        Update: Partial<WorkoutTemplate>;
+        Relationships: [];
+      };
+      template_exercises: {
+        Row: TemplateExercise;
+        Insert: Partial<TemplateExercise> & { template_id: string; exercise_id: string };
+        Update: Partial<TemplateExercise>;
+        Relationships: [];
+      };
+      programs: {
+        Row: Program;
+        Insert: Partial<Program> & { coach_id: string; name: string };
+        Update: Partial<Program>;
+        Relationships: [];
+      };
+      program_weeks: {
+        Row: ProgramWeek;
+        Insert: Partial<ProgramWeek> & { program_id: string };
+        Update: Partial<ProgramWeek>;
+        Relationships: [];
+      };
+      program_days: {
+        Row: ProgramDay;
+        Insert: Partial<ProgramDay> & { program_week_id: string };
+        Update: Partial<ProgramDay>;
+        Relationships: [];
+      };
+      client_programs: {
+        Row: ClientProgram;
+        Insert: Partial<ClientProgram> & { client_id: string; program_id: string };
+        Update: Partial<ClientProgram>;
+        Relationships: [];
+      };
+      workout_sessions: {
+        Row: WorkoutSession;
+        Insert: Partial<WorkoutSession> & { client_id: string };
+        Update: Partial<WorkoutSession>;
+        Relationships: [];
+      };
+      session_sets: {
+        Row: SessionSet;
+        Insert: Partial<SessionSet> & { session_id: string; exercise_id: string };
+        Update: Partial<SessionSet>;
+        Relationships: [];
+      };
+      personal_records: {
+        Row: PersonalRecord;
+        Insert: Partial<PersonalRecord> & { client_id: string; exercise_id: string; type: PrType; value: number };
+        Update: Partial<PersonalRecord>;
+        Relationships: [];
+      };
       coach_prefs: {
         Row: CoachPrefs;
         Insert: Partial<CoachPrefs> & { coach_id: string };
@@ -559,6 +737,10 @@ export type Database = {
       message_kind: MessageKind;
       notification_kind: NotificationKind;
       referral_status: ReferralStatus;
+      training_tracking_type: TrainingTrackingType;
+      session_source: SessionSource;
+      session_status: SessionStatus;
+      pr_type: PrType;
     };
     CompositeTypes: Record<never, never>;
   };
