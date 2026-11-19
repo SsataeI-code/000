@@ -265,6 +265,17 @@ export default async function ClientDeepDive({
         <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Open →</span>
       </Link>
 
+      <Link
+        href={`/coach/clients/${id}/train`}
+        className="flex items-center justify-between rounded-2xl border border-hairline bg-surface shadow-card p-4 hover:border-red"
+      >
+        <span className="min-w-0">
+          <span className="block font-body text-base text-ink">Workouts &amp; training</span>
+          <span className="block font-body text-sm text-ink/50">Log a workout, record test numbers, and see their history</span>
+        </span>
+        <span aria-hidden className="shrink-0 font-label text-sm uppercase tracking-wide text-red">Open →</span>
+      </Link>
+
       {wearableDays.length > 0 ? <WearableSummary days={wearableDays} /> : null}
 
       {lifts.length > 0 ? (
