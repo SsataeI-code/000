@@ -4,9 +4,10 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/supabase/env";
 import { coachHasClient } from "@/lib/coach/data";
-import { getExercises, getClientSessions } from "@/lib/training/data";
+import { getExercises, getClientSessions, getTrainingProgress } from "@/lib/training/data";
 import { WorkoutLogger } from "@/components/training/WorkoutLogger";
 import { SessionHistory } from "@/components/training/SessionHistory";
+import { TrainingProgress } from "@/components/training/TrainingProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function ClientTrainPage({ params }: { params: Promise<{ id
   const { data: nameRow } = await supabase.from("profiles").select("display_name").eq("id", id).maybeSingle();
   const name = nameRow?.display_name ?? "This client";
 
-  const [exercises, sessions] = await Promise.all([getExercises(), getClientSessions(id, 20)]);
+  const [exercises, sessions, progress] = await Promise.all([getExercises(), getClientSessions(id, 20), getTrainingProgress(id)]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,6 +37,11 @@ export default async function ClientTrainPage({ params }: { params: Promise<{ id
       </div>
 
       <WorkoutLogger exercises={exercises} clientId={id} />
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-2xl text-ink">Progress &amp; stats</h2>
+        <TrainingProgress progress={progress} />
+      </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-2xl text-ink">History</h2>
